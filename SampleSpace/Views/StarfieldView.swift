@@ -1,13 +1,23 @@
 import SwiftUI
 
 /// Animated background: drifting, twinkling stars over two soft nebulae.
-/// Pauses its animation when the system "Reduce motion" setting is on.
+/// The stars hold still when the system "Reduce motion" setting is on, when the background
+/// animation is switched off in Settings, while the window isn't active, and behind work
+/// screens (levels, labs, the Workbench), where panels cover most of it anyway (`animated: false`).
+/// The drift is slow, so 20 frames a second is plenty.
 struct StarfieldView: View {
+    var animated = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.controlActiveState) private var activeState
+    @AppStorage(Preferences.animatedBackground) private var animatedBackground = true
     private let stars = Star.generate(count: 280, seed: 7)
 
+    private var paused: Bool {
+        !animated || reduceMotion || !animatedBackground || activeState == .inactive
+    }
+
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion)) { context in
+        TimelineView(.animation(minimumInterval: 1.0 / 20.0, paused: paused)) { context in
             let t = context.date.timeIntervalSinceReferenceDate
             Canvas { ctx, size in
                 let bounds = CGRect(origin: .zero, size: size)

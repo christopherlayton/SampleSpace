@@ -100,6 +100,7 @@ private struct TintedIconLabel: LabelStyle {
 /// Renders lesson Markdown: headings, paragraphs, lists, quotes ("Coming from SPSS?"
 /// call-outs), tables and highlighted R code blocks.
 struct MarkdownView: View {
+    @Environment(\.lessonFontSize) private var lessonFontSize
     let markdown: String
     /// What to show at a `{{name}}` placeholder line (nothing if it returns nil).
     var slot: (String) -> AnyView?
@@ -117,6 +118,7 @@ struct MarkdownView: View {
                 view(for: block)
             }
         }
+        .font(.system(size: lessonFontSize))
         .textSelection(.enabled)
     }
 
@@ -191,13 +193,14 @@ struct MarkdownView: View {
 
 /// A read-only, highlighted R code block.
 struct CodeBlock: View {
+    @Environment(\.codeFontSize) private var codeFontSize
     let code: String
     /// Highlight as a Quarto document rather than R.
     var isDocument = false
 
     var body: some View {
         Text(isDocument ? RSyntax.attributedDocument(code) : RSyntax.attributed(code))
-            .font(Theme.codeFont)
+            .font(Theme.code(codeFontSize))
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)

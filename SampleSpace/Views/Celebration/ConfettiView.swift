@@ -8,10 +8,12 @@ struct ConfettiView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var start = Date.now
     @State private var particles: [Particle] = []
+    /// The burst is over: stop the timeline, which would otherwise tick for as long as the card shows.
+    @State private var finished = false
 
     var body: some View {
         if !reduceMotion {
-            TimelineView(.animation) { context in
+            TimelineView(.animation(paused: finished)) { context in
                 let t = context.date.timeIntervalSince(start)
                 Canvas { ctx, size in
                     guard t < duration else { return }
@@ -40,6 +42,10 @@ struct ConfettiView: View {
                 start = .now
                 var rng = SystemRandomNumberGenerator()
                 particles = (0..<count).map { _ in Particle.random(using: &rng) }
+            }
+            .task {
+                try? await Task.sleep(for: .seconds(duration + 0.1))
+                finished = true
             }
         }
     }

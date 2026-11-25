@@ -7,10 +7,10 @@ import Observation
 final class GameModel {
     private(set) var library: ContentLibrary?
     private(set) var loadError: String?
-    let engine: REngine?
-    let engineError: String?
+    private(set) var engine: REngine?
+    private(set) var engineError: String?
     /// Quarto, for rendering reports; nil when it isn't installed.
-    let quarto: QuartoRenderer?
+    private(set) var quarto: QuartoRenderer?
 
     /// Level ids pushed on top of the star map.
     var path: [String] = []
@@ -38,15 +38,26 @@ final class GameModel {
         } catch {
             loadError = error.localizedDescription
         }
-        do {
-            engine = try REngine()
-            engineError = nil
-        } catch {
-            engine = nil
-            engineError = error.localizedDescription
-        }
-        quarto = engine.flatMap { QuartoRenderer(rscriptURL: $0.rscriptURL) }
+        (engine, engineError, quarto) = Self.makeEngine()
         refreshUnlocks()
+    }
+
+    /// R and Quarto, from the paths in Settings (or the usual places when those are empty).
+    private static func makeEngine() -> (REngine?, String?, QuartoRenderer?) {
+        do {
+            let engine = try REngine(rscriptPath: Preferences.customRscriptPath)
+            return (engine, nil, QuartoRenderer(rscriptURL: engine.rscriptURL, quartoPath: Preferences.customQuartoPath))
+        } catch {
+            return (nil, error.localizedDescription, nil)
+        }
+    }
+
+    /// Finds R and Quarto again after their paths change in Settings. Open levels get fresh
+    /// sessions; code drafts are kept (they are saved in the progress file).
+    func reloadEngine() {
+        for session in sessions.values { session.cancel() }
+        sessions = [:]
+        (engine, engineError, quarto) = Self.makeEngine()
     }
 
     // MARK: Reading state

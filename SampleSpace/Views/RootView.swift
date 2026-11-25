@@ -28,12 +28,16 @@ enum Destination: String, CaseIterable, Identifiable {
 
 struct RootView: View {
     @State private var destination: Destination? = .map
-    @State private var model = GameModel()
+    @Environment(GameModel.self) private var model
+    @AppStorage(Preferences.codeFontSize) private var codeFontSize = Preferences.defaultCodeFontSize
+    @AppStorage(Preferences.lessonFontSize) private var lessonFontSize = Preferences.defaultLessonFontSize
+    @AppStorage(Preferences.hasSeenOnboarding) private var hasSeenOnboarding = false
     /// The Workbench pushes nothing, but a path-bound stack keeps SwiftUI happy when the
     /// detail column switches between stacks.
     @State private var workbenchPath: [String] = []
 
     var body: some View {
+        @Bindable var model = model
         NavigationSplitView {
             List(Destination.allCases, selection: $destination) { item in
                 Label(item.title, systemImage: item.symbol)
@@ -66,7 +70,12 @@ struct RootView: View {
             }
         }
         .overlay(alignment: .bottom) { BadgeToast() }
-        .environment(model)
+        .environment(\.codeFontSize, CGFloat(codeFontSize))
+        .environment(\.lessonFontSize, CGFloat(lessonFontSize))
+        .sheet(isPresented: Binding(get: { !hasSeenOnboarding }, set: { if !$0 { hasSeenOnboarding = true } })) {
+            OnboardingView { hasSeenOnboarding = true }
+                .environment(model)
+        }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
             model.save()
         }

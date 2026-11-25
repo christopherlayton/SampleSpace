@@ -180,6 +180,7 @@ struct ReviewView: View {
 // MARK: - One card
 
 private struct ReviewCardView: View {
+    @Environment(\.codeFontSize) private var codeFontSize
     let card: ReviewCard
     @Binding var session: ReviewSession
     let onEnd: () -> Void
@@ -278,7 +279,7 @@ private struct ReviewCardView: View {
                     .background(tint.opacity(0.25), in: Circle())
                 Group {
                     if card.choicesAreCode {
-                        Text(card.choices[index]).font(Theme.codeFont)
+                        Text(card.choices[index]).font(Theme.code(codeFontSize))
                     } else {
                         Text(AttributedString.inlineMarkdown(card.choices[index]))
                     }
@@ -314,7 +315,7 @@ private struct ReviewCardView: View {
     private var fillField: some View {
         HStack(spacing: 10) {
             TextField("What goes in the blank?", text: $typed)
-                .font(Theme.codeFont)
+                .font(Theme.code(codeFontSize))
                 .textFieldStyle(.roundedBorder)
                 .autocorrectionDisabled()
                 .focused($fieldFocused)
@@ -339,6 +340,7 @@ private struct ReviewCardView: View {
     // MARK: Answering
 
     private func submit(correct: Bool) {
+        SoundEffects.play(correct ? .reviewRight : .reviewWrong)
         session.record(correct: correct)
         outcome = model.recordReview(card, correct: correct)
     }
@@ -352,7 +354,7 @@ private struct ReviewCardView: View {
             if card.kind == .fill, let answer = card.answers.first {
                 HStack(spacing: 6) {
                     Text(right ? "Accepted:" : "The blank is")
-                    Text(answer).font(Theme.codeFont).foregroundStyle(Theme.accent)
+                    Text(answer).font(Theme.code(codeFontSize)).foregroundStyle(Theme.accent)
                 }
                 .font(.callout)
             }

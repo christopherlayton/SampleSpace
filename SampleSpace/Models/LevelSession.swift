@@ -36,6 +36,8 @@ final class LevelSession {
     private(set) var lastStatus: RRunResult.Status?
     private(set) var lastDuration: Double?
     private(set) var lastRunWasCheck = false
+    /// Bumped each time a Check's results arrive (for sounds and VoiceOver announcements).
+    private(set) var checkResultsVersion = 0
     /// The knitted report from the last run, for documents (`{{plot:N}}` marks figures).
     private(set) var document: String?
     private(set) var documentTitle: String?
@@ -199,6 +201,7 @@ final class LevelSession {
         if check {
             checks = result.checks
             outputTab = .checks
+            defer { checkResultsVersion += 1 }
             if isBoss {
                 let before = stepsPassed
                 stepsPassed = Self.stepsPassed(result.checks, stepCount: steps.count)

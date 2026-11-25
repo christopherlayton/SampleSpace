@@ -4,12 +4,16 @@ import SwiftUI
 struct StarMapView: View {
     @Environment(GameModel.self) private var model
     @State private var selectedID: Sector.ID?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.controlActiveState) private var activeState
     private var sectors: [Sector] { model.sectors }
+    /// The map stays alive under a pushed level, so it only animates while it's on screen.
+    private var onScreen: Bool { model.path.isEmpty }
     private let mapSize = CGSize(width: 1500, height: 900)
 
     var body: some View {
         ZStack {
-            StarfieldView()
+            StarfieldView(animated: onScreen)
 
             ScrollView([.horizontal, .vertical]) {
                 ZStack {
@@ -18,7 +22,8 @@ struct StarMapView: View {
                         Button {
                             withAnimation(.spring(duration: 0.35)) { selectedID = sector.id }
                         } label: {
-                            PlanetNode(sector: sector, isSelected: sector.id == selectedID)
+                            PlanetNode(sector: sector, isSelected: sector.id == selectedID,
+                                       animated: onScreen && !reduceMotion && activeState != .inactive)
                         }
                         .buttonStyle(.plain)
                         .position(x: sector.mapPosition.x * mapSize.width,
@@ -90,8 +95,9 @@ private struct RouteView: View {
 private struct PlanetNode: View {
     let sector: Sector
     let isSelected: Bool
+    /// Whether the "you are here" ring pulses (off when the map is covered or the window inactive).
+    var animated = true
     @State private var hovering = false
-    @State private var pulse = false
 
     private var locked: Bool { sector.status == .locked }
 
@@ -105,14 +111,18 @@ private struct PlanetNode: View {
                         .blur(radius: 18)
                 }
                 if sector.status == .current {
-                    Circle()
-                        .stroke(Theme.accent.opacity(pulse ? 0 : 0.8), lineWidth: 2)
-                        .frame(width: sector.planetSize * (pulse ? 1.9 : 1.15))
-                        .onAppear {
-                            withAnimation(.easeOut(duration: 1.8).repeatForever(autoreverses: false)) {
-                                pulse = true
-                            }
-                        }
+                    // A ring that grows and fades every 1.8 s, driven by a timeline that pauses
+                    // (unlike a repeatForever animation, which keeps running off screen).
+                    TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !animated)) { context in
+                        let phase = animated ? context.date.timeIntervalSinceReferenceDate
+                            .truncatingRemainder(dividingBy: 1.8) / 1.8 : 0.3
+                        let eased = 1 - (1 - phase) * (1 - phase)
+                        Circle()
+                            .stroke(Theme.accent.opacity(0.8 * (1 - eased)), lineWidth: 2)
+                            .frame(width: sector.planetSize * (1.15 + 0.75 * eased))
+                    }
+                    .frame(width: sector.planetSize * 1.9, height: sector.planetSize * 1.9)
+                    .accessibilityHidden(true)
                 }
                 planetBody
                 if sector.hasRing {
@@ -337,11 +347,13 @@ private struct SectorPanel: View {
                 Image(systemName: "lock.fill")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .accessibilityLabel("Locked")
             } else {
                 Image(systemName: level.type.symbol)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .help(level.type.displayName)
+                    .accessibilityLabel("\(level.type.displayName) level")
             }
         }
         .padding(6)

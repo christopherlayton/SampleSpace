@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// A level: the briefing on the left, the editor and its output on the right.
@@ -8,13 +9,14 @@ import SwiftUI
 struct LevelView: View {
     let level: Level
     @Environment(GameModel.self) private var model
+    @Environment(\.codeFontSize) private var codeFontSize
     @State private var confirmReset = false
     @State private var confirmSolution = false
 
     var body: some View {
         let session = model.session(for: level)
         ZStack {
-            StarfieldView()
+            StarfieldView(animated: false)
             HSplitView {
                 LessonView(level: level, sector: model.sector(containing: level), session: session)
                     .frame(minWidth: 300, idealWidth: 400, maxWidth: 560)
@@ -58,6 +60,11 @@ struct LevelView: View {
         .navigationTitle(level.title)
         .navigationSubtitle(model.sector(containing: level)?.name ?? "")
         .onDisappear { session.cancel() }
+        .onChange(of: session.checkResultsVersion) { _, _ in checkFeedback(session) }
+        .onChange(of: session.completion) { _, completion in
+            guard let completion else { return }
+            SoundEffects.play(completion.outcome.rankUp != nil ? .promotion : .levelCleared)
+        }
         .confirmationDialog("Put the starter code back?", isPresented: $confirmReset) {
             Button("Reset Code", role: .destructive) { session.reset() }
         } message: {
@@ -69,6 +76,24 @@ struct LevelView: View {
         } message: {
             Text("You can still finish the level, but this attempt will earn at most one star.")
         }
+    }
+
+    /// A sound, and for VoiceOver a spoken summary, when a Check's results arrive. A clear has
+    /// its own sound (the completion card), and a Boss step its own announcement (the step bar).
+    private func checkFeedback(_ session: LevelSession) {
+        guard session.completion == nil, !session.checks.isEmpty else { return }
+        if session.stepJustCleared != nil {
+            SoundEffects.play(.stepCleared)
+            return
+        }
+        SoundEffects.play(session.checks.allSatisfy(\.passed) ? .checkPassed : .checkFailed)
+        let passed = session.checks.filter(\.passed).count
+        var text = "\(passed) of \(session.checks.count) checks passed."
+        if let first = session.checks.first(where: { !$0.passed }) { text += " Next: \(first.label)" }
+        if session.isBoss { text = "Step \(min(session.currentStep, session.steps.count)) of \(session.steps.count). " + text }
+        NSAccessibility.post(element: NSApp.mainWindow as Any, notification: .announcementRequested,
+                             userInfo: [.announcement: text.replacingOccurrences(of: "`", with: ""),
+                                        .priority: NSAccessibilityPriorityLevel.high.rawValue])
     }
 
     private var bugReport: some View {
@@ -92,7 +117,7 @@ struct LevelView: View {
                 Divider()
                 if level.type == .debug { bugReport }
                 if session.isBoss { BossStepBar(session: session) }
-                CodeEditor(text: Bindable(session).code, language: level.isDocument ? .quarto : .r)
+                CodeEditor(text: Bindable(session).code, language: level.isDocument ? .quarto : .r, fontSize: codeFontSize)
             }
             .frame(minHeight: 220, idealHeight: 380)
 

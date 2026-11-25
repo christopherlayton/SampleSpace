@@ -24,6 +24,7 @@ struct BadgeToast: View {
                 .id(badge.id)
                 .onTapGesture { dismiss() }
                 .task(id: badge.id) {
+                    SoundEffects.play(.badge)
                     try? await Task.sleep(for: .seconds(3.5))
                     dismiss()
                 }

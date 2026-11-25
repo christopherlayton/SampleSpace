@@ -4,6 +4,7 @@ import SwiftUI
 /// Pick a choice (click or press its number), lock it in (⇧⌘↩), then read why. On Predict
 /// levels the question's code then runs in real R so the actual output sits under your guess.
 struct QuizView: View {
+    @Environment(\.codeFontSize) private var codeFontSize
     let session: LevelSession
     let onShowSolution: () -> Void
     @Environment(GameModel.self) private var model
@@ -169,7 +170,7 @@ struct QuizView: View {
                     .background(tint.opacity(0.25), in: Circle())
                 Group {
                     if question.showsChoicesAsCode {
-                        Text(text).font(Theme.codeFont)
+                        Text(text).font(Theme.code(codeFontSize))
                     } else {
                         Text(AttributedString.inlineMarkdown(text))
                     }

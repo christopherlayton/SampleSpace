@@ -77,7 +77,7 @@ struct LabSandboxView: View {
 
     var body: some View {
         ZStack {
-            StarfieldView()
+            StarfieldView(animated: false)
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     if let kind = level.lab?.kind {

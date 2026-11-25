@@ -7,6 +7,7 @@ import UniformTypeIdentifiers
 /// It's the Dissertation Dry Run without the Crew Log: the place to try your real analysis.
 struct WorkbenchView: View {
     @Environment(GameModel.self) private var model
+    @Environment(\.codeFontSize) private var codeFontSize
     @State private var files: [URL] = []
     @State private var confirmTemplate = false
     @State private var fileToRemove: URL?
@@ -15,7 +16,7 @@ struct WorkbenchView: View {
     var body: some View {
         let session = model.workbenchSession()
         ZStack {
-            StarfieldView()
+            StarfieldView(animated: false)
             HSplitView {
                 dataPanel
                     .frame(minWidth: 240, idealWidth: 280, maxWidth: 360)
@@ -24,7 +25,7 @@ struct WorkbenchView: View {
                     VStack(spacing: 0) {
                         actionBar(session)
                         Divider()
-                        CodeEditor(text: Bindable(session).code, language: .quarto)
+                        CodeEditor(text: Bindable(session).code, language: .quarto, fontSize: codeFontSize)
                     }
                     .frame(minHeight: 240, idealHeight: 420)
                     OutputPanel(session: session)

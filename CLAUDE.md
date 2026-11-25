@@ -12,6 +12,8 @@ A personal macOS SwiftUI game for learning R and statistics (doctoral student mo
 - `scripts/run.sh` — builds, then launches the app.
 - `scripts/test.sh` — runs the unit tests (they run real R through `REngine`).
 - Launch flags: `-ProgressFile /path.json` plays against another save; `-UnlockAll YES` opens every sector and level (to try content behind unwritten sectors).
+- `swift scripts/make_app_icon.swift` (with the `DEVELOPER_DIR` prefix) redraws the app icon into `Assets.xcassets`.
+- Settings (⌘,) live in UserDefaults (`App/Preferences.swift`): sounds, starfield animation, code/lesson text sizes, custom Rscript/quarto paths. The welcome tour shows until `hasSeenOnboarding` is set.
 
 Xcode-beta is the only Xcode and is not the selected toolchain, so the scripts set
 `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer`. Use the same prefix for any direct `xcodebuild` call.

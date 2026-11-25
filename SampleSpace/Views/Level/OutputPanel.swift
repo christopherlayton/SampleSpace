@@ -118,12 +118,13 @@ struct ConsoleView: View {
 }
 
 struct ConsoleLine: View {
+    @Environment(\.codeFontSize) private var codeFontSize
     let entry: ConsoleEntry
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(entry.consoleText)
-                .font(Theme.codeFont)
+                .font(Theme.code(codeFontSize))
                 .foregroundStyle(color)
                 .fixedSize(horizontal: false, vertical: true)
             if let explanation = ErrorExplainer.explain(entry) {
