@@ -1,0 +1,58 @@
+{
+  "id": "probability-expanse.distribution-sculptor",
+  "title": "Distribution Sculptor",
+  "summary": "Shape a normal curve, shade its areas and read them as proportions, then get the same numbers with pnorm() and qnorm().",
+  "type": "lab",
+  "xp": 140,
+  "par": 3,
+  "hints": [
+    "`pnorm(x, mean = 100, sd = 15)` gives the area **below** x. For the area above, add `lower.tail = FALSE`.",
+    "A z-score is (score − mean) / SD, so `z_130 <- (130 - 100) / 15`.",
+    "`qnorm()` turns proportions back into scores. The middle 95% runs from the 2.5th to the 97.5th percentile: `qnorm(c(0.025, 0.975), mean = 100, sd = 15)`."
+  ],
+  "lab": {
+    "kind": "distribution_sculptor",
+    "settings": {
+      "x_range": [40, 160],
+      "mean_range": [60, 140],
+      "sd_range": [5, 30],
+      "start_mean": 80,
+      "start_sd": 10,
+      "shade": "below",
+      "cutoff": 90,
+      "cutoff2": 110
+    },
+    "goals": [
+      {
+        "text": "Set the curve to the test's scale: **mean 100, SD 15**.",
+        "detail": "Use the sliders or type the values. A bigger SD spreads the curve out and flattens it: the total area is always 1.",
+        "when": [
+          { "reading": "mean", "equals": 100, "tolerance": 0.5 },
+          { "reading": "sd", "equals": 15, "tolerance": 0.25 }
+        ]
+      },
+      {
+        "text": "Shade every score **above 130**. What is its z-score?",
+        "detail": "Pick *Above*, then drag the cutoff or type 130. It sits two SDs above the mean (z = 2.00), and only about 2.3% of scores are higher.",
+        "when": [
+          { "reading": "shade_above", "equals": 1 },
+          { "reading": "mean", "equals": 100, "tolerance": 0.5 },
+          { "reading": "sd", "equals": 15, "tolerance": 0.25 },
+          { "reading": "cutoff", "equals": 130, "tolerance": 0.5 }
+        ]
+      },
+      {
+        "text": "Shade the **middle 95%** of scores, split evenly around the mean.",
+        "detail": "Pick *Between* and move the two cutoffs out until the area reads about 0.95. Their z-scores land near ±1.96, a number you'll meet again in every 95% confidence interval.",
+        "when": [
+          { "reading": "shade_between", "equals": 1 },
+          { "reading": "mean", "equals": 100, "tolerance": 0.5 },
+          { "reading": "sd", "equals": 15, "tolerance": 0.25 },
+          { "reading": "area", "min": 0.945, "max": 0.955 },
+          { "reading": "z_lower", "min": -2.05, "max": -1.87 },
+          { "reading": "z_upper", "min": 1.87, "max": 2.05 }
+        ]
+      }
+    ]
+  }
+}

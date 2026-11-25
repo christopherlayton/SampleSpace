@@ -1,6 +1,8 @@
 import SwiftUI
 
 /// A code level: the briefing on the left, the editor and its output on the right.
+/// A lab level puts the instrument and its goals on the right first, then hands off to the
+/// editor ("now do it in R") once the goals are reached.
 struct LevelView: View {
     let level: Level
     @Environment(GameModel.self) private var model
@@ -16,18 +18,22 @@ struct LevelView: View {
                     .frame(minWidth: 300, idealWidth: 400, maxWidth: 560)
                     .background(.ultraThinMaterial)
 
-                VSplitView {
-                    VStack(spacing: 0) {
-                        actionBar(session)
-                        Divider()
-                        CodeEditor(text: Bindable(session).code)
+                Group {
+                    if session.isLab {
+                        VStack(spacing: 0) {
+                            LabStageBar(session: session)
+                            Divider()
+                            if session.labStage == .lab {
+                                LabStageView(session: session)
+                            } else {
+                                codeWorkspace(session)
+                            }
+                        }
+                    } else {
+                        codeWorkspace(session)
                     }
-                    .frame(minHeight: 220, idealHeight: 380)
-
-                    OutputPanel(session: session)
-                        .frame(minHeight: 150, idealHeight: 260)
                 }
-                .frame(minWidth: 460)
+                .frame(minWidth: session.isLab ? 620 : 460)
             }
             if let completion = session.completion {
                 CompletionCard(level: level, completion: completion, next: model.nextLevel(after: level),
@@ -60,6 +66,20 @@ struct LevelView: View {
         }
     }
 
+    private func codeWorkspace(_ session: LevelSession) -> some View {
+        VSplitView {
+            VStack(spacing: 0) {
+                actionBar(session)
+                Divider()
+                CodeEditor(text: Bindable(session).code)
+            }
+            .frame(minHeight: 220, idealHeight: 380)
+
+            OutputPanel(session: session)
+                .frame(minHeight: 150, idealHeight: 260)
+        }
+    }
+
     private func actionBar(_ session: LevelSession) -> some View {
         HStack(spacing: 8) {
             if session.isBusy {
@@ -77,12 +97,13 @@ struct LevelView: View {
             }
 
             Button { session.check() } label: {
-                Label("Check", systemImage: "checkmark.seal")
+                Label("Check", systemImage: session.labReady ? "checkmark.seal" : "lock.fill")
             }
             .buttonStyle(.borderedProminent)
             .keyboardShortcut(.return, modifiers: [.command, .shift])
-            .disabled(session.isBusy)
-            .help("Run your code and check it against the mission (⇧⌘↩).")
+            .disabled(session.isBusy || !session.labReady)
+            .help(session.labReady ? "Run your code and check it against the mission (⇧⌘↩)."
+                  : "Reach every lab goal first, then check your R.")
 
             Divider().frame(height: 18)
 

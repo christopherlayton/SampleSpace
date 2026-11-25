@@ -1,7 +1,7 @@
 import Foundation
 
-/// The kinds of level in the plan. Only `.code` is playable so far; the others arrive in
-/// later steps (Briefing/Predict/Debug/SPSS Translate in Step 8, Lab in Step 7, Boss in Step 14).
+/// The kinds of level in the plan. `.code` and `.lab` are playable; the others arrive in
+/// later steps (Briefing/Predict/Debug/SPSS Translate in Step 8, Boss in Step 14).
 enum LevelType: String, Sendable, Codable, CaseIterable {
     case briefing, code, predict, debug
     case spssTranslate = "spss_translate"
@@ -40,6 +40,9 @@ enum LevelType: String, Sendable, Codable, CaseIterable {
 ///     solution.R   reference answer
 ///     check.R      checks, using the helpers in R/checks.R
 ///     setup.R      optional: run silently before the learner's code (e.g. load data)
+///
+/// A Lab level (`"type": "lab"`) also has a `lab` object in level.json (see `LabSpec`): the
+/// instrument and its goals. Its starter/solution/check files are the "now do it in R" hand-off.
 struct Level: Identifiable, Hashable, Sendable {
     let id: String
     let title: String
@@ -53,6 +56,8 @@ struct Level: Identifiable, Hashable, Sendable {
     let unlocks: [String]?
     let timeLimit: Double
     let seed: Int?
+    /// The instrument and goals, for Lab levels.
+    var lab: LabSpec? = nil
 
     let lesson: String
     let starterCode: String

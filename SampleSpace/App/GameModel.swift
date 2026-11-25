@@ -76,8 +76,11 @@ final class GameModel {
 
     func isOpen(_ level: Level) -> Bool { unlocks.openLevels.contains(level.id) }
 
-    /// Open, and of a type the app can play yet (only Code levels so far).
-    func isPlayable(_ level: Level) -> Bool { level.type == .code && isOpen(level) }
+    /// Open, and of a type the app can play yet (Code and Lab levels so far).
+    func isPlayable(_ level: Level) -> Bool { [.code, .lab].contains(level.type) && isOpen(level) }
+
+    /// Every Lab level, for the Lab Bay's free-play instruments.
+    var labLevels: [Level] { (library?.levels ?? []).filter { $0.lab != nil } }
 
     /// The level after this one in play order, if it can be played.
     func nextLevel(after level: Level) -> Level? {
@@ -218,7 +221,17 @@ final class GameModel {
 
     private func refreshUnlocks() {
         unlocks = UnlockState.compute(sectors: library?.sectors ?? [], cleared: progress.clearedIDs)
+        if Self.unlockAll {
+            for sector in library?.sectors ?? [] where unlocks.sectorStatus[sector.id] == .locked {
+                unlocks.sectorStatus[sector.id] = .current
+            }
+            unlocks.openLevels.formUnion((library?.levels ?? []).map(\.id))
+        }
     }
+
+    /// Launch with `-UnlockAll YES` to open every sector and level, for trying out content
+    /// before the sectors in front of it are written. Progress is still saved as usual.
+    @ObservationIgnored static var unlockAll: Bool { UserDefaults.standard.bool(forKey: "UnlockAll") }
 
     /// Saves now. Called after anything that matters (clears, badges, practice days).
     func save() {

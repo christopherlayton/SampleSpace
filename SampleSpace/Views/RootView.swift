@@ -1,13 +1,14 @@
 import SwiftUI
 
 enum Destination: String, CaseIterable, Identifiable {
-    case map, review, profile
+    case map, labs, review, profile
 
     var id: Self { self }
 
     var title: String {
         switch self {
         case .map: "Star Map"
+        case .labs: "Lab Bay"
         case .review: "Review Nebula"
         case .profile: "Pilot Profile"
         }
@@ -16,6 +17,7 @@ enum Destination: String, CaseIterable, Identifiable {
     var symbol: String {
         switch self {
         case .map: "map"
+        case .labs: "flask"
         case .review: "sparkles"
         case .profile: "person.crop.circle"
         }
@@ -47,6 +49,8 @@ struct RootView: View {
                             }
                         }
                 }
+            case .labs:
+                LabBayView()
             case .review:
                 ComingSoonView(title: "Review Nebula", symbol: "sparkles",
                                message: "Quick-fire review of what you've learned, spaced so it sticks. Arrives in Step 12.")

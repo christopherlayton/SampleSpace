@@ -33,6 +33,8 @@ data will take.
 - **Recovered log entry** (`log` in `sector.json`): shown once the sector is charted, on the
   completion card of the level that charts it, and in the Ship's Log on the Pilot Profile.
 - **"From the Crew Log" call-outs** in lessons, where a skill meets the real data.
+- **Labs:** the Sampling Machine (Probability Expanse) uses the log's hours per mission as its
+  population, so "drawing random crews" is literally sampling missions from the log.
 
 ## Log entries by sector
 
@@ -70,6 +72,8 @@ tapply(a$hours_mission, decade, median)                              # 95.9 ... 
 fd <- floor(f$year_of_mission / 10) * 10
 tapply(f$sex == "female", fd, sum); table(fd)                        # 1 of 44 ... 11 of 55
 tapply(f$year_of_mission - f$year_of_birth, fd, mean)                # 35.3 ... 41.6
+sd(a$hours_mission)                                                  # 1714.8 (Sampling Machine: σ ≈ 1,715)
+age <- f$year_of_mission - f$year_of_birth; mean(age); sd(age)      # 40.3, 5.25 (Distribution Sculptor)
 c("Hungry", "Malysia") %in% f$nationality                           # TRUE TRUE (typos in the source)
 c("pilot", "Pilot") %in% a$occupation                                # TRUE TRUE (inconsistent capitals)
 ```

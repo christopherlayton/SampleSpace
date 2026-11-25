@@ -70,6 +70,23 @@ describe_failure <- function(result) {
   paste0("      ", lines, collapse = "\n")
 }
 
+# Lab levels need a `lab` object: a known kind and goals, each with text and conditions.
+# (Reading names are checked against each instrument by the Swift tests.)
+lab_kinds <- c("distribution_sculptor", "sampling_machine")
+check_lab <- function(lab, where) {
+  if (is.null(lab)) return(problem(where, "a lab level needs a \"lab\" object"))
+  if (!(lab$kind %||% "") %in% lab_kinds) problem(where, sprintf("unknown lab kind \"%s\"", lab$kind %||% ""))
+  goals <- lab$goals
+  if (!is.data.frame(goals) || nrow(goals) == 0) return(problem(where, "lab has no goals"))
+  for (i in seq_len(nrow(goals))) {
+    when <- goals$when[[i]]
+    if (!nzchar(goals$text[i] %||% "")) problem(where, sprintf("lab goal %d has no text", i))
+    if (!is.data.frame(when) || nrow(when) == 0 || !"reading" %in% names(when)) {
+      problem(where, sprintf("lab goal %d needs \"when\" conditions with a \"reading\"", i))
+    }
+  }
+}
+
 sector_dirs <- sort(list.dirs(content_dir, recursive = FALSE))
 sector_dirs <- sector_dirs[startsWith(basename(sector_dirs), "sector-")]
 levels_seen <- list()  # id -> where
@@ -123,6 +140,7 @@ for (sector_dir in sector_dirs) {
     }
     if (!is.null(meta$xp) && (!is.numeric(meta$xp) || meta$xp <= 0)) problem(where, "xp must be a positive number")
     if (!is.null(meta$hints) && !is.character(meta$hints)) problem(where, "hints must be a list of strings")
+    if (identical(meta$type, "lab")) check_lab(meta$lab, where)
 
     missing_files <- level_files[!file.exists(file.path(level_dir, level_files))]
     if (length(missing_files)) {

@@ -11,6 +11,7 @@ A personal macOS SwiftUI game for learning R and statistics (doctoral student mo
 - `scripts/build.sh` — regenerates the Xcode project from `project.yml` and builds into `build/`.
 - `scripts/run.sh` — builds, then launches the app.
 - `scripts/test.sh` — runs the unit tests (they run real R through `REngine`).
+- Launch flags: `-ProgressFile /path.json` plays against another save; `-UnlockAll YES` opens every sector and level (to try content behind unwritten sectors).
 
 Xcode-beta is the only Xcode and is not the selected toolchain, so the scripts set
 `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer`. Use the same prefix for any direct `xcodebuild` call.
@@ -19,6 +20,6 @@ Xcode-beta is the only Xcode and is not the selected toolchain, so the scripts s
 ## Conventions
 - App Sandbox is off (the app runs `/usr/local/bin/Rscript`).
 - The R harness is `R/runner.R` + `R/checks.R` (documented at the top of each); Swift side is `SampleSpace/Engine/`.
-- Levels are folders under `Content/sector-NN-slug/` (level.json, lesson.md, starter.R, solution.R, check.R, optional setup.R and data files); each sector has a sector.json. Check helpers are listed at the top of `R/checks.R`. Run `scripts/validate_content.sh` after adding or changing levels: solutions must pass and starters must not.
+- Levels are folders under `Content/sector-NN-slug/` (level.json, lesson.md, starter.R, solution.R, check.R, optional setup.R and data files); each sector has a sector.json. Check helpers are listed at the top of `R/checks.R`. Run `scripts/validate_content.sh` after adding or changing levels: solutions must pass and starters must not. Lab levels add a `lab` object (instrument kind, settings, goals on its readings; see `Models/Lab.swift`).
 - Story: `STORY.md`. Each sector.json needs `briefing` and `log`; story numbers must come from `Content/data-bank/` with the R that reproduces them in STORY.md, and analysis-sector entries pose questions, not results.
 - Stats explanations should be correct and APA-aware; the learner's coursework covers t-tests, ANOVA, chi-square, correlation and regression.

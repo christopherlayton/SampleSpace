@@ -1,0 +1,51 @@
+{
+  "id": "probability-expanse.sampling-machine",
+  "title": "Sampling Machine",
+  "summary": "Draw random crews from the Crew Log and watch their averages form a bell, even from badly skewed data. Then simulate it with sample() and replicate().",
+  "type": "lab",
+  "xp": 160,
+  "par": 3,
+  "seed": 2026,
+  "hints": [
+    "`sample(hours, size = 30, replace = TRUE)` draws one crew of 30 missions.",
+    "`replicate(1000, mean(sample(hours, size = 30, replace = TRUE)))` repeats that 1,000 times and keeps each crew's mean.",
+    "The simulated SE is the SD of the means, `sd(crew_means)`; the formula is `sd(hours) / sqrt(30)`. Then `hist(crew_means)`."
+  ],
+  "lab": {
+    "kind": "sampling_machine",
+    "settings": {
+      "population_file": "astronauts.csv",
+      "population_column": "hours_mission",
+      "population_label": "Crew Log, hours per mission",
+      "unit": "hours",
+      "start_n": 2,
+      "max_n": 100
+    },
+    "goals": [
+      {
+        "text": "Draw at least **500 crews of n = 2** and look at the pile of crew averages.",
+        "detail": "Still lopsided: averages of two skewed values are skewed too. Compare the skew reading with the population's.",
+        "when": [
+          { "reading": "n", "equals": 2 },
+          { "reading": "samples", "min": 500 }
+        ]
+      },
+      {
+        "text": "Raise the crew size to **n = 30 or more** and draw at least **1,000 crews**.",
+        "detail": "The hours are badly skewed, yet the crew averages pile up into a bell around μ. That's the Central Limit Theorem at work.",
+        "when": [
+          { "reading": "n", "min": 30 },
+          { "reading": "samples", "min": 1000 }
+        ]
+      },
+      {
+        "text": "Get the **standard error under 200 hours**, with at least 500 crews drawn.",
+        "detail": "The SE is the SD of the crew averages, and it shrinks with √n: to halve it you need four times the crew.",
+        "when": [
+          { "reading": "se", "max": 200 },
+          { "reading": "samples", "min": 500 }
+        ]
+      }
+    ]
+  }
+}

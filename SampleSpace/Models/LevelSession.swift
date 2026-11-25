@@ -1,8 +1,9 @@
 import Foundation
 import Observation
 
-/// The working state of one code level: the learner's code, the last run's output, and the
-/// attempt counters that decide the stars.
+/// The working state of one code or lab level: the learner's code, the last run's output, and
+/// the attempt counters that decide the stars. For a Lab level it also holds the running
+/// instrument and the lab goals reached; Check stays locked until every goal is reached.
 @MainActor @Observable
 final class LevelSession {
     enum OutputTab: String, CaseIterable, Identifiable {
@@ -45,6 +46,15 @@ final class LevelSession {
     private(set) var hadErrorThisAttempt = false
     var completion: Completion?
 
+    // Lab
+    /// The running instrument, for Lab levels.
+    @ObservationIgnored private(set) lazy var instrument: LabInstrument? = LabInstrument.make(for: level)
+    private(set) var labGoals: LabGoalTracker
+    /// Which stage of a lab level is showing: the instrument, or "now do it in R".
+    var labStage: LabStage = .lab
+
+    enum LabStage: Hashable { case lab, r }
+
     private let engine: REngine?
     let engineError: String?
     private var task: Task<Void, Never>?
@@ -56,11 +66,29 @@ final class LevelSession {
         self.code = draft ?? level.starterCode
         self.engine = engine
         self.engineError = engineError
+        labGoals = LabGoalTracker(goals: level.lab?.goals ?? [])
     }
 
     var isBusy: Bool { activity != .idle }
     var allHintsShown: Bool { hintsShown >= level.hints.count }
     var isStarterCode: Bool { code == level.starterCode }
+    var isLab: Bool { level.lab != nil }
+
+    /// Check is open: always for code levels; for labs once every goal is reached (or the
+    /// level was cleared before).
+    var labReady: Bool {
+        !isLab || labGoals.allReached || model?.bestStars(level.id) != nil
+    }
+
+    /// Feeds fresh instrument readings to the goals. Returns the goals reached just now.
+    @discardableResult
+    func updateLab(readings: [String: Double]) -> [Int] {
+        guard isLab else { return [] }
+        var goals = labGoals
+        let newly = goals.update(readings)
+        if !newly.isEmpty { labGoals = goals }
+        return newly
+    }
 
     var score: StarScore {
         StarScore(passed: true, hintsUsed: hintsShown, solutionShown: solutionShown,
@@ -70,7 +98,10 @@ final class LevelSession {
     // MARK: Actions
 
     func run() { start(check: false) }
-    func check() { start(check: true) }
+    func check() {
+        guard labReady else { return }
+        start(check: true)
+    }
 
     private func start(check: Bool) {
         task?.cancel()
@@ -79,6 +110,7 @@ final class LevelSession {
 
     /// Runs the code (and, for Check, the level's checks) and updates the output.
     func perform(check: Bool) async {
+        if check, !labReady { return }
         guard let engine else {
             console = [ConsoleEntry(kind: .error, text: engineError ?? "R isn't available.")]
             outputTab = .console
@@ -148,6 +180,7 @@ final class LevelSession {
     }
 
     /// Starts the level over for a better score: starter code, no hints, no checks used.
+    /// Lab goals already reached stay reached (the stars are earned in the R part).
     func replay() {
         cancel()
         code = level.starterCode
@@ -169,6 +202,7 @@ final class LevelSession {
     func cancel() {
         task?.cancel()
         task = nil
+        instrument?.stop()
         generation += 1
         if activity != .idle {
             console = [ConsoleEntry(kind: .message, text: "Run stopped.")]

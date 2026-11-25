@@ -72,8 +72,8 @@ private struct Star {
     }
 }
 
-/// Small deterministic RNG so the star layout is the same every launch.
-struct SplitMix64: RandomNumberGenerator {
+/// Small deterministic RNG: the same star layout every launch, and repeatable lab draws in tests.
+struct SplitMix64: RandomNumberGenerator, Sendable {
     private var state: UInt64
     init(seed: UInt64) { state = seed }
     mutating func next() -> UInt64 {

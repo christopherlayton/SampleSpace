@@ -53,10 +53,13 @@ struct ContentLibrary: Sendable {
 
     private static func loadLevel(at folder: URL) throws -> Level {
         let file: LevelFile = try decode(folder.appending(path: "level.json"))
+        if file.type == .lab, file.lab == nil {
+            throw ContentError.badJSON(folder.appending(path: "level.json").path, "a lab level needs a \"lab\" object")
+        }
         return Level(
             id: file.id, title: file.title, summary: file.summary ?? "", type: file.type,
             xp: file.xp, par: file.par ?? 2, hints: file.hints ?? [], unlocks: file.unlocks,
-            timeLimit: file.timeLimit ?? 10, seed: file.seed,
+            timeLimit: file.timeLimit ?? 10, seed: file.seed, lab: file.lab,
             lesson: try text(folder, "lesson.md"),
             starterCode: try text(folder, "starter.R"),
             solutionCode: try text(folder, "solution.R"),
@@ -138,4 +141,5 @@ private struct LevelFile: Decodable {
     let unlocks: [String]?
     let timeLimit: Double?
     let seed: Int?
+    let lab: LabSpec?
 }
