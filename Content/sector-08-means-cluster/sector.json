@@ -8,5 +8,10 @@
     "x": 0.63,
     "y": 0.83
   },
-  "planet_size": 58
+  "planet_size": 58,
+  "briefing": "Do military and civilian astronauts fly missions of different lengths? Two groups, one numeric outcome: a question for a t-test.",
+  "log": {
+    "title": "Entry 9: Two crews compared",
+    "text": "Mission hours compared for military and civilian astronauts, one row per person, with the assumptions checked and an effect size reported in APA style."
+  }
 }

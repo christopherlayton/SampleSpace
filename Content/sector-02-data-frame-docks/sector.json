@@ -8,5 +8,10 @@
     "x": 0.27,
     "y": 0.76
   },
-  "planet_size": 64
+  "planet_size": 64,
+  "briefing": "The Crew Log docks as a data frame: 1,277 rows and 24 columns. Before you count anything, find out what one row is.",
+  "log": {
+    "title": "Entry 3: Missions, not people",
+    "text": "1,277 rows but only 564 astronauts: each row is one person on one mission. 202 people flew once; Jerry Ross and Franklin Chang-Diaz flew seven times each."
+  }
 }

@@ -20,6 +20,8 @@ In R, remember the order of operations: `my_score - class_mean / class_sd` would
 
 > **APA note:** z-scores, like most statistics, are usually reported to two decimal places, e.g. *z* = 1.60. Statistical symbols such as *z*, *M* and *SD* are italicised.
 
+> **From the Crew Log:** z-scores show how unusual a value is. The longest mission in the log, Valeri Polyakov's from 1994, lasted 10,505 hours, so far above the typical mission that it drags the mean upwards. You'll measure exactly how far in the Descriptive Drift.
+
 ## Mission
 
 On a methods quiz the class mean was **60** and the standard deviation was **5**. You scored **68**; a classmate scored **52**.

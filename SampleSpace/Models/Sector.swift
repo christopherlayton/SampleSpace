@@ -16,6 +16,10 @@ struct Sector: Identifiable, Hashable, Sendable {
     let planetSize: CGFloat
     var isOptional = false
     var hasRing = false
+    /// Story: shown on arrival (sector panel), from `briefing` in sector.json.
+    var briefing = ""
+    /// Story: the Crew Log entry recovered when the sector is charted.
+    var log: LogEntry?
     /// Levels in play order.
     var levels: [Level] = []
     /// Set from saved progress by `GameModel` (see `UnlockState`).
@@ -23,6 +27,12 @@ struct Sector: Identifiable, Hashable, Sendable {
 
     var color: Color { .planet(hue: hue) }
     var totalXP: Int { levels.reduce(0) { $0 + $1.xp } }
+}
+
+/// One entry of the Crew Log, recovered by charting a sector. See STORY.md.
+struct LogEntry: Hashable, Sendable, Decodable {
+    let title: String
+    let text: String
 }
 
 /// Player stats shown in the HUD, worked out from saved progress by `GameModel`.

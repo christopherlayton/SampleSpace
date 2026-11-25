@@ -23,6 +23,8 @@ Most R functions take a whole vector at once, with no loop needed:
 
 > **Coming from SPSS?** In SPSS a variable is a column in the Data View. In R a variable is a vector, and a dataset (a *data frame*, coming in the Data Frame Docks) is a set of equal-length vectors side by side.
 
+> **From the Crew Log:** each column of the log is a vector. `hours_mission` holds 1,277 numbers, one per mission, so `length()` of it is 1,277 and `max()` finds the longest mission in one step.
+
 ## Mission
 
 Eight participants completed an anxiety questionnaire. Their scores were **12, 18, 9, 22, 15, 11, 19 and 14**.

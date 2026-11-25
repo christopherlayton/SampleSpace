@@ -9,5 +9,10 @@
     "y": 0.5
   },
   "planet_size": 54,
-  "optional": true
+  "optional": true,
+  "briefing": "Through the wormhole the same Crew Log looks different: pandas instead of dplyr. Same questions, another language.",
+  "log": {
+    "title": "Entry 13: Two languages",
+    "text": "Your Crew Log analyses reproduced in Python, side by side with R."
+  }
 }

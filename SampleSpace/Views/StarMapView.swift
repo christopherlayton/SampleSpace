@@ -243,6 +243,17 @@ private struct SectorPanel: View {
                 .accessibilityLabel("Close")
             }
 
+            if !sector.briefing.isEmpty {
+                Text(sector.briefing)
+                    .font(.callout.italic())
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel("Arrival log: \(sector.briefing)")
+            }
+            if sector.status == .completed, let log = sector.log {
+                LogEntryView(entry: log, compact: true)
+            }
+
             section("R skills", sector.rSkills, symbol: "chevron.left.forwardslash.chevron.right")
             section("Stats concepts", sector.statsConcepts, symbol: "chart.bar.xaxis")
 

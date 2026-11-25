@@ -26,7 +26,7 @@ struct ContentLibraryTests {
 
     @Test func firstThreeSectorsAreCharted() throws {
         let sectors = try ContentLibrary.loadBundled().sectors
-        #expect(sectors.prefix(3).map(\.levels.count) == [5, 10, 9])
+        #expect(sectors.prefix(3).map(\.levels.count) == [5, 10, 10])
         for level in sectors.prefix(3).flatMap(\.levels) {
             #expect(level.type == .code, "\(level.id)")
             #expect(level.xp > 0, "\(level.id)")
@@ -34,6 +34,34 @@ struct ContentLibraryTests {
             #expect(level.lesson.hasPrefix("# \(level.title)\n"), "\(level.id): lesson should start with its title")
             #expect(!level.checkCode.isEmpty, "\(level.id)")
         }
+    }
+
+    @Test func everySectorHasItsStory() throws {
+        for sector in try ContentLibrary.loadBundled().sectors {
+            #expect(!sector.briefing.isEmpty, "\(sector.name) has no arrival briefing")
+            #expect(sector.log.map { !$0.title.isEmpty && !$0.text.isEmpty } == true,
+                    "\(sector.name) has no Crew Log entry")
+        }
+    }
+
+    /// Levels keep their own copy of data-bank files; each copy must match the master.
+    @Test func dataBankCopiesMatchTheMaster() throws {
+        let content = try #require(Bundle.main.url(forResource: "Content", withExtension: nil))
+        let bank = content.appending(path: "data-bank")
+        let fm = FileManager.default
+        let masters = try fm.contentsOfDirectory(atPath: bank.path).filter { !$0.hasSuffix(".md") }
+        #expect(masters.contains("astronauts.csv"))
+        var copies = 0
+        for level in try ContentLibrary.loadBundled().levels {
+            for name in masters {
+                let copy = level.folder.appending(path: name)
+                guard fm.fileExists(atPath: copy.path) else { continue }
+                copies += 1
+                #expect(try Data(contentsOf: copy) == Data(contentsOf: bank.appending(path: name)),
+                        "\(level.id)/\(name) differs from Content/data-bank/\(name)")
+            }
+        }
+        #expect(copies > 0)
     }
 
     /// The same promise `scripts/validate_content.sh` makes, but through the app's own engine

@@ -8,5 +8,10 @@
     "x": 0.07,
     "y": 0.78
   },
-  "planet_size": 70
+  "planet_size": 70,
+  "briefing": "The Sample Space is fuelled, and its data bank holds the Crew Log: every person who flew in space from 1961 to 2019. The ship's computer can store the log but can't interpret it. It speaks R, so first you learn to talk to it.",
+  "log": {
+    "title": "Entry 1: Vostok 1",
+    "text": "The first row of the Crew Log is Yuri Gagarin's Vostok 1 flight in 1961. It lasted 1.77 hours. Fifty-eight years later the log holds 1,277 missions."
+  }
 }

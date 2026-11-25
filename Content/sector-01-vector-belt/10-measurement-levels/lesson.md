@@ -21,6 +21,8 @@ R doesn't distinguish interval from ratio: both are numeric. The difference matt
 
 > **Coming from SPSS?** SPSS's *Measure* column (Nominal/Ordinal/Scale) is a label that most procedures ignore. In R the type actually changes what functions do, so getting it right up front prevents odd results later.
 
+> **From the Crew Log:** classify the log the same way. `sex`, `nationality` and `occupation` are nominal. `hours_mission` and `total_number_of_missions` are ratio: zero means none, and 20 hours is twice 10. `year_of_mission` is interval: the year 0 isn't "no time". Knowing this now decides which tests you'll use later.
+
 ## Mission
 
 Six participants' data are in the starter code.

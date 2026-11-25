@@ -21,6 +21,7 @@ struct ProfileView: View {
                         RankCard(xp: model.xp)
                         FuelCard(fuel: model.fuel, practiceDays: model.progress.practiceDays, today: model.now())
                     }
+                    ShipsLogCard(sectors: model.sectors)
                     BadgesCard(earned: model.progress.badges)
                     SectorsCard(sectors: model.sectors, stars: model.bestStars)
                     HStack {
@@ -164,6 +165,39 @@ private struct DayGrid: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Practised on \(days.filter { practiceDays.contains(DayKey.key(for: $0)) }.count) of the last 28 days")
+    }
+}
+
+/// The Crew Log entries recovered so far, one per charted sector (see STORY.md).
+private struct ShipsLogCard: View {
+    let sectors: [Sector]
+
+    var body: some View {
+        let withLogs = sectors.filter { $0.log != nil }
+        let recovered = withLogs.filter { $0.status == .completed }
+        Card(title: "Ship's Log \(recovered.count)/\(withLogs.count)", symbol: "doc.text.magnifyingglass") {
+            Text("Each sector you chart recovers an entry from the Crew Log: real findings from the "
+                 + "record of everyone who flew in space from 1961 to 2019.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(withLogs) { sector in
+                    if sector.status == .completed, let log = sector.log {
+                        LogEntryView(entry: log)
+                    } else {
+                        Label("\(sector.log?.title ?? "") · chart \(sector.name) to recover it",
+                              systemImage: "lock.fill")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            Text("Crew Log data: Stavnichuk, M., & Corlett, T. (2020). Astronaut database [Data set]. "
+                 + "Mendeley Data. doi:10.17632/86tsnnbv2w.1. CC BY 4.0. Cleaned for TidyTuesday by G. Karamanis.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .textSelection(.enabled)
+        }
     }
 }
 

@@ -18,7 +18,9 @@ struct CompletionCard: View {
     private var stars: Int { completion.score.stars }
     private var outcome: GameModel.ClearOutcome { completion.outcome }
     private var isNewBest: Bool { stars > (outcome.previousBest ?? 0) }
-    private var celebrate: Bool { outcome.firstClear || isNewBest || outcome.rankUp != nil }
+    private var celebrate: Bool {
+        outcome.firstClear || isNewBest || outcome.rankUp != nil || outcome.recoveredLog != nil
+    }
 
     var body: some View {
         ZStack {
@@ -49,7 +51,18 @@ struct CompletionCard: View {
                     .font(.system(.headline, design: .rounded))
                     .foregroundStyle(outcome.xpGained > 0 ? Theme.gold : .secondary)
 
-                if showExtras { extras.transition(.opacity.combined(with: .move(edge: .bottom))) }
+                if showExtras {
+                    if let log = outcome.recoveredLog {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Sector charted. Crew Log entry recovered:")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                            LogEntryView(entry: log)
+                        }
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    }
+                    extras.transition(.opacity.combined(with: .move(edge: .bottom)))
+                }
 
                 buttons
             }
@@ -176,5 +189,27 @@ struct BadgeIcon: View {
         .frame(width: size, height: size)
         .shadow(color: earned ? Theme.gold.opacity(0.4) : .clear, radius: 6)
         .accessibilityHidden(true)
+    }
+}
+
+/// A recovered Crew Log entry (see STORY.md).
+struct LogEntryView: View {
+    let entry: LogEntry
+    var compact = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Label(entry.title, systemImage: "doc.text.magnifyingglass")
+                .font((compact ? Font.caption : .callout).weight(.semibold))
+                .foregroundStyle(Theme.gold)
+            Text(entry.text)
+                .font(compact ? .caption : .callout)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(compact ? 10 : 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.gold.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.gold.opacity(0.3)))
+        .accessibilityElement(children: .combine)
     }
 }

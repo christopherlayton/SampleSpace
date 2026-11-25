@@ -9,5 +9,10 @@
     "y": 0.6
   },
   "planet_size": 68,
-  "ring": true
+  "ring": true,
+  "briefing": "Average age at first flight was about 35 in the 1960s and about 42 in the 2010s. Is the difference between decades bigger than the spread within them?",
+  "log": {
+    "title": "Entry 10: Ages across six decades",
+    "text": "Age at first flight compared across decades with ANOVA, assumptions checked first, followed by post-hoc comparisons and an effect size."
+  }
 }

@@ -8,5 +8,10 @@
     "x": 0.37,
     "y": 0.5
   },
-  "planet_size": 60
+  "planet_size": 60,
+  "briefing": "Real logs are messy. This one records one nation as \"Hungry\" and another as \"Malysia\", spells \"pilot\" two ways, and fills several rows for each frequent flyer. Clean it with dplyr before you trust any number from it.",
+  "log": {
+    "title": "Entry 4: One row per astronaut",
+    "text": "Cleaned and reshaped: one row per astronaut, nations spelled correctly, career hours and spacewalk hours for each person. 232 of the 564 made at least one spacewalk."
+  }
 }

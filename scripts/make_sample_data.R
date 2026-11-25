@@ -26,7 +26,7 @@ survey <- data.frame(
 survey$anxiety_post[c(7, 19, 33)] <- NA   # three students missed the post-test
 survey$satisfaction[c(12, 27)] <- NA
 survey$age[24] <- NA
-for (level in c("06-read-csv", "09-docking-review")) {
+for (level in c("06-read-csv", "10-docking-review")) {
   write.csv(survey, file.path(docks, level, "wellbeing_survey.csv"), row.names = FALSE, na = "")
 }
 

@@ -17,7 +17,8 @@ rscript <- file.path(R.home("bin"), "Rscript")
 
 level_types <- c("briefing", "code", "predict", "debug", "spss_translate", "lab", "boss")
 level_files <- c("level.json", "lesson.md", "starter.R", "solution.R", "check.R")
-sector_keys <- c("id", "name", "r_skills", "stats_concepts", "hue", "map_position", "planet_size")
+sector_keys <- c("id", "name", "r_skills", "stats_concepts", "hue", "map_position", "planet_size",
+                 "briefing", "log")  # story fields: see STORY.md
 level_keys <- c("id", "title", "type", "xp")
 
 problems <- character()

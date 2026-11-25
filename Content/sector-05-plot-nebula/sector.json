@@ -9,5 +9,10 @@
     "y": 0.15
   },
   "planet_size": 66,
-  "ring": true
+  "ring": true,
+  "briefing": "Some patterns only show up in a picture. Plot the Crew Log decade by decade.",
+  "log": {
+    "title": "Entry 6: Six decades",
+    "text": "The median mission grew from 96 hours in the 1960s to 3,912 hours (about 163 days) in the 2010s, the space-station era. Women were 1 of 44 first-time flyers in the 1960s and 11 of 55 in the 2010s."
+  }
 }

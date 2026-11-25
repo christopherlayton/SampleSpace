@@ -44,7 +44,7 @@ struct ContentLibrary: Sendable {
                             statsConcepts: file.statsConcepts, hue: file.hue,
                             mapPosition: CGPoint(x: file.mapPosition.x, y: file.mapPosition.y),
                             planetSize: file.planetSize, isOptional: file.optional ?? false,
-                            hasRing: file.ring ?? false)
+                            hasRing: file.ring ?? false, briefing: file.briefing ?? "", log: file.log)
         sector.levels = try subfolders(of: folder)
             .filter { FileManager.default.fileExists(atPath: $0.appending(path: "level.json").path) }
             .map(loadLevel)
@@ -123,6 +123,8 @@ private struct SectorFile: Decodable {
     let planetSize: Double
     let ring: Bool?
     let optional: Bool?
+    let briefing: String?
+    let log: LogEntry?
 }
 
 private struct LevelFile: Decodable {

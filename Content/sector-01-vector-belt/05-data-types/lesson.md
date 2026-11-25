@@ -32,6 +32,8 @@ This is the most common reason a "numeric" column won't average: one stray piece
 
 > **Coming from SPSS?** SPSS calls these *Numeric* and *String* variables in Variable View. R's logical type has no direct SPSS twin; SPSS would use a 0/1 numeric.
 
+> **From the Crew Log:** the log uses all three. `name` and `nationality` are character, `hours_mission` and `year_of_birth` are numeric, and a question such as "did this mission include a spacewalk?" (`eva_hrs_mission > 0`) is logical.
+
 ## Mission
 
 1. Store the number **34** in `age`.

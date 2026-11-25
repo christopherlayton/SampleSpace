@@ -21,6 +21,8 @@ Saving a value prints nothing. To see what an object holds, type its name on a l
 
 > **Coming from SPSS?** *Compute Variable* adds a column to your one open dataset. An R object can hold anything: one number, a whole dataset, a fitted model, a plot. You can have many datasets open at once, each in its own object.
 
+> **From the Crew Log:** the log stores each mission's length in hours. Its first row, Yuri Gagarin's Vostok 1 flight in 1961, is stored as `1.77`. Kept in an object, it's easy to reuse: `vostok_hours <- 1.77`, then `vostok_hours * 60` gives the length in minutes.
+
 ## Mission
 
 A survey wave returned **40** completed questionnaires, and the mean satisfaction score was **3.8** on a 1–5 scale.

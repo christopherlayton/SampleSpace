@@ -115,6 +115,8 @@ final class GameModel {
         var newBadges: [Badge]
         /// Names of levels and sectors this clear opened.
         var opened: [String]
+        /// The Crew Log entry recovered, when this clear charted its sector for the first time.
+        var recoveredLog: LogEntry? = nil
     }
 
     /// A press of Check counts as practice for today.
@@ -164,10 +166,14 @@ final class GameModel {
             if let title = self.level(id: id)?.title { opened.append(title) }
         }
 
+        let chartedNow = sector(containing: level)
+            .flatMap { oldSectors[$0.id] != .completed && $0.status == .completed ? $0 : nil }
+
         save()
         let newRank = rank
         return ClearOutcome(firstClear: previous == nil, xpGained: xp - oldXP, previousBest: previous?.bestStars,
-                            rankUp: newRank > oldRank ? newRank : nil, newBadges: newBadges, opened: opened)
+                            rankUp: newRank > oldRank ? newRank : nil, newBadges: newBadges, opened: opened,
+                            recoveredLog: chartedNow?.log)
     }
 
     /// Records a badge. Returns it if it is new.

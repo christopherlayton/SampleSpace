@@ -1,6 +1,8 @@
 # Calculator Console
 
-Welcome aboard, Cadet. Your ship's computer speaks **R**, and the simplest way to talk to it is the **console**: you type an expression, R works it out and prints the answer.
+Welcome aboard, Cadet. The *Sample Space* carries the **Crew Log**: the real record of every person who flew in space from 1961 to 2019. The ship's computer can store the log but can't interpret it. That's your job, and the computer only speaks **R**.
+
+The simplest way to talk to it is the **console**: you type an expression, R works it out and prints the answer.
 
 ```r
 2 + 3

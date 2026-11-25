@@ -8,5 +8,10 @@
     "x": 0.3,
     "y": 0.22
   },
-  "planet_size": 56
+  "planet_size": 56,
+  "briefing": "How long is a typical space mission? The answer depends on which average you ask for.",
+  "log": {
+    "title": "Entry 5: The long tail",
+    "text": "The median mission lasted 261 hours (about 11 days), but the mean is 1,051 hours, pulled up by long station stays. The longest single mission in the log is Valeri Polyakov's, starting in 1994: 10,505 hours, about 438 days."
+  }
 }

@@ -8,5 +8,10 @@
     "x": 0.55,
     "y": 0.38
   },
-  "planet_size": 72
+  "planet_size": 72,
+  "briefing": "Your own research will rarely have everyone; it will have a sample. Draw random crews from the log and watch how much their averages wander.",
+  "log": {
+    "title": "Entry 7: Random crews",
+    "text": "Small random crews give averages that swing widely; larger crews settle close to the full log. That spread has a name, the standard error, and it is what every test from here on measures against."
+  }
 }

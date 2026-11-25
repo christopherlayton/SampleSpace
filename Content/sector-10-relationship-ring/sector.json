@@ -8,5 +8,10 @@
     "x": 0.7,
     "y": 0.28
   },
-  "planet_size": 64
+  "planet_size": 64,
+  "briefing": "Do astronauts who fly more missions log more spacewalk hours? Is military status related to nationality? Correlation, regression and chi-square.",
+  "log": {
+    "title": "Entry 11: Connections",
+    "text": "Relationships in the Crew Log tested with correlation, regression and chi-square, each with its assumptions checked and its effect size reported."
+  }
 }

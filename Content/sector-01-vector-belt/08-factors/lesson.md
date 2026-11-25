@@ -32,6 +32,8 @@ The **first level is the reference group** in models such as regression and ANOV
 
 > **Coming from SPSS?** In SPSS a categorical variable is usually numbers with *Value Labels* (1 = control, 2 = treatment). A factor keeps the codes and labels together, so you never need a codebook to read your output.
 
+> **From the Crew Log:** `military_civilian` is a factor with two levels and `occupation` has several, among them pilot, commander, flight engineer, mission specialist and a handful of space tourists. Later you'll compare groups defined by exactly these factors.
+
 ## Mission
 
 `condition` records which arm of a study each of seven participants was in.

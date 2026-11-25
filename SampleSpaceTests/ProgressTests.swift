@@ -253,6 +253,7 @@ struct SavedProgressTests {
         #expect(model.sectors.first?.status == .completed)
         #expect(model.sectors[1].status == .current)
         #expect(outcome?.opened == ["Vector Belt", "Cargo Manifest"])
+        #expect(outcome?.recoveredLog?.title == "Entry 1: Vostok 1")
         #expect(outcome?.newBadges.map(\.id).contains("sector-charted") == true)
         #expect(outcome?.newBadges.map(\.id).contains("star-collector") == true)
     }

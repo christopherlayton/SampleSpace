@@ -22,6 +22,8 @@ In a pre/post design, the **change score** (post − pre) shows each person's ch
 
 > **APA note:** a methods section reports the sample size, how many were excluded or had missing data, and why. That's exactly what this audit gives you.
 
+> **From the Crew Log:** run this same audit on `astronauts.csv` and almost nothing is missing, yet the log isn't clean. Some nations are misspelled ("Hungry" for Hungary, "Malysia" for Malaysia). Missing-value counts can't catch errors like that; you'll fix them in Wrangler's Reach.
+
 ## Mission
 
 1. Import `wellbeing_survey.csv` into `survey`.

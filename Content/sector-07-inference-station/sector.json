@@ -8,5 +8,10 @@
     "x": 0.5,
     "y": 0.67
   },
-  "planet_size": 62
+  "planet_size": 62,
+  "briefing": "Is the rise in women astronauts more than chance? First decide what \"chance\" means, and what a p-value can tell you about a log that already includes almost everyone who has flown.",
+  "log": {
+    "title": "Entry 8: Hypotheses filed",
+    "text": "Null and alternative hypotheses written for the Crew Log. Because the log is close to a complete population, a test here asks whether a pattern is bigger than the variation a random process would produce, not whether it exists out there somewhere."
+  }
 }

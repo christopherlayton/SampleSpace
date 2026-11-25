@@ -25,6 +25,8 @@ mean(x)
 
 > **APA note:** report the *N* each statistic is based on. If 6 of 8 participants have sleep data, the mean comes from *n* = 6, and your write-up should say so (e.g. *M* = 6.75, *n* = 6).
 
+> **From the Crew Log:** the log is unusually complete. Almost every cell is filled in; the main gap is that five astronauts have no name recorded in their original alphabet. Most survey data won't be so tidy, so `is.na()` checks should become a habit.
+
 ## Mission
 
 `sleep_hours` holds last night's sleep for eight participants; two didn't answer.

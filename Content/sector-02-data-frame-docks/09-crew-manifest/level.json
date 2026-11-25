@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.crew-manifest",
+  "title": "Crew Manifest",
+  "summary": "Open the ship's real astronaut log and work out what one row is before counting anything.",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "hints": [
+    "`astronauts <- read_csv(\"astronauts.csv\")`, then `nrow(astronauts)` counts the rows (missions).",
+    "`unique()` keeps one copy of each value, so `length(unique(astronauts$number))` counts the people.",
+    "Each astronaut's first mission has `mission_number == 1`: `first_flights <- astronauts[astronauts$mission_number == 1, ]`, then `table(first_flights$sex)`."
+  ]
+}

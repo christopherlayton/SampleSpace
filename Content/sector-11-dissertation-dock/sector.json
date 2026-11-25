@@ -8,5 +8,10 @@
     "x": 0.85,
     "y": 0.17
   },
-  "planet_size": 80
+  "planet_size": 80,
+  "briefing": "One task left: turn everything you've learned about the Crew Log into a single reproducible report, the way your dissertation's results chapter will be built.",
+  "log": {
+    "title": "Entry 12: Report filed",
+    "text": "The Crew Log report is complete: data cleaned in code, every number computed from the data, every test in APA style, and the whole thing rebuilt from scratch with one command. The survey is done, Principal Investigator."
+  }
 }

@@ -9,5 +9,10 @@
     "y": 0.52
   },
   "planet_size": 58,
-  "ring": true
+  "ring": true,
+  "briefing": "Every column of the Crew Log is a vector, and every vector has a type. Names are text, mission hours are numbers, and sex, nationality and military status are categories. Get the types right and the log starts to make sense.",
+  "log": {
+    "title": "Entry 2: Forty nations",
+    "text": "Decoded by type: 564 astronauts under 40 different nationality entries. Twenty-seven of those entries belong to just one person."
+  }
 }
