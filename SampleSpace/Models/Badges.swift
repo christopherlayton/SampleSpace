@@ -35,6 +35,8 @@ struct Badge: Identifiable, Hashable, Sendable {
               symbol: "arrow.left.arrow.right.circle.fill"),
         Badge(id: "null-survivor", title: "Null Hypothesis Survivor",
               detail: "Chart every level in Inference Station.", symbol: "shield.lefthalf.filled"),
+        Badge(id: "nebula-regular", title: "Nebula Regular",
+              detail: "Meet the daily review goal in the Review Nebula on 5 days.", symbol: "sparkles"),
     ]
 
     static func named(_ id: String) -> Badge? { all.first { $0.id == id } }
@@ -59,6 +61,7 @@ struct Badge: Identifiable, Hashable, Sendable {
         }
         if charted.contains(where: { $0.id == inferenceSectorID }) { ids.insert("null-survivor") }
 
+        if progress.review.goalDays >= 5 { ids.insert("nebula-regular") }
         if streak.bestStreak >= 3 { ids.insert("three-day-burn") }
         if streak.bestStreak >= 7 { ids.insert("week-in-orbit") }
 

@@ -1,0 +1,32 @@
+{
+  "cards": [
+    { "id": "vector-belt/c", "level": "vector-belt.cargo-manifest", "type": "fill",
+      "prompt": "Combine three scores into one vector.",
+      "code": "scores <- ___(12, 15, 9)", "answers": ["c"],
+      "explain": "`c()` combines values into a vector, R's basic container for one variable." },
+    { "id": "vector-belt/negative-index", "level": "vector-belt.indexing", "type": "concept",
+      "prompt": "`x <- c(10, 20, 30, 40)`. What is `x[-1]`?",
+      "choices": ["40", "10", "20 30 40", "an error"], "answer": 2,
+      "explain": "A negative index *drops* that position. `x[-1]` is everything except the first value." },
+    { "id": "vector-belt/count-true", "level": "vector-belt.logical-filters", "type": "fill",
+      "prompt": "Count how many scores are above 50.",
+      "code": "___(scores > 50)", "answers": ["sum"],
+      "explain": "TRUE counts as 1 and FALSE as 0, so `sum()` counts the TRUEs. `mean()` would give the proportion." },
+    { "id": "vector-belt/na-rm", "level": "vector-belt.missing-values", "type": "fill",
+      "prompt": "Take the mean of `x`, ignoring missing values.",
+      "code": "mean(x, ___)", "answers": ["na.rm = TRUE", "na.rm=TRUE"],
+      "explain": "Without `na.rm = TRUE`, one NA makes the whole mean NA." },
+    { "id": "vector-belt/is-na", "level": "vector-belt.missing-values", "type": "concept",
+      "prompt": "Which line counts the missing values in `x`?",
+      "choices": ["`sum(x == NA)`", "`sum(is.na(x))`", "`length(NA)`", "`count(x, NA)`"], "answer": 1,
+      "explain": "`x == NA` is NA for every value (\"is this equal to something unknown?\" is unknown). `is.na()` asks the right question." },
+    { "id": "vector-belt/factor-levels", "level": "vector-belt.factors", "type": "fill",
+      "prompt": "Make `group` a factor with Control as the first (reference) level.",
+      "code": "group <- factor(group, ___ = c(\"Control\", \"Treatment\"))", "answers": ["levels"],
+      "explain": "`levels =` sets the order. The first level is the reference group in models and comes first in tables and plots." },
+    { "id": "vector-belt/noir", "level": "vector-belt.measurement-levels", "type": "concept",
+      "prompt": "A 5-point Likert item (Strongly disagree … Strongly agree) stored for frequency tables. Which R type fits best?",
+      "choices": ["character", "unordered factor", "ordered factor", "logical"], "answer": 2,
+      "explain": "Ordinal data: the categories have an order but unequal or unknown spacing. `factor(x, levels = 1:5, labels = ..., ordered = TRUE)`." }
+  ]
+}

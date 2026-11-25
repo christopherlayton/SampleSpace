@@ -22,6 +22,8 @@ struct Sector: Identifiable, Hashable, Sendable {
     var log: LogEntry?
     /// Levels in play order.
     var levels: [Level] = []
+    /// Hand-written Review Nebula cards from review.json (quiz questions are added by `ContentLibrary`).
+    var reviewCards: [ReviewCard] = []
     /// Set from saved progress by `GameModel` (see `UnlockState`).
     var status: SectorStatus = .locked
 

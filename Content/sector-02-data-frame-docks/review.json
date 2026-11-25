@@ -1,0 +1,37 @@
+{
+  "cards": [
+    { "id": "docks/rows", "level": "data-frame-docks.first-data-frame", "type": "concept",
+      "prompt": "In a tidy data frame of a survey, what is one row?",
+      "choices": ["one variable", "one case (here, one respondent)", "one value", "one question"], "answer": 1,
+      "explain": "Cases are rows and variables are columns, as in SPSS's Data View." },
+    { "id": "docks/str", "level": "data-frame-docks.inspecting", "type": "fill",
+      "prompt": "See every column's type and first few values.",
+      "code": "___(penguins)", "answers": ["str", "glimpse", "dplyr::glimpse"],
+      "explain": "`str()` (or the tidyverse's `glimpse()`) is the first thing to run on new data." },
+    { "id": "docks/dollar", "level": "data-frame-docks.dollar-columns", "type": "fill",
+      "prompt": "The mean of the `age` column of `survey`.",
+      "code": "mean(survey___age)", "answers": ["$"],
+      "explain": "`df$column` pulls one column out as a vector." },
+    { "id": "docks/brackets", "level": "data-frame-docks.brackets", "type": "concept",
+      "prompt": "What does `survey[survey$age > 30, c(\"id\", \"age\")]` give?",
+      "choices": [
+        "the first 30 rows",
+        "rows where age is over 30, with only the id and age columns",
+        "columns 30 to the end",
+        "an error: rows and columns can't be selected together"
+      ], "answer": 1,
+      "explain": "`df[rows, columns]`: a condition picks rows, a vector of names picks columns." },
+    { "id": "docks/read-csv", "level": "data-frame-docks.read-csv", "type": "fill",
+      "prompt": "Import a CSV file with readr.",
+      "code": "survey <- ___(\"wellbeing_survey.csv\")", "answers": ["read_csv", "readr::read_csv"],
+      "explain": "`readr::read_csv()` returns a tibble and tells you the type it guessed for each column." },
+    { "id": "docks/read-sav", "level": "data-frame-docks.read-sav", "type": "fill",
+      "prompt": "Import an SPSS file, keeping its value labels.",
+      "code": "teach <- haven::___(\"teaching_study.sav\")", "answers": ["read_sav"],
+      "explain": "`haven::read_sav()` keeps value and variable labels; `as_factor()` then turns labelled codes into factors." },
+    { "id": "docks/as-factor", "level": "data-frame-docks.value-labels", "type": "concept",
+      "prompt": "After `read_sav()`, a column holds codes 1 and 2 with labels Lecture and Active learning. What turns it into a factor with those labels?",
+      "choices": ["`as.numeric()`", "`factor()`", "`haven::as_factor()`", "`labels()`"], "answer": 2,
+      "explain": "`haven::as_factor()` uses the SPSS value labels as factor levels, in code order. Plain `factor()` would make levels \"1\" and \"2\"." }
+  ]
+}

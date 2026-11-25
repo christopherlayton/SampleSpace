@@ -1,0 +1,24 @@
+{
+  "cards": [
+    { "id": "drift/median-skew", "level": "descriptive-drift.which-average", "type": "concept",
+      "prompt": "A variable is strongly right-skewed. Where does the mean sit compared with the median?",
+      "choices": ["below it", "above it", "equal to it", "it depends on n"], "answer": 1,
+      "explain": "The long right tail pulls the mean up. Mission length: mean 1,051 h, median 261 h." },
+    { "id": "drift/iqr", "level": "descriptive-drift.spread-scanner", "type": "fill",
+      "prompt": "The interquartile range of `hours`.",
+      "code": "___(hours)", "answers": ["IQR"],
+      "explain": "`IQR()` (capitals) is Q3 − Q1, the spread of the middle half. It pairs with the median." },
+    { "id": "drift/describe-type", "level": "descriptive-drift.descriptives-translator", "type": "fill",
+      "prompt": "Match SPSS's skewness and kurtosis with psych.",
+      "code": "describe(survey[, vars], ___)", "answers": ["type = 2", "type=2"],
+      "explain": "psych defaults to type 3 estimators; SPSS uses type 2." },
+    { "id": "drift/scale", "level": "descriptive-drift.z-scores", "type": "fill",
+      "prompt": "Standardise `hours` into z-scores in one call.",
+      "code": "z <- ___(hours)", "answers": ["scale"],
+      "explain": "`scale(x)` subtracts the mean and divides by the SD. Wrap it in `as.numeric()` to drop its matrix shape." },
+    { "id": "drift/z-shape", "level": "descriptive-drift.z-scores", "type": "concept",
+      "prompt": "You convert a right-skewed variable to z-scores. What happens to the skew?",
+      "choices": ["it disappears", "it stays the same", "it reverses", "it doubles"], "answer": 1,
+      "explain": "Standardising shifts and rescales; it can't change the shape. Skewed data stay skewed." }
+  ]
+}

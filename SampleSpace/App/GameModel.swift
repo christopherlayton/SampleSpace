@@ -124,11 +124,64 @@ final class GameModel {
 
     /// A press of Check counts as practice for today.
     func recordCheck() {
+        if markPractisedToday() { save() }
+    }
+
+    /// Adds today to the practice days. Returns whether it was new.
+    private func markPractisedToday() -> Bool {
         let today = DayKey.key(for: now())
-        guard progress.practiceDays.last != today else { return }
+        guard !progress.practiceDays.contains(today) else { return false }
         progress.practiceDays.append(today)
         progress.practiceDays.sort()
+        return true
+    }
+
+    // MARK: Review Nebula
+
+    /// Cards collected so far: those whose level has been cleared.
+    var reviewCards: [ReviewCard] {
+        let cleared = progress.levels
+        return (library?.reviewCards ?? []).filter { cleared[$0.levelID] != nil }
+    }
+
+    /// Every card the content holds, collected or not.
+    var allReviewCardCount: Int { library?.reviewCards.count ?? 0 }
+
+    /// Today's queue: cards due, then today's new cards.
+    func reviewQueue() -> [ReviewCard] {
+        ReviewScheduler.queue(cards: reviewCards, record: progress.review, today: now())
+    }
+
+    /// Cards not due yet, soonest first.
+    func reviewAhead(limit: Int = ReviewScheduler.dailyGoal) -> [ReviewCard] {
+        ReviewScheduler.ahead(cards: reviewCards, record: progress.review, today: now(), limit: limit)
+    }
+
+    var reviewedToday: Int { progress.review.answered[DayKey.key(for: now())] ?? 0 }
+
+    func cardState(_ card: ReviewCard) -> CardState? { progress.review.cards[card.id] }
+
+    func sectorName(forLevel id: String) -> String? {
+        sectors.first { $0.levels.contains { $0.id == id } }?.name
+    }
+
+    /// Records an answer: reschedules the card, counts it towards today's goal, counts as
+    /// practice for fuel and streak, and awards any badge that earns (shown as a toast).
+    @discardableResult
+    func recordReview(_ card: ReviewCard, correct: Bool) -> CardState {
+        let date = now()
+        let key = DayKey.key(for: date)
+        let state = ReviewScheduler.answer(progress.review.cards[card.id], correct: correct, today: date)
+        progress.review.cards[card.id] = state
+        progress.review.answered[key, default: 0] += 1
+        if correct { progress.review.correct[key, default: 0] += 1 }
+        _ = markPractisedToday()
+        let earned = Badge.earned(by: progress, sectors: sectors, streak: fuel, clearedLevel: nil, clearedCode: nil)
+        for badge in Badge.all where earned.contains(badge.id) {
+            if let new = award(badge.id) { toasts.append(new) }
+        }
         save()
+        return state
     }
 
     /// Notes a run's side effects that can earn a badge straight away.

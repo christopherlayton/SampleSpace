@@ -1,0 +1,42 @@
+{
+  "cards": [
+    { "id": "station/ci-meaning", "level": "inference-station.ci-rain", "type": "concept",
+      "prompt": "What does \"95% confidence\" describe?",
+      "choices": [
+        "a 95% chance that μ is in this interval",
+        "the method: about 95% of intervals made this way capture μ",
+        "95% of the data lie in the interval",
+        "a 5% chance the result is due to chance"
+      ], "answer": 1,
+      "explain": "Once computed, a given interval either contains μ or it doesn't. The 95% is the method's long-run capture rate." },
+    { "id": "station/qt", "level": "inference-station.interval-by-hand", "type": "fill",
+      "prompt": "The critical t for a 95% CI from 40 people.",
+      "code": "t_crit <- qt(___, df = 39)", "answers": ["0.975", ".975"],
+      "explain": "2.5% in each tail, so the upper cut-off has 97.5% below it." },
+    { "id": "station/two-sided-p", "level": "inference-station.p-value-courtroom", "type": "fill",
+      "prompt": "The two-sided p-value for t_obs on df degrees of freedom.",
+      "code": "p <- ___ * pt(-abs(t_obs), df)", "answers": ["2"],
+      "explain": "The area beyond −|t| doubled, to count both tails." },
+    { "id": "station/p-meaning", "level": "inference-station.reading-p", "type": "concept",
+      "prompt": "p = .03 means…",
+      "choices": [
+        "there's a 3% chance H₀ is true",
+        "if H₀ were true, data at least this extreme would turn up about 3% of the time",
+        "the effect is small",
+        "there's a 97% chance the effect is real"
+      ], "answer": 1,
+      "explain": "p is computed assuming H₀, so it can't be the probability of H₀." },
+    { "id": "station/type1", "level": "inference-station.false-alarms", "type": "concept",
+      "prompt": "H₀ is true and α = .05. Roughly what share of studies give p < .05, whatever their sample size?",
+      "choices": ["0%", "5%", "50%", "it shrinks as n grows"], "answer": 1,
+      "explain": "α is the false-alarm rate. Under H₀, p-values are spread evenly between 0 and 1." },
+    { "id": "station/power-n", "level": "inference-station.power-reactor", "type": "fill",
+      "prompt": "The n per group for 80% power to detect d = 0.5.",
+      "code": "power.t.test(___ = 0.80, delta = 0.5, sd = 1)$n", "answers": ["power"],
+      "explain": "Give four of n, delta, sd, sig.level and power, and `power.t.test()` solves for the fifth. About 64, rounded up." },
+    { "id": "station/shuffle", "level": "inference-station.shuffle-test", "type": "fill",
+      "prompt": "One shuffle of the era labels, for a permutation test.",
+      "code": "e <- ___(era)", "answers": ["sample"],
+      "explain": "`sample(x)` with no size returns the same values in a random order." }
+  ]
+}

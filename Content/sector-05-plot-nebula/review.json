@@ -1,0 +1,28 @@
+{
+  "cards": [
+    { "id": "nebula/histogram", "level": "plot-nebula.first-light", "type": "fill",
+      "prompt": "A histogram of mission hours.",
+      "code": "ggplot(astronauts, aes(x = hours_mission)) + ___()", "answers": ["geom_histogram"],
+      "explain": "One numeric variable on x, and `geom_histogram()` counts values in bins." },
+    { "id": "nebula/mapping", "level": "plot-nebula.grammar-of-graphics", "type": "concept",
+      "prompt": "You want every point blue. Where does `colour = \"blue\"` go?",
+      "choices": ["inside `aes()`", "outside `aes()`, in the geom", "in `ggplot()` only", "in `labs()`"], "answer": 1,
+      "explain": "Inside `aes()` *maps* a variable to colour; a constant there becomes a one-category legend. Set fixed colours outside `aes()`." },
+    { "id": "nebula/boxplot", "level": "plot-nebula.decade-boxes", "type": "fill",
+      "prompt": "Boxplots of hours by decade.",
+      "code": "ggplot(astronauts, aes(x = factor(decade), y = hours_mission)) + ___()", "answers": ["geom_boxplot"],
+      "explain": "The box shows the median and IQR; points beyond the whiskers are flagged as outliers." },
+    { "id": "nebula/trend", "level": "plot-nebula.scatter-field", "type": "fill",
+      "prompt": "Add a straight regression line to a scatterplot.",
+      "code": "p + geom_smooth(method = ___)", "answers": ["\"lm\"", "'lm'"],
+      "explain": "`method = \"lm\"` fits a straight line; the default is a wiggly loess curve." },
+    { "id": "nebula/plus", "level": "plot-nebula.broken-telescope", "type": "concept",
+      "prompt": "Which joins ggplot layers?",
+      "choices": ["`|>`", "`+`", "`%>%`", "`,`"], "answer": 1,
+      "explain": "Layers are *added* with `+`, at the end of a line. The pipe passes data into a function, which isn't the same thing." },
+    { "id": "nebula/errorbar", "level": "plot-nebula.error-bars", "type": "concept",
+      "prompt": "A figure shows means with error bars. What must the caption say?",
+      "choices": ["nothing more", "whether the bars are SD, SE or a 95% CI", "the p-value", "the sample's median"], "answer": 1,
+      "explain": "The three look alike and mean very different things. APA asks you to say which." }
+  ]
+}

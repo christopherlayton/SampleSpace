@@ -15,9 +15,26 @@ struct PilotProgress: Codable, Equatable, Sendable {
     var badges: [String: Date] = [:]
     /// Code left in the editor, per level id (only when it differs from the starter code).
     var drafts: [String: String] = [:]
+    /// Review Nebula: each card's schedule and the cards answered per day.
+    var review = ReviewRecord()
 
     var clearedIDs: Set<String> { Set(levels.keys) }
     var totalStars: Int { levels.values.reduce(0) { $0 + $1.bestStars } }
+}
+
+extension PilotProgress {
+    /// Missing keys take their defaults, so a save from an older version (e.g. before the
+    /// Review Nebula) still loads instead of being moved aside.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init()
+        version = try container.decodeIfPresent(Int.self, forKey: .version) ?? version
+        levels = try container.decodeIfPresent([String: LevelProgress].self, forKey: .levels) ?? [:]
+        practiceDays = try container.decodeIfPresent([String].self, forKey: .practiceDays) ?? []
+        badges = try container.decodeIfPresent([String: Date].self, forKey: .badges) ?? [:]
+        drafts = try container.decodeIfPresent([String: String].self, forKey: .drafts) ?? [:]
+        review = try container.decodeIfPresent(ReviewRecord.self, forKey: .review) ?? ReviewRecord()
+    }
 }
 
 struct LevelProgress: Codable, Equatable, Sendable {

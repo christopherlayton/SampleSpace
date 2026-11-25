@@ -11,6 +11,11 @@
 #                  running it.)
 # SPSS Translate:  an "spss" object with a menu path and output tables whose rows have as
 #                  many cells as there are columns.
+# Review cards:    a sector's optional review.json (Review Nebula, see Models/Review.swift):
+#                  unique card ids, each tied to a level in that sector, a known type; concept
+#                  cards have choices and a valid answer; fill cards have one ___ blank and
+#                  answers, and the code parses as R with each answer filled in; which_test
+#                  cards use the test keys below.
 #
 # Usage: Rscript validate_content.R <repo root> [level id or folder name filter]
 
@@ -160,6 +165,53 @@ check_spss <- function(spss, where) {
 
 sector_dirs <- sort(list.dirs(content_dir, recursive = FALSE))
 sector_dirs <- sector_dirs[startsWith(basename(sector_dirs), "sector-")]
+stat_tests <- c("one_sample_t", "independent_t", "paired_t", "one_way_anova", "factorial_anova",
+                "repeated_measures_anova", "chi_square", "correlation", "regression")  # StatTest in Swift
+cards_seen <- list()   # review card id -> sector
+
+check_review <- function(path, level_ids, where) {
+  review <- tryCatch(jsonlite::fromJSON(path, simplifyVector = FALSE),
+                     error = function(e) { problem(where, paste("review.json: invalid JSON:", conditionMessage(e))); NULL })
+  if (is.null(review)) return(0L)
+  if (!is.list(review$cards) || !length(review$cards)) {
+    problem(where, "review.json needs a non-empty \"cards\" list")
+    return(0L)
+  }
+  for (card in review$cards) {
+    id <- card$id %||% "(no id)"
+    bad <- function(text) problem(where, sprintf("review card %s: %s", id, text))
+    if (is.null(card$id)) bad("needs an id")
+    else if (!is.null(cards_seen[[card$id]])) bad(sprintf("id also used in %s", cards_seen[[card$id]]))
+    else cards_seen[[card$id]] <<- where
+    if (!isTRUE(card$level %in% level_ids)) bad(sprintf("level \"%s\" isn't in this sector", card$level %||% ""))
+    if (!is.character(card$prompt) || !nzchar(card$prompt)) bad("needs a prompt")
+    type <- card$type %||% ""
+    if (type == "concept") {
+      n <- length(card$choices)
+      if (n < 2) bad("needs at least two choices")
+      if (!is.numeric(card$answer) || card$answer < 0 || card$answer >= n) bad("answer must be a 0-based choice index")
+    } else if (type == "fill") {
+      code <- card$code %||% ""
+      if (lengths(regmatches(code, gregexpr("___", code, fixed = TRUE))) != 1) bad("code needs exactly one ___ blank")
+      if (!length(card$answers)) bad("needs accepted answers")
+      for (answer in card$answers) {
+        filled <- sub("___", answer, code, fixed = TRUE)
+        ok <- tryCatch({ parse(text = filled); TRUE }, error = function(e) FALSE)
+        if (!ok) bad(sprintf("filled with \"%s\" the code doesn't parse as R", answer))
+      }
+    } else if (type == "which_test") {
+      options <- unlist(card$options %||% list("one_sample_t", "independent_t", "paired_t",
+                                                   "one_way_anova", "chi_square", "correlation"))
+      unknown <- setdiff(c(options, card$answer), stat_tests)
+      if (length(unknown)) bad(paste("unknown test key:", paste(unknown, collapse = ", ")))
+      if (!isTRUE(card$answer %in% options)) bad("answer must be one of the options")
+    } else {
+      bad(sprintf("unknown type \"%s\" (use concept, fill or which_test)", type))
+    }
+  }
+  length(review$cards)
+}
+
 levels_seen <- list()  # id -> where
 all_unlocks <- list()
 n_levels <- 0L
@@ -251,6 +303,16 @@ for (sector_dir in sector_dirs) {
     if (length(problems) == problems_before) {
       cat(sprintf("  ✓ solution passes %d checks; starter doesn't pass\n", length(solution$checks)))
     }
+  }
+
+  review_path <- file.path(sector_dir, "review.json")
+  if (file.exists(review_path)) {
+    ids <- vapply(level_dirs, function(d) {
+      tryCatch(jsonlite::fromJSON(file.path(d, "level.json"))$id %||% "", error = function(e) "")
+    }, "")
+    problems_before <- length(problems)
+    n_cards <- check_review(review_path, ids, file.path(sector_name, "review.json"))
+    if (length(problems) == problems_before) cat(sprintf("  ✓ review.json: %d cards\n", n_cards))
   }
 }
 

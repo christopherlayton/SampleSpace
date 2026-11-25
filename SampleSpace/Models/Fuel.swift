@@ -2,7 +2,7 @@ import Foundation
 
 /// Fuel and streak, worked out from the days you practised.
 ///
-/// - A practice day is a day you pressed **Check** on a level (Step 12 adds review cards).
+/// - A practice day is a day you pressed **Check** on a level or answered a Review Nebula card.
 /// - Practising fills the tank to 100% and adds one day to the streak.
 /// - Each day away burns 25% of the tank. Today only counts as missed once it is over.
 /// - Run dry (four days away in a row) and the streak starts again next time you practise.

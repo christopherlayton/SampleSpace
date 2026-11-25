@@ -1,0 +1,28 @@
+{
+  "cards": [
+    { "id": "launch-pad/precedence", "level": "launch-pad.calculator-console", "type": "concept",
+      "prompt": "What does `2 + 3 * 4` give in R?",
+      "choices": ["20", "14", "24", "9"], "answer": 1,
+      "explain": "Multiplication happens before addition: 3 × 4 = 12, then + 2. Use parentheses, `(2 + 3) * 4`, when you mean 20." },
+    { "id": "launch-pad/assign", "level": "launch-pad.storing-cargo", "type": "fill",
+      "prompt": "Store 42 in an object called `fuel`.",
+      "code": "fuel ___ 42", "answers": ["<-"],
+      "explain": "`<-` is R's assignment arrow: the value on the right is stored under the name on the left." },
+    { "id": "launch-pad/round", "level": "launch-pad.function-thrusters", "type": "fill",
+      "prompt": "Round 3.14159 to two decimal places.",
+      "code": "round(3.14159, ___ = 2)", "answers": ["digits"],
+      "explain": "`round(x, digits = 2)`. Naming the argument makes the call easy to read later." },
+    { "id": "launch-pad/help", "level": "launch-pad.ships-manual", "type": "fill",
+      "prompt": "Open the help page for `mean()`.",
+      "code": "___mean", "answers": ["?"],
+      "explain": "`?mean` (or `help(mean)`) opens the help page. The Arguments and Examples sections are the most useful parts." },
+    { "id": "launch-pad/seq", "level": "launch-pad.ships-manual", "type": "fill",
+      "prompt": "Make the sequence 0, 5, 10, …, 100.",
+      "code": "seq(0, 100, ___ = 5)", "answers": ["by"],
+      "explain": "`seq(from, to, by = step)`. For steps of 1, `0:100` is shorter." },
+    { "id": "launch-pad/z", "level": "launch-pad.launch-checklist", "type": "fill",
+      "prompt": "The z-score of 130 on a scale with mean 100 and SD 15.",
+      "code": "z <- ___ / 15", "answers": ["(130 - 100)", "(130-100)"],
+      "explain": "Subtract first, so it needs parentheses: `(130 - 100) / 15` = 2. Without them R computes 130 − (100 / 15)." }
+  ]
+}

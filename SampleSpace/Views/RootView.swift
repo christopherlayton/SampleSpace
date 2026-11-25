@@ -32,6 +32,7 @@ struct RootView: View {
         NavigationSplitView {
             List(Destination.allCases, selection: $destination) { item in
                 Label(item.title, systemImage: item.symbol)
+                    .badge(item == .review ? model.reviewQueue().count : 0)
                     .tag(item)
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
@@ -52,8 +53,7 @@ struct RootView: View {
             case .labs:
                 LabBayView()
             case .review:
-                ComingSoonView(title: "Review Nebula", symbol: "sparkles",
-                               message: "Quick-fire review of what you've learned, spaced so it sticks. Arrives in Step 12.")
+                ReviewView()
             case .profile:
                 ProfileView()
             }
@@ -63,30 +63,5 @@ struct RootView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
             model.save()
         }
-    }
-}
-
-struct ComingSoonView: View {
-    let title: String
-    let symbol: String
-    let message: String
-
-    var body: some View {
-        ZStack {
-            StarfieldView()
-            VStack(spacing: 14) {
-                Image(systemName: symbol)
-                    .font(.system(size: 44))
-                    .foregroundStyle(Theme.accent)
-                Text(title).font(Theme.titleFont)
-                Text(message)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: 340)
-            }
-            .padding(36)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22))
-        }
-        .navigationTitle(title)
     }
 }

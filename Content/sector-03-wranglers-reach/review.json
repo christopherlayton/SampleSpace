@@ -1,0 +1,28 @@
+{
+  "cards": [
+    { "id": "reach/filter", "level": "wranglers-reach.pipe-dream", "type": "fill",
+      "prompt": "Keep only the rows for women.",
+      "code": "astronauts |> ___(sex == \"female\")", "answers": ["filter", "dplyr::filter"],
+      "explain": "`filter()` keeps rows; `select()` keeps columns." },
+    { "id": "reach/mutate", "level": "wranglers-reach.course-correction", "type": "fill",
+      "prompt": "Add an approximate age at mission.",
+      "code": "astronauts |> ___(age = year_of_mission - year_of_birth)", "answers": ["mutate", "dplyr::mutate"],
+      "explain": "`mutate()` adds or changes columns, computed row by row." },
+    { "id": "reach/group-summarise", "level": "wranglers-reach.fleet-summary", "type": "fill",
+      "prompt": "Mean hours for each sex.",
+      "code": "astronauts |> ___(sex) |> summarise(mean_hours = mean(hours_mission))", "answers": ["group_by", "dplyr::group_by"],
+      "explain": "`group_by()` then `summarise()` gives one row per group, like SPSS's Split File or Aggregate." },
+    { "id": "reach/reverse", "level": "wranglers-reach.reverse-thrusters", "type": "concept",
+      "prompt": "On a 1–5 scale, how do you reverse-score an item `x`?",
+      "choices": ["`-x`", "`5 - x`", "`6 - x`", "`1 / x`"], "answer": 2,
+      "explain": "Reversed = (max + min) − x = 6 − x, so 1 ↔ 5, 2 ↔ 4 and 3 stays 3." },
+    { "id": "reach/not-na", "level": "wranglers-reach.missing-cargo", "type": "fill",
+      "prompt": "Keep the rows where sleep was reported.",
+      "code": "morale |> filter(___(sleep_hours))", "answers": ["!is.na"],
+      "explain": "`!is.na(x)` is TRUE where a value exists. `x != NA` is always NA, so `filter()` would drop every row." },
+    { "id": "reach/pivot-longer", "level": "wranglers-reach.reshape-bay", "type": "fill",
+      "prompt": "Turn six item columns into long format (one row per person per item).",
+      "code": "morale |> ___(m1:m6, names_to = \"item\", values_to = \"score\")", "answers": ["pivot_longer", "tidyr::pivot_longer"],
+      "explain": "`pivot_longer()` makes wide data long; `pivot_wider()` goes back." }
+  ]
+}

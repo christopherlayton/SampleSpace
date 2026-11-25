@@ -6,6 +6,7 @@ import Foundation
 ///       sector-00-launch-pad/
 ///         sector.json
 ///         01-calculator-console/   (a level folder; see `Level`)
+///         review.json              (optional: hand-written Review Nebula cards; see `ReviewCard`)
 ///
 /// Folder names set the order; the numbers in them are only for sorting.
 struct ContentLibrary: Sendable {
@@ -14,6 +15,16 @@ struct ContentLibrary: Sendable {
     var levels: [Level] { sectors.flatMap(\.levels) }
 
     func level(id: String) -> Level? { levels.first { $0.id == id } }
+
+    /// Every Review Nebula card, in curriculum order: for each level, its quiz questions and
+    /// then the hand-written cards tied to it.
+    var reviewCards: [ReviewCard] {
+        sectors.flatMap { sector in
+            sector.levels.flatMap { level in
+                ReviewCard.fromQuiz(level) + sector.reviewCards.filter { $0.levelID == level.id }
+            }
+        }
+    }
 
     /// The content shipped inside the app bundle.
     static func loadBundled() throws -> ContentLibrary {
@@ -30,6 +41,10 @@ struct ContentLibrary: Sendable {
         var seen = Set<String>()
         for level in sectors.flatMap(\.levels) where !seen.insert(level.id).inserted {
             throw ContentError.duplicateLevelID(level.id)
+        }
+        var seenCards = Set<String>()
+        for card in sectors.flatMap(\.reviewCards) where !seenCards.insert(card.id).inserted {
+            throw ContentError.duplicateCardID(card.id)
         }
         // Until Step 5 adds saved progress, the first sector is the one in play.
         if !sectors.isEmpty { sectors[0].status = .current }
@@ -48,6 +63,14 @@ struct ContentLibrary: Sendable {
         sector.levels = try subfolders(of: folder)
             .filter { FileManager.default.fileExists(atPath: $0.appending(path: "level.json").path) }
             .map(loadLevel)
+        let reviewURL = folder.appending(path: "review.json")
+        if FileManager.default.fileExists(atPath: reviewURL.path) {
+            let review: ReviewFile = try decode(reviewURL)
+            switch review.reviewCards(levelIDs: Set(sector.levels.map(\.id))) {
+            case .success(let cards): sector.reviewCards = cards
+            case .failure(let error): throw ContentError.badJSON(reviewURL.path, "card \(error.card): \(error.problem)")
+            }
+        }
         return sector
     }
 
@@ -119,6 +142,7 @@ enum ContentError: Error, LocalizedError, Equatable {
     case missingFile(String)
     case badJSON(String, String)
     case duplicateLevelID(String)
+    case duplicateCardID(String)
 
     var errorDescription: String? {
         switch self {
@@ -126,6 +150,7 @@ enum ContentError: Error, LocalizedError, Equatable {
         case .missingFile(let path): "Missing level file: \(path)"
         case .badJSON(let path, let detail): "Couldn't read \(path): \(detail)"
         case .duplicateLevelID(let id): "Two levels share the id \"\(id)\"."
+        case .duplicateCardID(let id): "Two review cards share the id \"\(id)\"."
         }
     }
 }
