@@ -1,0 +1,21 @@
+# Sample Space — notes for Claude
+
+A personal macOS SwiftUI game for learning R and statistics (doctoral student moving from SPSS to R for a dissertation). The full design and the step checklist are in `PLAN.md`.
+
+## How to work in this repo
+- When asked to "do the next step", read `PLAN.md`, do the first unchecked step only, then tick its box and add a dated line to the Decisions log.
+- Finish each session with the app building. If a step can't be finished, write what's left under that step in `PLAN.md`.
+- Commit at the end of each step.
+
+## Build
+- `scripts/build.sh` — regenerates the Xcode project from `project.yml` and builds into `build/`.
+- `scripts/run.sh` — builds, then launches the app.
+
+Xcode-beta is the only Xcode and is not the selected toolchain, so the scripts set
+`DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer`. Use the same prefix for any direct `xcodebuild` call.
+`SampleSpace.xcodeproj` is generated and git-ignored: edit `project.yml`, never the `.pbxproj`.
+
+## Conventions
+- App Sandbox is off (the app runs `/usr/local/bin/Rscript`).
+- Levels are folders under `Content/` (level.json, lesson.md, starter.R, solution.R, check.R). Run `scripts/validate_content.sh` after adding or changing levels.
+- Stats explanations should be correct and APA-aware; the learner's coursework covers t-tests, ANOVA, chi-square, correlation and regression.

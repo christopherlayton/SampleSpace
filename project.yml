@@ -1,0 +1,30 @@
+name: SampleSpace
+options:
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  SampleSpace:
+    type: application
+    platform: macOS
+    sources:
+      - SampleSpace
+    info:
+      path: SampleSpace/Info.plist
+      properties:
+        CFBundleDisplayName: Sample Space
+        LSApplicationCategoryType: public.app-category.education
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.samplespace.SampleSpace
+        PRODUCT_NAME: SampleSpace
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: NO
+    scheme: {}
