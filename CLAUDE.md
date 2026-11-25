@@ -10,6 +10,7 @@ A personal macOS SwiftUI game for learning R and statistics (doctoral student mo
 ## Build
 - `scripts/build.sh` — regenerates the Xcode project from `project.yml` and builds into `build/`.
 - `scripts/run.sh` — builds, then launches the app.
+- `scripts/package.sh` — builds a Release copy and wraps it in `build/SampleSpace-<version>.pkg`, which installs the app into /Applications (version from `MARKETING_VERSION` in project.yml; ad-hoc signed, unsigned package).
 - `scripts/test.sh` — runs the unit tests (they run real R through `REngine`).
 - Launch flags: `-ProgressFile /path.json` plays against another save; `-UnlockAll YES` opens every sector and level (to try content behind unwritten sectors).
 - `swift scripts/make_app_icon.swift` (with the `DEVELOPER_DIR` prefix) redraws the app icon into `Assets.xcassets`.

@@ -30,6 +30,8 @@ targets:
       path: SampleSpace/Info.plist
       properties:
         CFBundleDisplayName: Sample Space
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.education
     settings:
       base:
