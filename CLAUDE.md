@@ -10,6 +10,7 @@ A personal macOS SwiftUI game for learning R and statistics (doctoral student mo
 ## Build
 - `scripts/build.sh` — regenerates the Xcode project from `project.yml` and builds into `build/`.
 - `scripts/run.sh` — builds, then launches the app.
+- `scripts/test.sh` — runs the unit tests (they run real R through `REngine`).
 
 Xcode-beta is the only Xcode and is not the selected toolchain, so the scripts set
 `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer`. Use the same prefix for any direct `xcodebuild` call.
@@ -17,5 +18,6 @@ Xcode-beta is the only Xcode and is not the selected toolchain, so the scripts s
 
 ## Conventions
 - App Sandbox is off (the app runs `/usr/local/bin/Rscript`).
+- The R harness is `R/runner.R` + `R/checks.R` (documented at the top of each); Swift side is `SampleSpace/Engine/`.
 - Levels are folders under `Content/` (level.json, lesson.md, starter.R, solution.R, check.R). Run `scripts/validate_content.sh` after adding or changing levels.
 - Stats explanations should be correct and APA-aware; the learner's coursework covers t-tests, ANOVA, chi-square, correlation and regression.
