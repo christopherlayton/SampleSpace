@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.value-labels",
+  "title": "Decoding Labels",
+  "summary": "Convert a whole SPSS file's labels with as_factor() and see what happens to user-missing codes.",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "`teach_f <- as_factor(teach)` converts every labelled column in one go.",
+    "Count a category by comparing with its label: `sum(teach_f$method == \"Active learning\")`.",
+    "The \"No answer\" code (9) was declared missing in SPSS, so it arrives as NA: `sum(is.na(teach$anxiety))`."
+  ]
+}

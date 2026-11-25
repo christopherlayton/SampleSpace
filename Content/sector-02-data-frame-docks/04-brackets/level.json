@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.brackets",
+  "title": "Row and Column",
+  "summary": "Select rows and columns with df[rows, columns], including rows that meet a condition.",
+  "type": "code",
+  "xp": 90,
+  "par": 2,
+  "hints": [
+    "Rows go before the comma and columns after it: `study[3, ]` is all of row 3.",
+    "A condition picks rows: `study[study$condition == \"treatment\", ]` (note the `==` and the comma).",
+    "Combine both: `study[study$age >= 25, c(\"id\", \"score\")]`."
+  ]
+}

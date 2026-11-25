@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.read-sav",
+  "title": "SPSS Signal",
+  "summary": "Import an SPSS .sav file with haven::read_sav() and read its value labels.",
+  "type": "code",
+  "xp": 100,
+  "par": 2,
+  "hints": [
+    "`library(haven)` then `teach <- read_sav(\"teaching_study.sav\")`.",
+    "Printing `teach$method` lists the codes, then a table saying which label goes with each code.",
+    "`as_factor(teach$method)` swaps the codes for labels; wrap it in `table()` to count."
+  ]
+}

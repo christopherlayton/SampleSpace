@@ -1,0 +1,13 @@
+{
+  "id": "vector-belt.factors",
+  "title": "Factor Forge",
+  "summary": "Store categories as factors, set the level order, and count them with table().",
+  "type": "code",
+  "xp": 85,
+  "par": 2,
+  "hints": [
+    "`factor(condition)` makes a factor; its levels start in alphabetical order.",
+    "Set the order yourself with `levels =`: `factor(condition, levels = c(\"control\", \"waitlist\", \"treatment\"))`.",
+    "`nlevels(condition_f)` counts the categories and `table(condition_f)` counts each one."
+  ]
+}

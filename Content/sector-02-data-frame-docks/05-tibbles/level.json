@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.tibbles",
+  "title": "Tibble Transfer",
+  "summary": "Meet tibbles, the tidyverse's data frames: as_tibble(), tibble() and glimpse().",
+  "type": "code",
+  "xp": 85,
+  "par": 2,
+  "hints": [
+    "Load the package first: `library(tibble)`.",
+    "`as_tibble(study)` converts; `glimpse(study_tbl)` gives a sideways overview.",
+    "Inside `tibble()` later columns can use earlier ones: `tibble(id = 1:4, score = c(38, 45, 29, 41), score_pct = score / 50 * 100)`."
+  ]
+}

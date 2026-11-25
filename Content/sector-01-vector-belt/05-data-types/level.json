@@ -1,0 +1,13 @@
+{
+  "id": "vector-belt.data-types",
+  "title": "Type Scanner",
+  "summary": "Meet numeric, character and logical values, check them with class(), and see coercion.",
+  "type": "code",
+  "xp": 75,
+  "par": 2,
+  "hints": [
+    "Text goes in quotes: `participant_id <- \"P017\"`. `TRUE` and `FALSE` have no quotes.",
+    "`class(age)` tells you the type of `age`.",
+    "A vector holds one type only. Run `class(mixed)` to see what R turned everything into, and store that answer in `mixed_class`."
+  ]
+}

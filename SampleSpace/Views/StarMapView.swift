@@ -289,11 +289,22 @@ private struct SectorPanel: View {
                 .foregroundStyle(Theme.accent)
                 .textCase(.uppercase)
 
-                ForEach(Array(sector.levels.enumerated()), id: \.element.id) { index, level in
-                    Button { open(level) } label: { levelRow(index: index, level: level) }
-                        .buttonStyle(.plain)
-                        .disabled(!isOpen(level))
+                // Long sectors scroll when the window is too short to show every level.
+                ViewThatFits(in: .vertical) {
+                    levelRows
+                    ScrollView { levelRows }
+                        .scrollIndicators(.visible)
                 }
+            }
+        }
+    }
+
+    private var levelRows: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(Array(sector.levels.enumerated()), id: \.element.id) { index, level in
+                Button { open(level) } label: { levelRow(index: index, level: level) }
+                    .buttonStyle(.plain)
+                    .disabled(!isOpen(level))
             }
         }
     }

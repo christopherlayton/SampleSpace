@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.first-data-frame",
+  "title": "Assembling the Manifest",
+  "summary": "Build a data frame from vectors: cases are rows, variables are columns.",
+  "type": "code",
+  "xp": 80,
+  "par": 2,
+  "hints": [
+    "`data.frame()` takes named vectors: `data.frame(id = id, group = group, score = score)`.",
+    "Each row is one case (a participant); each column is one variable.",
+    "`nrow(study)` counts the cases and `ncol(study)` counts the variables."
+  ]
+}

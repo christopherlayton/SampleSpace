@@ -1,0 +1,13 @@
+{
+  "id": "launch-pad.launch-checklist",
+  "title": "Launch Checklist",
+  "summary": "Put it all together: objects, parentheses and round() to compute z-scores.",
+  "type": "code",
+  "xp": 80,
+  "par": 2,
+  "hints": [
+    "Store each given number in its own object first, e.g. `class_mean <- 60`.",
+    "A z-score is (score − mean) / SD. The subtraction must happen first, so wrap it in parentheses: `(my_score - class_mean) / class_sd`.",
+    "To print a value rounded to two decimals, put `round(z, digits = 2)` on its own line."
+  ]
+}

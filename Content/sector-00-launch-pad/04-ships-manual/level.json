@@ -1,0 +1,13 @@
+{
+  "id": "launch-pad.ships-manual",
+  "title": "Ship's Manual",
+  "summary": "Read help pages, make sequences with seq() and :, and name your arguments.",
+  "type": "code",
+  "xp": 70,
+  "par": 2,
+  "hints": [
+    "`?seq` opens the help page for `seq()`. `args(seq)` shows just its arguments.",
+    "`seq(from = 0, to = 100, by = 25)` counts from 0 to 100 in steps of 25.",
+    "`1:7` is shorthand for the whole numbers from 1 to 7: `likert_points <- 1:7`."
+  ]
+}

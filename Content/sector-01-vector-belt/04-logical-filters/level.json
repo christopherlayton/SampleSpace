@@ -1,0 +1,13 @@
+{
+  "id": "vector-belt.logical-filters",
+  "title": "Logic Gates",
+  "summary": "Ask TRUE/FALSE questions of every value, count with sum(), and filter with [ ].",
+  "type": "code",
+  "xp": 80,
+  "par": 2,
+  "hints": [
+    "`scores >= 60` gives TRUE or FALSE for each score. Store that in `passed`.",
+    "TRUE counts as 1 and FALSE as 0, so `sum(passed)` counts the passes and `mean(passed)` gives the proportion.",
+    "Put a condition inside the brackets to keep only matching values: `scores[scores >= 80]`."
+  ]
+}

@@ -131,11 +131,11 @@ struct FuelTests {
 struct RankTests {
     @Test func ranksFollowXP() {
         #expect(Rank.forXP(0) == .cadet)
-        #expect(Rank.forXP(249) == .cadet)
-        #expect(Rank.forXP(250) == .ensign)
+        #expect(Rank.forXP(399) == .cadet)
+        #expect(Rank.forXP(400) == .ensign)
         #expect(Rank.forXP(100_000) == .principalInvestigator)
-        #expect(Rank.progress(xp: 525) == 0.5)
-        #expect(Rank.progress(xp: 9000) == 1)
+        #expect(Rank.progress(xp: 1200) == 0.5)
+        #expect(Rank.progress(xp: 12_000) == 1)
     }
 
     @Test func starsAddBonusXP() {
@@ -252,7 +252,7 @@ struct SavedProgressTests {
         }
         #expect(model.sectors.first?.status == .completed)
         #expect(model.sectors[1].status == .current)
-        #expect(outcome?.opened == ["Vector Belt"])
+        #expect(outcome?.opened == ["Vector Belt", "Cargo Manifest"])
         #expect(outcome?.newBadges.map(\.id).contains("sector-charted") == true)
         #expect(outcome?.newBadges.map(\.id).contains("star-collector") == true)
     }

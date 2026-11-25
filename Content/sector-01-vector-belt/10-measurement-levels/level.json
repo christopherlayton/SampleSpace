@@ -1,0 +1,13 @@
+{
+  "id": "vector-belt.measurement-levels",
+  "title": "Belt Survey",
+  "summary": "Sector review: match each variable's level of measurement to the right R type.",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "Gender is nominal: categories with no order. Use `factor()` with `levels = 1:3` and `labels = c(\"Woman\", \"Man\", \"Non-binary\")`.",
+    "Education is ordinal: give `factor()` the levels in order, `c(\"HS\", \"BA\", \"MA\", \"PhD\")`, and `ordered = TRUE`.",
+    "Wellbeing is numeric with one missing value: `mean(wellbeing, na.rm = TRUE)`."
+  ]
+}

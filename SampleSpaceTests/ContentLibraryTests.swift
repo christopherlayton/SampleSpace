@@ -19,19 +19,26 @@ struct ContentLibraryTests {
             "launch-pad.calculator-console",
             "launch-pad.storing-cargo",
             "launch-pad.function-thrusters",
+            "launch-pad.ships-manual",
+            "launch-pad.launch-checklist",
         ])
-        for level in launchPad.levels {
-            #expect(level.type == .code)
-            #expect(level.xp > 0)
-            #expect(!level.hints.isEmpty)
-            #expect(level.lesson.hasPrefix("# "))
-            #expect(!level.checkCode.isEmpty)
+    }
+
+    @Test func firstThreeSectorsAreCharted() throws {
+        let sectors = try ContentLibrary.loadBundled().sectors
+        #expect(sectors.prefix(3).map(\.levels.count) == [5, 10, 9])
+        for level in sectors.prefix(3).flatMap(\.levels) {
+            #expect(level.type == .code, "\(level.id)")
+            #expect(level.xp > 0, "\(level.id)")
+            #expect(level.hints.count >= 3, "\(level.id)")
+            #expect(level.lesson.hasPrefix("# \(level.title)\n"), "\(level.id): lesson should start with its title")
+            #expect(!level.checkCode.isEmpty, "\(level.id)")
         }
     }
 
     /// The same promise `scripts/validate_content.sh` makes, but through the app's own engine
     /// and `Level.job(code:)`, so the Swift wiring (seed, setup, data folder) is covered too.
-    @Test(.timeLimit(.minutes(1)))
+    @Test(.timeLimit(.minutes(2)))
     func everySolutionPassesThroughTheEngine() async throws {
         let engine = try REngine()
         for level in try ContentLibrary.loadBundled().levels {

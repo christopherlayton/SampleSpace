@@ -1,0 +1,13 @@
+{
+  "id": "vector-belt.ordered-factors",
+  "title": "Likert Ladder",
+  "summary": "Turn coded Likert answers into an ordered factor with labels, then compare categories.",
+  "type": "code",
+  "xp": 90,
+  "par": 2,
+  "hints": [
+    "`factor()` takes `levels =` (the codes, 1:5), `labels =` (the words) and `ordered = TRUE`.",
+    "`agree_f <- factor(agree, levels = 1:5, labels = likert_labels, ordered = TRUE)`",
+    "With an ordered factor you can compare: `agree_f >= \"Agree\"`. Wrap it in `sum()` to count."
+  ]
+}

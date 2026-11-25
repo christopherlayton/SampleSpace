@@ -1,7 +1,8 @@
 import Foundation
 
 /// Pilot ranks, earned with XP. Thresholds live here and nowhere else, so they are easy to
-/// retune as content grows (the curriculum will hold several thousand XP).
+/// retune as content grows. Sectors 0–2 hold about 2,500 XP with every star, so a full
+/// curriculum of ~12 sectors is roughly 10,000 XP; thresholds are pegged to sector milestones.
 enum Rank: Int, CaseIterable, Comparable, Sendable {
     case cadet, ensign, lieutenant, commander, captain, principalInvestigator
 
@@ -19,11 +20,11 @@ enum Rank: Int, CaseIterable, Comparable, Sendable {
     var minimumXP: Int {
         switch self {
         case .cadet: 0
-        case .ensign: 250
-        case .lieutenant: 800
-        case .commander: 2000
-        case .captain: 4000
-        case .principalInvestigator: 7000
+        case .ensign: 400                    // about the end of the Launch Pad
+        case .lieutenant: 2000               // about the end of the Data Frame Docks
+        case .commander: 4500                // about the end of the Plot Nebula
+        case .captain: 7000                  // about the end of the Means Cluster
+        case .principalInvestigator: 9500    // about the end of the Dissertation Dock
         }
     }
 

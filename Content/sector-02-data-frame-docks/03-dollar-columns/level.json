@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.dollar-columns",
+  "title": "Column Cargo",
+  "summary": "Reach into a data frame with $ to summarise a variable and add a new one.",
+  "type": "code",
+  "xp": 85,
+  "par": 2,
+  "hints": [
+    "`penguins$body_mass_g` is the body-mass column as a vector, so vector functions work on it.",
+    "It has missing values, so use `mean(penguins$body_mass_g, na.rm = TRUE)`.",
+    "Assigning to a new name adds a column: `penguins$body_mass_kg <- penguins$body_mass_g / 1000`."
+  ]
+}

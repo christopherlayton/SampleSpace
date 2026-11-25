@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.docking-review",
+  "title": "Dock Inspection",
+  "summary": "Sector review: import, set up factors, audit missing data and compute a change score.",
+  "type": "code",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "Import with `read_csv()`, then `survey$group <- factor(survey$group, levels = c(\"Control\", \"Mindfulness\"))`.",
+    "`colSums(is.na(survey))` counts missing values in every column; `sum(complete.cases(survey))` counts rows with nothing missing.",
+    "A change score is post minus pre: `survey$change <- survey$anxiety_post - survey$anxiety_pre`."
+  ]
+}

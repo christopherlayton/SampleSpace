@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.read-csv",
+  "title": "CSV Cargo",
+  "summary": "Import a CSV file with readr::read_csv() and check what arrived.",
+  "type": "code",
+  "xp": 95,
+  "par": 2,
+  "hints": [
+    "Load readr, then read the file by name: `survey <- read_csv(\"wellbeing_survey.csv\")`.",
+    "`nrow(survey)` counts the students; `table(survey$group)` counts each group.",
+    "`anxiety_post` has missing values: `mean(survey$anxiety_post, na.rm = TRUE)`."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "vector-belt.vector-arithmetic",
+  "title": "Thruster Calibration",
+  "summary": "Do arithmetic on every value at once: percentages and mean-centred scores.",
+  "type": "code",
+  "xp": 75,
+  "par": 2,
+  "hints": [
+    "Arithmetic on a vector happens to every value: `raw / 50` divides each score by 50.",
+    "Percent is out-of-50 times 100: `percent <- raw / 50 * 100`.",
+    "Mean-centring subtracts the mean from every score: `centred <- raw - mean(raw)`."
+  ]
+}

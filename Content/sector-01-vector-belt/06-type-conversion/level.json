@@ -1,0 +1,13 @@
+{
+  "id": "vector-belt.type-conversion",
+  "title": "Signal Decoder",
+  "summary": "Convert text from a survey export into numbers and TRUE/FALSE with as.numeric() and as.logical().",
+  "type": "code",
+  "xp": 80,
+  "par": 2,
+  "hints": [
+    "`as.numeric(ages_text)` converts each piece of text to a number. Text that isn't a number becomes `NA`, with a warning.",
+    "`is.na(ages)` is TRUE where a value is missing, so `sum(is.na(ages))` counts them.",
+    "`as.logical(consent_text)` turns \"TRUE\"/\"FALSE\" text into real logical values you can `sum()`."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "vector-belt.missing-values",
+  "title": "Missing Signals",
+  "summary": "Work with NA: count missing values and use na.rm = TRUE to summarise what's left.",
+  "type": "code",
+  "xp": 80,
+  "par": 2,
+  "hints": [
+    "`mean(sleep_hours)` gives NA because one unknown value makes the mean unknown.",
+    "`sum(is.na(sleep_hours))` counts the missing values; `sum(!is.na(sleep_hours))` counts the valid ones (`!` means *not*).",
+    "Add `na.rm = TRUE` to drop missing values before averaging: `mean(sleep_hours, na.rm = TRUE)`."
+  ]
+}

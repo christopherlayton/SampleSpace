@@ -1,0 +1,13 @@
+{
+  "id": "vector-belt.indexing",
+  "title": "Picking Cargo",
+  "summary": "Pull out values by position with [ ], ranges and negative indices.",
+  "type": "code",
+  "xp": 75,
+  "par": 2,
+  "hints": [
+    "Positions start at 1: `reaction[1]` is the first value.",
+    "The last position is `length(reaction)`, so `reaction[length(reaction)]` always gets the last value.",
+    "A minus sign drops a position: `reaction[-1]`. A range keeps several: `reaction[2:5]`."
+  ]
+}

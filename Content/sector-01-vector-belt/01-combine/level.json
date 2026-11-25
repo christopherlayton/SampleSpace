@@ -1,0 +1,13 @@
+{
+  "id": "vector-belt.cargo-manifest",
+  "title": "Cargo Manifest",
+  "summary": "Combine values into a vector with c() and summarise it with length(), sum() and mean().",
+  "type": "code",
+  "xp": 70,
+  "par": 2,
+  "hints": [
+    "`c()` combines values: `anxiety <- c(12, 18, 9, 22, 15, 11, 19, 14)`.",
+    "`length(anxiety)` counts the values; that's your *n*.",
+    "`sum(anxiety)` adds them up and `mean(anxiety)` averages them."
+  ]
+}

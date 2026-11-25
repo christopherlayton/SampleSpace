@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.inspecting",
+  "title": "Scanning the Hold",
+  "summary": "Get to know a real dataset with str(), head(), summary() and names().",
+  "type": "code",
+  "xp": 80,
+  "par": 2,
+  "hints": [
+    "Run `str(penguins)` and `summary(penguins)` on their own lines and read the output.",
+    "`nrow()` and `ncol()` give the size; `names()` gives the variable names.",
+    "Look in the `summary()` output for `NA's` under `body_mass_g`."
+  ]
+}
