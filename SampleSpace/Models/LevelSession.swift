@@ -15,12 +15,15 @@ final class LevelSession {
     /// What the completion card shows.
     struct Completion: Equatable {
         var score: StarScore
-        var xp: Int
-        var firstClear: Bool
+        var outcome: GameModel.ClearOutcome
     }
 
     let level: Level
-    var code: String
+    var code: String {
+        didSet { if code != oldValue { model?.draftChanged(level: level, code: code) } }
+    }
+    /// Receives practice, clears and drafts. Set by `GameModel.session(for:)`.
+    @ObservationIgnored weak var model: GameModel?
 
     // Last run
     private(set) var console: [ConsoleEntry] = []
@@ -38,21 +41,21 @@ final class LevelSession {
     private(set) var solutionShown = false
     private(set) var checkAttempts = 0
     private(set) var runCount = 0
+    /// The code hit an R error at some point in this attempt (for the Bug Hunter badge).
+    private(set) var hadErrorThisAttempt = false
     var completion: Completion?
 
     private let engine: REngine?
     let engineError: String?
-    private let onPass: (Int) -> Bool
     private var task: Task<Void, Never>?
     /// Bumped for every run, so a cancelled run that finishes late can't overwrite a newer one.
     private var generation = 0
 
-    init(level: Level, engine: REngine?, engineError: String?, onPass: @escaping (Int) -> Bool) {
+    init(level: Level, engine: REngine?, engineError: String?, draft: String? = nil) {
         self.level = level
-        self.code = level.starterCode
+        self.code = draft ?? level.starterCode
         self.engine = engine
         self.engineError = engineError
-        self.onPass = onPass
     }
 
     var isBusy: Bool { activity != .idle }
@@ -84,7 +87,12 @@ final class LevelSession {
         generation += 1
         let thisRun = generation
         activity = check ? .checking : .running
-        if check { checkAttempts += 1 } else { runCount += 1 }
+        if check {
+            checkAttempts += 1
+            model?.recordCheck()
+        } else {
+            runCount += 1
+        }
         defer { if generation == thisRun { activity = .idle } }
 
         let result: RRunResult
@@ -108,13 +116,16 @@ final class LevelSession {
         lastStatus = result.status
         lastDuration = result.duration
         lastRunWasCheck = check
+        model?.recordRun(drewPlot: !result.plots.isEmpty)
+        if result.status != .ok, result.status != .runnerError { hadErrorThisAttempt = true }
         if check {
             checks = result.checks
             outputTab = .checks
-            if result.passed {
+            if result.passed, let model {
                 let score = self.score
-                let firstClear = onPass(score.stars)
-                completion = Completion(score: score, xp: level.xp, firstClear: firstClear)
+                let outcome = model.recordClear(level: level, score: score, code: code,
+                                                hadErrorThisAttempt: hadErrorThisAttempt)
+                completion = Completion(score: score, outcome: outcome)
             }
         } else {
             outputTab = result.status == .ok && !plots.isEmpty ? .plots : .console
@@ -149,6 +160,7 @@ final class LevelSession {
         solutionShown = false
         checkAttempts = 0
         runCount = 0
+        hadErrorThisAttempt = false
         completion = nil
         outputTab = .console
     }

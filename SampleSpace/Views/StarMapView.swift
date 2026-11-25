@@ -42,7 +42,7 @@ struct StarMapView: View {
         }
         .overlay(alignment: .trailing) {
             if let sector = sectors.first(where: { $0.id == selectedID }) {
-                SectorPanel(sector: sector, bestStars: model.bestStars, open: model.open) {
+                SectorPanel(sector: sector, stars: model.bestStars, isOpen: model.isPlayable, open: model.open) {
                     withAnimation(.spring(duration: 0.3)) { selectedID = nil }
                 }
                 .padding(20)
@@ -121,6 +121,13 @@ private struct PlanetNode: View {
                         .frame(width: sector.planetSize * 1.7, height: sector.planetSize * 0.42)
                         .rotationEffect(.degrees(-18))
                 }
+                if sector.status == .completed {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: sector.planetSize * 0.3, weight: .bold))
+                        .foregroundStyle(Theme.gold)
+                        .shadow(radius: 4)
+                        .offset(x: sector.planetSize * 0.38, y: -sector.planetSize * 0.38)
+                }
                 if locked {
                     Image(systemName: "lock.fill")
                         .font(.system(size: sector.planetSize * 0.26, weight: .bold))
@@ -149,7 +156,7 @@ private struct PlanetNode: View {
         .onHover { hovering = $0 }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(sector.name), sector \(sector.id), \(locked ? "locked" : "open")")
+        .accessibilityLabel("\(sector.name), sector \(sector.id), \(locked ? "locked" : (sector.status == .completed ? "charted" : "open"))")
     }
 
     private var planetBody: some View {
@@ -170,13 +177,24 @@ private struct HUDBar: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            chip("person.badge.shield.checkmark", player.rank, Theme.accent)
+            chip(player.rank.symbol, player.rank.title, Theme.accent)
+                .help("Rank. Earn XP to be promoted.")
             chip("bolt.fill", "\(player.xp) XP", Theme.gold)
             chip("star.fill", "\(player.stars)", Theme.gold)
-            chip("fuelpump.fill", "Fuel \(Int(player.fuel * 100))%", .green)
+                .help("Stars earned")
+            chip("fuelpump.fill", "Fuel \(Int((player.fuel * 100).rounded()))%", fuelColor)
+                .help("Practise (press Check) to refuel. Each day away burns 25%; run dry and your streak restarts.")
+            if player.streak > 0 {
+                chip("flame.fill", "\(player.streak)-day streak", .orange)
+            }
         }
         .padding(6)
         .background(.ultraThinMaterial, in: Capsule())
+        .accessibilityElement(children: .combine)
+    }
+
+    private var fuelColor: Color {
+        player.fuel > 0.5 ? Theme.pass : (player.fuel > 0.25 ? Theme.warn : Theme.fail)
     }
 
     private func chip(_ symbol: String, _ text: String, _ tint: Color) -> some View {
@@ -195,15 +213,17 @@ private struct HUDBar: View {
 
 private struct SectorPanel: View {
     let sector: Sector
-    let bestStars: [String: Int]
+    let stars: (String) -> Int?
+    let isOpen: (Level) -> Bool
     let open: (Level) -> Void
     let close: () -> Void
 
     private var locked: Bool { sector.status == .locked }
-    /// The first level not cleared yet, else the first level.
+    /// The first open level not cleared yet, else the first level.
     private var nextLevel: Level? {
-        sector.levels.first { bestStars[$0.id] == nil } ?? sector.levels.first
+        sector.levels.first { isOpen($0) && stars($0.id) == nil } ?? sector.levels.first
     }
+    private var started: Bool { sector.levels.contains { stars($0.id) != nil } }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -233,7 +253,7 @@ private struct SectorPanel: View {
             Button {
                 if let nextLevel { open(nextLevel) }
             } label: {
-                Label(locked ? "Locked" : (sector.levels.contains { bestStars[$0.id] != nil } ? "Continue" : "Enter sector"),
+                Label(locked ? "Locked" : (sector.status == .completed ? "Replay sector" : (started ? "Continue" : "Enter sector")),
                       systemImage: locked ? "lock.fill" : "arrow.right.circle.fill")
                     .frame(maxWidth: .infinity)
             }
@@ -272,7 +292,7 @@ private struct SectorPanel: View {
                 ForEach(Array(sector.levels.enumerated()), id: \.element.id) { index, level in
                     Button { open(level) } label: { levelRow(index: index, level: level) }
                         .buttonStyle(.plain)
-                        .disabled(locked)
+                        .disabled(!isOpen(level))
                 }
             }
         }
@@ -289,8 +309,12 @@ private struct SectorPanel: View {
                 Text(level.summary).font(.caption).foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
-            if let stars = bestStars[level.id] {
-                StarRow(count: stars, size: 9)
+            if let best = stars(level.id) {
+                StarRow(count: best, size: 9)
+            } else if !isOpen(level) {
+                Image(systemName: "lock.fill")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             } else {
                 Image(systemName: level.type.symbol)
                     .font(.caption)
@@ -302,7 +326,8 @@ private struct SectorPanel: View {
         .contentShape(Rectangle())
         .background(.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 8))
         .accessibilityElement(children: .combine)
-        .accessibilityHint(locked ? "Locked" : "Opens the level")
+        .opacity(isOpen(level) ? 1 : 0.55)
+        .accessibilityHint(isOpen(level) ? "Opens the level" : "Locked. Clear the level before it to open it.")
     }
 
     private func section(_ title: String, _ body: String, symbol: String) -> some View {

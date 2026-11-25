@@ -124,7 +124,7 @@ struct LevelView: View {
             Label("\(session.checkAttempts)/\(level.par)", systemImage: "checkmark.seal")
                 .help("Checks used / par. Passing within par earns a star.")
                 .foregroundStyle(session.checkAttempts > level.par ? Theme.warn : .secondary)
-            if let best = model.bestStars[level.id] {
+            if let best = model.bestStars(level.id) {
                 StarRow(count: best, size: 11)
                     .help("Your best for this level")
             }

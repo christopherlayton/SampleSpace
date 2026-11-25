@@ -156,7 +156,7 @@ struct ErrorExplainerTests {
 @MainActor
 struct LevelSessionTests {
     private func makeSession(_ id: String) throws -> (GameModel, LevelSession) {
-        let model = GameModel()
+        let model = GameModel(store: .temporary())
         let level = try #require(model.level(id: id))
         return (model, model.session(for: level))
     }
@@ -185,21 +185,25 @@ struct LevelSessionTests {
 
         let completion = try #require(session.completion)
         #expect(completion.score.stars == 2)
-        #expect(completion.firstClear)
-        #expect(model.bestStars["launch-pad.calculator-console"] == 2)
-        #expect(model.player.xp == session.level.xp)
+        #expect(completion.outcome.firstClear)
+        #expect(completion.outcome.xpGained == session.level.xp + XP.perBonusStar)
+        #expect(completion.outcome.newBadges.map(\.id) == ["lift-off"])
+        #expect(completion.outcome.opened == ["Storing Cargo"])
+        #expect(model.bestStars("launch-pad.calculator-console") == 2)
+        #expect(model.player.xp == session.level.xp + XP.perBonusStar)
         #expect(model.nextLevel(after: session.level)?.id == "launch-pad.storing-cargo")
 
-        // A replay that does better raises the best score; XP isn't earned twice.
+        // A replay that does better raises the best score and earns only the extra star's XP.
         session.replay()
         #expect(session.code == session.level.starterCode)
         #expect(session.hintsShown == 0)
         session.code = session.level.solutionCode
         await session.perform(check: true)
         #expect(session.completion?.score.stars == 3)
-        #expect(session.completion?.firstClear == false)
-        #expect(model.bestStars["launch-pad.calculator-console"] == 3)
-        #expect(model.player.xp == session.level.xp)
+        #expect(session.completion?.outcome.firstClear == false)
+        #expect(session.completion?.outcome.xpGained == XP.perBonusStar)
+        #expect(model.bestStars("launch-pad.calculator-console") == 3)
+        #expect(model.player.xp == session.level.xp + 2 * XP.perBonusStar)
     }
 
     @Test func resetKeepsTheAttemptCounters() throws {
@@ -212,7 +216,7 @@ struct LevelSessionTests {
     }
 
     @Test func lockedSectorsAreNotPlayable() throws {
-        let model = GameModel()
+        let model = GameModel(store: .temporary())
         #expect(model.sectors.dropFirst().allSatisfy { $0.levels.allSatisfy { !model.isPlayable($0) } })
         let last = try #require(model.sectors.first?.levels.last)
         #expect(model.nextLevel(after: last) == nil)

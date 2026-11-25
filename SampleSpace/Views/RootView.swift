@@ -51,11 +51,14 @@ struct RootView: View {
                 ComingSoonView(title: "Review Nebula", symbol: "sparkles",
                                message: "Quick-fire review of what you've learned, spaced so it sticks. Arrives in Step 12.")
             case .profile:
-                ComingSoonView(title: "Pilot Profile", symbol: "person.crop.circle",
-                               message: "Your rank, badges and streak history. Arrives in Step 5.")
+                ProfileView()
             }
         }
+        .overlay(alignment: .bottom) { BadgeToast() }
         .environment(model)
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+            model.save()
+        }
     }
 }
 

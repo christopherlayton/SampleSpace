@@ -18,17 +18,18 @@ struct Sector: Identifiable, Hashable, Sendable {
     var hasRing = false
     /// Levels in play order.
     var levels: [Level] = []
-    /// Set from progress. Until Step 5 adds progress, the first sector is current.
+    /// Set from saved progress by `GameModel` (see `UnlockState`).
     var status: SectorStatus = .locked
 
     var color: Color { .planet(hue: hue) }
     var totalXP: Int { levels.reduce(0) { $0 + $1.xp } }
 }
 
-/// Player stats shown in the HUD. Placeholder until Step 5 adds real progress.
+/// Player stats shown in the HUD, worked out from saved progress by `GameModel`.
 struct PlayerSnapshot: Sendable {
-    var rank = "Cadet"
+    var rank = Rank.cadet
     var xp = 0
     var stars = 0
     var fuel = 1.0
+    var streak = 0
 }
