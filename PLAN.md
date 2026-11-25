@@ -95,8 +95,8 @@ Size: **S** small · **M** medium · **L** large (may need a second session).
 - [x] **Step 10 — Labs, round 2 (L).** CI Rain, p-value Courtroom, Power Reactor, Correlation Drag, Least-Squares Fit.
 - [x] **Step 11 — Content: Sectors 6–8 (M, content only).** Probability and sampling, inference, t-tests. Sector 6 already holds the two Step 7 lab levels (folders 01–02) and Sector 7 the three Step 10 lab levels (CI Rain, p-value Courtroom, Power Reactor, folders 01–03); place the new code levels around them and renumber folders freely (ids live in level.json).
 - [x] **Step 12 — Review Nebula (M).** Spaced-repetition scheduler, quick-fire card types, daily review goal.
-- [ ] **Step 13 — Content + Labs: Sectors 9–10 (L).** ANOVA, chi-square, correlation, regression; ANOVA Splitter, Chi-square Grid, p-Hacking Garden. Sector 10 already holds the Correlation Drag and Least-Squares Fit lab levels (folders 01–02).
-- [ ] **Step 14 — Boss levels + Sector 11 (L).** Multi-step analysis levels with APA write-up checks; Quarto report pipeline; "Dissertation Dry Run" finale (optionally on your own data).
+- [ ] **Step 13 — Content + Labs: Sectors 9–10 (L).** ANOVA, chi-square, correlation, regression; ANOVA Splitter, Chi-square Grid, p-Hacking Garden. Sector 10 already holds the Correlation Drag and Least-Squares Fit lab levels (folders 01–02). Give each sector a `review.json` for the Review Nebula, with plenty of `which_test` cards (ANOVA, chi-square, correlation and regression scenarios); run `scripts/validate_content.sh` to check them.
+- [ ] **Step 14 — Boss levels + Sector 11 (L).** Multi-step analysis levels with APA write-up checks; Quarto report pipeline; "Dissertation Dry Run" finale (optionally on your own data). Give Sector 11 a `review.json` for the Review Nebula too.
 - [ ] **Step 15 — Polish (M).** App icon, sounds, onboarding, settings (R path, font size), accessibility, performance pass.
 - [ ] **Step 16 — *(optional)* Python Wormhole (L).** Python runner beside R; the same analyses in pandas/statsmodels.
 
