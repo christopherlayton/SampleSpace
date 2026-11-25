@@ -24,6 +24,7 @@ enum Destination: String, CaseIterable, Identifiable {
 
 struct RootView: View {
     @State private var destination: Destination? = .map
+    @State private var model = GameModel()
 
     var body: some View {
         NavigationSplitView {
@@ -35,7 +36,17 @@ struct RootView: View {
         } detail: {
             switch destination ?? .map {
             case .map:
-                StarMapView()
+                NavigationStack(path: $model.path) {
+                    StarMapView()
+                        .navigationDestination(for: String.self) { id in
+                            if let level = model.level(id: id) {
+                                LevelView(level: level)
+                            } else {
+                                ContentUnavailableView("Level not found", systemImage: "questionmark.circle",
+                                                       description: Text(id))
+                            }
+                        }
+                }
             case .review:
                 ComingSoonView(title: "Review Nebula", symbol: "sparkles",
                                message: "Quick-fire review of what you've learned, spaced so it sticks. Arrives in Step 12.")
@@ -44,6 +55,7 @@ struct RootView: View {
                                message: "Your rank, badges and streak history. Arrives in Step 5.")
             }
         }
+        .environment(model)
     }
 }
 

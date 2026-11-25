@@ -10,6 +10,15 @@ enum Theme {
     static let gold = Color(red: 1.0, green: 0.80, blue: 0.35)
     static let route = Color.white.opacity(0.55)
 
+    // Code and console
+    static let editorBackground = Color(red: 0.05, green: 0.06, blue: 0.12)
+    static let gutterBackground = Color(red: 0.07, green: 0.08, blue: 0.15)
+    static let codeText = Color(red: 0.90, green: 0.92, blue: 0.96)
+    static let pass = Color(red: 0.40, green: 0.88, blue: 0.55)
+    static let fail = Color(red: 1.00, green: 0.45, blue: 0.45)
+    static let warn = Color(red: 1.00, green: 0.78, blue: 0.35)
+    static let codeFont = Font.system(size: 13, design: .monospaced)
+
     static let hudFont = Font.system(.callout, design: .rounded).weight(.semibold)
     static let titleFont = Font.system(.title2, design: .rounded).weight(.bold)
 }

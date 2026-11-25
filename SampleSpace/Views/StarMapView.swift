@@ -2,10 +2,9 @@ import SwiftUI
 
 /// The main screen: a scrollable map of sectors joined by a flight route.
 struct StarMapView: View {
-    @State private var sectors: [Sector] = []
-    @State private var loadError: String?
+    @Environment(GameModel.self) private var model
     @State private var selectedID: Sector.ID?
-    private let player = PlayerSnapshot()
+    private var sectors: [Sector] { model.sectors }
     private let mapSize = CGSize(width: 1500, height: 900)
 
     var body: some View {
@@ -16,12 +15,14 @@ struct StarMapView: View {
                 ZStack {
                     RouteView(sectors: sectors, mapSize: mapSize)
                     ForEach(sectors) { sector in
-                        PlanetNode(sector: sector, isSelected: sector.id == selectedID)
-                            .position(x: sector.mapPosition.x * mapSize.width,
-                                      y: sector.mapPosition.y * mapSize.height)
-                            .onTapGesture {
-                                withAnimation(.spring(duration: 0.35)) { selectedID = sector.id }
-                            }
+                        Button {
+                            withAnimation(.spring(duration: 0.35)) { selectedID = sector.id }
+                        } label: {
+                            PlanetNode(sector: sector, isSelected: sector.id == selectedID)
+                        }
+                        .buttonStyle(.plain)
+                        .position(x: sector.mapPosition.x * mapSize.width,
+                                  y: sector.mapPosition.y * mapSize.height)
                     }
                 }
                 .frame(width: mapSize.width, height: mapSize.height)
@@ -29,9 +30,9 @@ struct StarMapView: View {
             }
             .scrollIndicators(.hidden)
         }
-        .overlay(alignment: .top) { HUDBar(player: player).padding(.top, 12) }
+        .overlay(alignment: .top) { HUDBar(player: model.player).padding(.top, 12) }
         .overlay {
-            if let loadError {
+            if let loadError = model.loadError {
                 ContentUnavailableView("Couldn't load the star map", systemImage: "exclamationmark.triangle",
                                        description: Text(loadError))
                     .padding(30)
@@ -39,16 +40,9 @@ struct StarMapView: View {
                     .frame(maxWidth: 520)
             }
         }
-        .task {
-            do {
-                sectors = try ContentLibrary.loadBundled().sectors
-            } catch {
-                loadError = error.localizedDescription
-            }
-        }
         .overlay(alignment: .trailing) {
             if let sector = sectors.first(where: { $0.id == selectedID }) {
-                SectorPanel(sector: sector) {
+                SectorPanel(sector: sector, bestStars: model.bestStars, open: model.open) {
                     withAnimation(.spring(duration: 0.3)) { selectedID = nil }
                 }
                 .padding(20)
@@ -155,7 +149,6 @@ private struct PlanetNode: View {
         .onHover { hovering = $0 }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
         .accessibilityLabel("\(sector.name), sector \(sector.id), \(locked ? "locked" : "open")")
     }
 
@@ -202,7 +195,15 @@ private struct HUDBar: View {
 
 private struct SectorPanel: View {
     let sector: Sector
+    let bestStars: [String: Int]
+    let open: (Level) -> Void
     let close: () -> Void
+
+    private var locked: Bool { sector.status == .locked }
+    /// The first level not cleared yet, else the first level.
+    private var nextLevel: Level? {
+        sector.levels.first { bestStars[$0.id] == nil } ?? sector.levels.first
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -230,21 +231,21 @@ private struct SectorPanel: View {
             levelList
 
             Button {
-                // Opening a level arrives in Step 4.
+                if let nextLevel { open(nextLevel) }
             } label: {
-                Label(sector.status == .locked ? "Locked" : "Enter sector",
-                      systemImage: sector.status == .locked ? "lock.fill" : "arrow.right.circle.fill")
+                Label(locked ? "Locked" : (sector.levels.contains { bestStars[$0.id] != nil } ? "Continue" : "Enter sector"),
+                      systemImage: locked ? "lock.fill" : "arrow.right.circle.fill")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
-            .disabled(true)
+            .disabled(locked || nextLevel == nil)
 
-            Text(sector.status == .locked
-                 ? "Clear the previous sector to unlock this one."
-                 : "Levels become playable in Step 4 of the build plan.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            if locked {
+                Text("Clear the previous sector to unlock this one.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .padding(20)
         .frame(width: 300)
@@ -269,25 +270,39 @@ private struct SectorPanel: View {
                 .textCase(.uppercase)
 
                 ForEach(Array(sector.levels.enumerated()), id: \.element.id) { index, level in
-                    HStack(alignment: .firstTextBaseline, spacing: 10) {
-                        Text("\(index + 1)")
-                            .font(.system(.caption, design: .rounded).weight(.bold))
-                            .frame(width: 20, height: 20)
-                            .background(sector.color.opacity(0.35), in: Circle())
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(level.title).font(.callout.weight(.semibold))
-                            Text(level.summary).font(.caption).foregroundStyle(.secondary)
-                        }
-                        Spacer(minLength: 0)
-                        Image(systemName: level.type.symbol)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .help(level.type.displayName)
-                    }
-                    .accessibilityElement(children: .combine)
+                    Button { open(level) } label: { levelRow(index: index, level: level) }
+                        .buttonStyle(.plain)
+                        .disabled(locked)
                 }
             }
         }
+    }
+
+    private func levelRow(index: Int, level: Level) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Text("\(index + 1)")
+                .font(.system(.caption, design: .rounded).weight(.bold))
+                .frame(width: 20, height: 20)
+                .background(sector.color.opacity(0.35), in: Circle())
+            VStack(alignment: .leading, spacing: 2) {
+                Text(level.title).font(.callout.weight(.semibold))
+                Text(level.summary).font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+            if let stars = bestStars[level.id] {
+                StarRow(count: stars, size: 9)
+            } else {
+                Image(systemName: level.type.symbol)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .help(level.type.displayName)
+            }
+        }
+        .padding(6)
+        .contentShape(Rectangle())
+        .background(.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 8))
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(locked ? "Locked" : "Opens the level")
     }
 
     private func section(_ title: String, _ body: String, symbol: String) -> some View {
