@@ -17,9 +17,11 @@
 #   expect_called(fn)                — the code calls fn(), e.g. "mean" or "dplyr::filter"
 #   expect_not_called(fn)            — the code does not call fn()
 #   expect_output(pattern, fixed)    — console output matches a regular expression
+#   expect_printed(value)            — the console shows value printed in full, e.g. [1] 152
 #   expect_plot(n = 1)               — at least n plots were drawn
 #   expect_no_error()                — the code ran without an error
 #   get_object(name)                 — the learner's object, or NULL if it does not exist
+#   learner_code()                   — the learner's code as one string
 #
 # This file is sourced by runner.R into an environment that also holds `.ss`, the run state.
 
@@ -77,6 +79,8 @@ get_object <- function(name) {
     NULL
   }
 }
+
+learner_code <- function() .ss$code
 
 expect_object <- function(name, value, tolerance = 1e-6, check_attributes = FALSE,
                           label = NULL, message = NULL) {
@@ -151,6 +155,15 @@ expect_output <- function(pattern, fixed = FALSE, label = NULL, message = NULL) 
   label <- label %||% sprintf("Output shows \"%s\"", pattern)
   .record(grepl(pattern, .ss$output_text(), fixed = fixed), label,
           message %||% "The console output doesn't show what was expected yet.")
+}
+
+expect_printed <- function(value, label = NULL, message = NULL) {
+  printed <- paste(utils::capture.output(print(value)), collapse = "\n")
+  label <- label %||% sprintf("Prints %s", printed)
+  # Match whole lines, so [1] 15 doesn't count as [1] 152.
+  ok <- grepl(paste0("\n", printed, "\n"), paste0("\n", .ss$output_text(), "\n"), fixed = TRUE)
+  .record(ok, label, message %||% sprintf(
+    "The console doesn't show %s yet. A value is printed when it is on a line by itself.", printed))
 }
 
 expect_plot <- function(n = 1, label = NULL, message = NULL) {

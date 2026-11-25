@@ -1,0 +1,12 @@
+{
+  "id": 0,
+  "name": "Launch Pad",
+  "r_skills": "Console, arithmetic, objects, functions, help",
+  "stats_concepts": "—",
+  "hue": 0.55,
+  "map_position": {
+    "x": 0.07,
+    "y": 0.78
+  },
+  "planet_size": 70
+}

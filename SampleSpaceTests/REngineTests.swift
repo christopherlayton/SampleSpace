@@ -84,6 +84,13 @@ struct REngineTests {
         #expect(texts(first, .output).last == "[1] 5")
     }
 
+    @Test func helpPagesAppearInTheConsole() async throws {
+        let result = try await run("?mean")
+        let help = try #require(texts(result, .output).first)
+        #expect(help.contains("Arithmetic Mean"))
+        #expect(!help.contains("\u{8}"), "terminal underline formatting should be stripped")
+    }
+
     @Test func quitIsSwitchedOff() async throws {
         let result = try await run("q()")
         #expect(result.status == .error)

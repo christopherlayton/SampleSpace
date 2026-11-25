@@ -1,0 +1,12 @@
+{
+  "id": 3,
+  "name": "Wrangler's Reach",
+  "r_skills": "dplyr verbs, pipes, recoding, missing data",
+  "stats_concepts": "Reverse-scoring, composite scales",
+  "hue": 0.95,
+  "map_position": {
+    "x": 0.37,
+    "y": 0.5
+  },
+  "planet_size": 60
+}

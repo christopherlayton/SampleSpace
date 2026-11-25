@@ -1,0 +1,12 @@
+{
+  "id": 4,
+  "name": "Descriptive Drift",
+  "r_skills": "mean, sd, psych::describe, tables",
+  "stats_concepts": "Central tendency, spread, skew, z-scores",
+  "hue": 0.15,
+  "map_position": {
+    "x": 0.3,
+    "y": 0.22
+  },
+  "planet_size": 56
+}

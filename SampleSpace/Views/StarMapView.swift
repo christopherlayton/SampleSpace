@@ -2,7 +2,8 @@ import SwiftUI
 
 /// The main screen: a scrollable map of sectors joined by a flight route.
 struct StarMapView: View {
-    @State private var sectors = Sector.placeholderMap
+    @State private var sectors: [Sector] = []
+    @State private var loadError: String?
     @State private var selectedID: Sector.ID?
     private let player = PlayerSnapshot()
     private let mapSize = CGSize(width: 1500, height: 900)
@@ -29,6 +30,22 @@ struct StarMapView: View {
             .scrollIndicators(.hidden)
         }
         .overlay(alignment: .top) { HUDBar(player: player).padding(.top, 12) }
+        .overlay {
+            if let loadError {
+                ContentUnavailableView("Couldn't load the star map", systemImage: "exclamationmark.triangle",
+                                       description: Text(loadError))
+                    .padding(30)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+                    .frame(maxWidth: 520)
+            }
+        }
+        .task {
+            do {
+                sectors = try ContentLibrary.loadBundled().sectors
+            } catch {
+                loadError = error.localizedDescription
+            }
+        }
         .overlay(alignment: .trailing) {
             if let sector = sectors.first(where: { $0.id == selectedID }) {
                 SectorPanel(sector: sector) {
@@ -210,8 +227,10 @@ private struct SectorPanel: View {
 
             Divider()
 
+            levelList
+
             Button {
-                // Level list arrives in Step 3.
+                // Opening a level arrives in Step 4.
             } label: {
                 Label(sector.status == .locked ? "Locked" : "Enter sector",
                       systemImage: sector.status == .locked ? "lock.fill" : "arrow.right.circle.fill")
@@ -223,7 +242,7 @@ private struct SectorPanel: View {
 
             Text(sector.status == .locked
                  ? "Clear the previous sector to unlock this one."
-                 : "Levels arrive in Step 3 of the build plan.")
+                 : "Levels become playable in Step 4 of the build plan.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -231,6 +250,44 @@ private struct SectorPanel: View {
         .frame(width: 300)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
         .overlay(RoundedRectangle(cornerRadius: 20).stroke(sector.color.opacity(0.5), lineWidth: 1))
+    }
+
+    @ViewBuilder private var levelList: some View {
+        if sector.levels.isEmpty {
+            Label("Levels for this sector haven't been charted yet.", systemImage: "hourglass")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("\(sector.levels.count) levels")
+                    Spacer()
+                    Text("\(sector.totalXP) XP")
+                }
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Theme.accent)
+                .textCase(.uppercase)
+
+                ForEach(Array(sector.levels.enumerated()), id: \.element.id) { index, level in
+                    HStack(alignment: .firstTextBaseline, spacing: 10) {
+                        Text("\(index + 1)")
+                            .font(.system(.caption, design: .rounded).weight(.bold))
+                            .frame(width: 20, height: 20)
+                            .background(sector.color.opacity(0.35), in: Circle())
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(level.title).font(.callout.weight(.semibold))
+                            Text(level.summary).font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: level.type.symbol)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .help(level.type.displayName)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
+        }
     }
 
     private func section(_ title: String, _ body: String, symbol: String) -> some View {

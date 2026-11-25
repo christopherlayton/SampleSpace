@@ -1,0 +1,13 @@
+{
+  "id": 12,
+  "name": "Python Wormhole",
+  "r_skills": "pandas, statsmodels, seaborn",
+  "stats_concepts": "The same analyses in Python",
+  "hue": 0.85,
+  "map_position": {
+    "x": 0.92,
+    "y": 0.5
+  },
+  "planet_size": 54,
+  "optional": true
+}

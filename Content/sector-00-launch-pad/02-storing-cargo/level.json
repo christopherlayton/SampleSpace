@@ -1,0 +1,13 @@
+{
+  "id": "launch-pad.storing-cargo",
+  "title": "Storing Cargo",
+  "summary": "Save values in named objects with <- and calculate with them.",
+  "type": "code",
+  "xp": 60,
+  "par": 2,
+  "hints": [
+    "`n_responses <- 40` stores 40 in an object called `n_responses`.",
+    "Use the object names in your calculation, not the numbers: `n_responses * mean_satisfaction`.",
+    "Saving a value prints nothing. Type `total_points` on a line by itself to print it."
+  ]
+}

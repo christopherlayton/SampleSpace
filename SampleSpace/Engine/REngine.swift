@@ -123,7 +123,7 @@ private struct JobFile: Encodable {
     let setup: String?
     let seed: Int?
     let timeLimit: Double
-    let workingDir: String?
+    let dataDir: String?
     let width: Int
     let outputDir: String
 
@@ -133,7 +133,7 @@ private struct JobFile: Encodable {
         setup = job.setup
         seed = job.seed
         timeLimit = job.timeLimit
-        workingDir = job.workingDirectory?.path
+        dataDir = job.dataDirectory?.path
         width = job.consoleWidth
         self.outputDir = outputDir
     }
@@ -141,7 +141,7 @@ private struct JobFile: Encodable {
     enum CodingKeys: String, CodingKey {
         case code, checks, setup, seed, width
         case timeLimit = "time_limit"
-        case workingDir = "working_dir"
+        case dataDir = "data_dir"
         case outputDir = "output_dir"
     }
 }

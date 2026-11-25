@@ -1,0 +1,12 @@
+{
+  "id": 8,
+  "name": "Means Cluster",
+  "r_skills": "t.test, leveneTest, cohens_d",
+  "stats_concepts": "One-sample, independent and paired t-tests",
+  "hue": 0.02,
+  "map_position": {
+    "x": 0.63,
+    "y": 0.83
+  },
+  "planet_size": 58
+}

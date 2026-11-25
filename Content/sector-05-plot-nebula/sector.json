@@ -1,0 +1,13 @@
+{
+  "id": 5,
+  "name": "Plot Nebula",
+  "r_skills": "ggplot2",
+  "stats_concepts": "Reading distributions visually",
+  "hue": 0.78,
+  "map_position": {
+    "x": 0.45,
+    "y": 0.15
+  },
+  "planet_size": 66,
+  "ring": true
+}

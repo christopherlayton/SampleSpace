@@ -12,8 +12,9 @@ struct RJob: Sendable {
     var seed: Int?
     /// How long the learner's code may run, in seconds.
     var timeLimit: Double = 10
-    /// Working directory for the learner's code. Defaults to the run's scratch folder.
-    var workingDirectory: URL?
+    /// A folder of data files (CSV, .sav…) copied into the run's scratch folder, which is
+    /// the learner's working directory, so `read_csv("file.csv")` finds them.
+    var dataDirectory: URL?
     /// Console width R formats output to.
     var consoleWidth: Int = 80
 }

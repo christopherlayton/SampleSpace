@@ -1,0 +1,12 @@
+{
+  "id": 11,
+  "name": "Dissertation Dock",
+  "r_skills": "Quarto, APA tables, renv",
+  "stats_concepts": "A full reproducible analysis",
+  "hue": 0.12,
+  "map_position": {
+    "x": 0.85,
+    "y": 0.17
+  },
+  "planet_size": 80
+}

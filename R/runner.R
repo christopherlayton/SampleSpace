@@ -9,7 +9,8 @@
 #   setup       R code run silently in the learner's environment first (e.g. load data)
 #   seed        integer passed to set.seed() just before the learner's code
 #   time_limit  seconds the learner's code may run (default 10)
-#   working_dir working directory for the learner's code (default output_dir)
+#   data_dir    folder whose data files are copied into output_dir, the learner's working
+#               directory (level files — *.R, *.md, *.json — are skipped)
 #   width       console width (default 80)
 #
 # result.json fields:
@@ -145,8 +146,18 @@ local({
   }
 
   run <- function() {
-    options(width = job$width %||% 80, warn = 0, digits = 7)
+    options(width = job$width %||% 80, warn = 0, digits = 7, help_type = "text")
     Sys.setenv(LANGUAGE = "en")
+
+    # Help pages (?mean) normally go to a pager outside R's output; print them into the
+    # console instead, without the backspace-underline formatting R uses for terminals.
+    options(pager = function(files, header, title, delete.file) {
+      for (f in files) {
+        lines <- readLines(f, warn = FALSE, encoding = "UTF-8")
+        cat(gsub("_\b", "", lines, fixed = TRUE), sep = "\n")
+        if (isTRUE(delete.file)) unlink(f)
+      }
+    })
 
     # The learner's environment. Its parent switches off quit(), which would end the
     # run without a result.
@@ -157,7 +168,13 @@ local({
     learner <- new.env(parent = sandbox)
     .ss$learner <- learner
 
-    setwd(job$working_dir %||% out_dir)
+    if (!is.null(job$data_dir)) {
+      data_files <- list.files(job$data_dir, full.names = TRUE)
+      data_files <- data_files[!dir.exists(data_files) &
+                               !grepl("\\.(R|md|json)$", data_files, ignore.case = TRUE)]
+      file.copy(data_files, out_dir)
+    }
+    setwd(out_dir)
 
     if (!is.null(job$setup) && nzchar(job$setup)) {
       eval(parse(text = job$setup, keep.source = FALSE), learner)

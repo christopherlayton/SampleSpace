@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "name": "Vector Belt",
+  "r_skills": "c(), indexing, types, NA, factors",
+  "stats_concepts": "Levels of measurement",
+  "hue": 0.08,
+  "map_position": {
+    "x": 0.17,
+    "y": 0.52
+  },
+  "planet_size": 58,
+  "ring": true
+}

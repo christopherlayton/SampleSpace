@@ -1,0 +1,13 @@
+{
+  "id": "launch-pad.calculator-console",
+  "title": "Calculator Console",
+  "summary": "Use R as a calculator, and see why order of operations matters.",
+  "type": "code",
+  "xp": 50,
+  "par": 2,
+  "hints": [
+    "Type `23 + 17` on a line by itself and R prints the answer.",
+    "A mean is the sum of the values divided by how many values there are.",
+    "R divides before it adds, so add first inside parentheses: `(4 + 7 + 10) / 3`."
+  ]
+}

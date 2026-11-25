@@ -1,0 +1,12 @@
+{
+  "id": 10,
+  "name": "Relationship Ring",
+  "r_skills": "cor.test, chisq.test, lm",
+  "stats_concepts": "Correlation, chi-square, regression",
+  "hue": 0.4,
+  "map_position": {
+    "x": 0.7,
+    "y": 0.28
+  },
+  "planet_size": 64
+}

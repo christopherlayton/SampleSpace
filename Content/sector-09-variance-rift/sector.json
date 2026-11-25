@@ -1,0 +1,13 @@
+{
+  "id": 9,
+  "name": "Variance Rift",
+  "r_skills": "aov, TukeyHSD, afex",
+  "stats_concepts": "One-way, factorial, repeated-measures ANOVA",
+  "hue": 0.7,
+  "map_position": {
+    "x": 0.74,
+    "y": 0.6
+  },
+  "planet_size": 68,
+  "ring": true
+}

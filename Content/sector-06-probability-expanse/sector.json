@@ -1,0 +1,12 @@
+{
+  "id": 6,
+  "name": "Probability Expanse",
+  "r_skills": "rnorm, pnorm, sample, replicate",
+  "stats_concepts": "Sampling distributions, CLT, standard error",
+  "hue": 0.48,
+  "map_position": {
+    "x": 0.55,
+    "y": 0.38
+  },
+  "planet_size": 72
+}

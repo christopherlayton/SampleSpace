@@ -19,5 +19,5 @@ Xcode-beta is the only Xcode and is not the selected toolchain, so the scripts s
 ## Conventions
 - App Sandbox is off (the app runs `/usr/local/bin/Rscript`).
 - The R harness is `R/runner.R` + `R/checks.R` (documented at the top of each); Swift side is `SampleSpace/Engine/`.
-- Levels are folders under `Content/` (level.json, lesson.md, starter.R, solution.R, check.R). Run `scripts/validate_content.sh` after adding or changing levels.
+- Levels are folders under `Content/sector-NN-slug/` (level.json, lesson.md, starter.R, solution.R, check.R, optional setup.R and data files); each sector has a sector.json. Check helpers are listed at the top of `R/checks.R`. Run `scripts/validate_content.sh` after adding or changing levels: solutions must pass and starters must not.
 - Stats explanations should be correct and APA-aware; the learner's coursework covers t-tests, ANOVA, chi-square, correlation and regression.

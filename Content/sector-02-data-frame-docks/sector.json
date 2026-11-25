@@ -1,0 +1,12 @@
+{
+  "id": 2,
+  "name": "Data Frame Docks",
+  "r_skills": "Data frames, tibbles, read_csv, haven::read_sav",
+  "stats_concepts": "Variables vs. cases",
+  "hue": 0.33,
+  "map_position": {
+    "x": 0.27,
+    "y": 0.76
+  },
+  "planet_size": 64
+}

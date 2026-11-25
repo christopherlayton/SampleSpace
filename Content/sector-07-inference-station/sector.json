@@ -1,0 +1,12 @@
+{
+  "id": 7,
+  "name": "Inference Station",
+  "r_skills": "Simulation",
+  "stats_concepts": "p-values, CIs, Type I/II error, effect size, power",
+  "hue": 0.62,
+  "map_position": {
+    "x": 0.5,
+    "y": 0.67
+  },
+  "planet_size": 62
+}

@@ -1,0 +1,13 @@
+{
+  "id": "launch-pad.function-thrusters",
+  "title": "Function Thrusters",
+  "summary": "Call functions with arguments, name the arguments, and look up help.",
+  "type": "code",
+  "xp": 70,
+  "par": 2,
+  "hints": [
+    "`mean(reaction_times)` gives the average of the vector.",
+    "`round()` takes the number first, then `digits`: `round(avg_rt, digits = 2)`.",
+    "`min()` returns the smallest value, so `fastest <- min(reaction_times)`."
+  ]
+}
