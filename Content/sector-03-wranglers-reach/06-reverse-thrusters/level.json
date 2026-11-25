@@ -1,0 +1,13 @@
+{
+  "id": "wranglers-reach.reverse-thrusters",
+  "title": "Reverse Thrusters",
+  "summary": "Reverse-score negatively worded items and average a composite scale score with rowMeans().",
+  "type": "code",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "On a 1–5 scale the reversed score is `6 - x`: `mutate(m2_r = 6 - m2, m5_r = 6 - m5)`.",
+    "`cor(morale$m1, morale$m2, use = \"complete.obs\")` before, and the same with `m2_r` after.",
+    "`mutate(morale_score = rowMeans(pick(m1, m2_r, m3, m4, m5_r, m6), na.rm = TRUE))`, then `mean(morale$morale_score)`."
+  ]
+}

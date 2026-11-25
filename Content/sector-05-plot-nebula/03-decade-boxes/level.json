@@ -1,0 +1,13 @@
+{
+  "id": "plot-nebula.decade-boxes",
+  "title": "Decade Boxes",
+  "summary": "Boxplots of mission length by decade, on a log scale, with the medians to match.",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "hints": [
+    "`floor(year_of_mission / 10) * 10` turns 1987 into 1980. Add it with `mutate(decade = ...)`.",
+    "Boxplots need a category on x: `aes(x = factor(decade), y = hours_mission)` + `geom_boxplot()`.",
+    "Add `+ scale_y_log10()` to `p_box` to make `p_log`. For the medians: `group_by(decade) |> summarise(median_hours = median(hours_mission))`."
+  ]
+}

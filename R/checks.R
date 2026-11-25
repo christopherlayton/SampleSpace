@@ -20,6 +20,10 @@
 #   expect_printed(value)            — the console shows value printed in full, e.g. [1] 152
 #   expect_plot(n = 1)               — at least n plots were drawn
 #   expect_no_error()                — the code ran without an error
+#   expect_ggplot(name, geom, aes)   — object is a ggplot with that layer, e.g. geom = "boxplot",
+#                                      aes = c(x = "decade", y = "hours_mission"); a mapped
+#                                      expression counts if it uses the variable (factor(decade))
+#   gg_label(plot, which)            — a plot's axis/legend/title label, e.g. gg_label(p, "x")
 #   get_object(name)                 — the learner's object, or NULL if it does not exist
 #   learner_code()                   — the learner's code as one string
 #
@@ -176,3 +180,61 @@ expect_no_error <- function(label = "Runs without an error", message = NULL) {
   .record(.ss$status == "ok", label,
           message %||% "Your code stopped with an error. Fix that first; the console shows where.")
 }
+
+# geom_*() names → how the layer looks inside a ggplot (geom class, and stat where two share a geom).
+.gg_geoms <- list(
+  histogram = c("GeomBar", "StatBin"), bar = c("GeomBar", "StatCount"), col = c("GeomCol", NA),
+  boxplot = c("GeomBoxplot", NA), point = c("GeomPoint", NA), jitter = c("GeomPoint", NA),
+  errorbar = c("GeomErrorbar", NA), smooth = c("GeomSmooth", NA), line = c("GeomLine", NA),
+  density = c("GeomDensity", NA), violin = c("GeomViolin", NA), hline = c("GeomHline", NA),
+  vline = c("GeomVline", NA), pointrange = c("GeomPointrange", NA)
+)
+
+.gg_has_geom <- function(layer, geom) {
+  want <- .gg_geoms[[geom]]
+  if (is.null(want)) return(inherits(layer$geom, paste0("Geom", tools::toTitleCase(geom))))
+  if (geom == "histogram" || geom == "bar") {
+    return(class(layer$geom)[1] == "GeomBar" && inherits(layer$stat, want[2]))
+  }
+  class(layer$geom)[1] == want[1]
+}
+
+# Does this layer (with the plot's own mapping underneath) map aesthetic `aes` to variable `var`?
+.gg_maps <- function(plot, layer, aes, var) {
+  mapping <- utils::modifyList(as.list(plot$mapping), as.list(if (is.null(layer)) list() else layer$mapping))
+  m <- mapping[[aes]] %||% if (aes == "colour") mapping[["color"]] else NULL
+  if (is.null(m)) return(FALSE)
+  expr <- rlang::quo_get_expr(m)
+  identical(rlang::as_label(m), var) || var %in% all.vars(expr)
+}
+
+expect_ggplot <- function(name, geom = NULL, aes = NULL, label = NULL, message = NULL) {
+  parts <- c(if (!is.null(geom)) sprintf("`geom_%s()`", geom),
+             if (length(aes)) paste(sprintf("%s = %s", names(aes), aes), collapse = ", "))
+  label <- label %||% sprintf("`%s` is a ggplot%s", name,
+                              if (length(parts)) paste0(" with ", paste(parts, collapse = " and ")) else "")
+  p <- get_object(name)
+  if (is.null(p)) return(.record(FALSE, label, message %||% sprintf(
+    "There is no object called `%s` yet. Store the plot: `%s <- ggplot(...) + ...`.", name, name)))
+  if (!inherits(p, "ggplot")) return(.record(FALSE, label, message %||% sprintf(
+    "`%s` isn't a ggplot. Build it with `ggplot(data, aes(...))` and add layers with `+`.", name)))
+  layers <- if (is.null(geom)) list(NULL) else Filter(function(l) .gg_has_geom(l, geom), p$layers)
+  if (!length(layers)) return(.record(FALSE, label, message %||% sprintf(
+    "`%s` has no `geom_%s()` layer yet. Add one with `+ geom_%s()`.", name, geom, geom)))
+  for (a in names(aes)) {
+    if (!any(vapply(layers, function(l) .gg_maps(p, l, a, aes[[a]]), TRUE))) {
+      return(.record(FALSE, label, message %||% sprintf(
+        "Map `%s = %s` inside `aes()`. Settings outside `aes()` (like `fill = \"blue\"`) apply one fixed value instead.",
+        a, aes[[a]])))
+    }
+  }
+  .record(TRUE, label, NULL)
+}
+
+gg_label <- function(plot, which) {
+  if (!inherits(plot, "ggplot")) return(NULL)
+  labs <- if (exists("get_labs", asNamespace("ggplot2"))) ggplot2::get_labs(plot) else plot$labels
+  value <- labs[[which]]
+  if (is.null(value) || is.function(value) || inherits(value, "waiver")) NULL else as.character(value)
+}
+

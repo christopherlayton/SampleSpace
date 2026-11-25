@@ -1,0 +1,13 @@
+{
+  "id": "wranglers-reach.typo-patrol",
+  "title": "Typo Patrol",
+  "summary": "Find misspelt categories and fix them with case_when() and tolower().",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "hints": [
+    "`sort(unique(astronauts$nationality))` lists every spelling. Look for \"Hungry\", \"Malysia\" and \"Netherland\".",
+    "`case_when(nationality == \"Hungry\" ~ \"Hungary\", nationality == \"Malysia\" ~ \"Malaysia\", nationality == \"Netherland\" ~ \"Netherlands\", .default = nationality)` inside `mutate()`.",
+    "`n_distinct(astronauts$occupation)` counts the spellings before; after `mutate(occupation = tolower(occupation))` count them again in `clean`."
+  ]
+}

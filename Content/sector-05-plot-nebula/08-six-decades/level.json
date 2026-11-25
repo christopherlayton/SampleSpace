@@ -1,0 +1,13 @@
+{
+  "id": "plot-nebula.six-decades",
+  "title": "Six Decades",
+  "summary": "Sector review: a publication-ready figure of six decades of missions, with labels and an APA-style theme.",
+  "type": "code",
+  "xp": 150,
+  "par": 3,
+  "hints": [
+    "`decade_medians` is `missions |> group_by(decade) |> summarise(median_hours = median(hours_mission))`.",
+    "Points joined by a line: `ggplot(decade_medians, aes(x = decade, y = median_hours)) + geom_line() + geom_point()`.",
+    "Finish with `+ labs(x = \"Decade\", y = \"Median mission length (hours)\") + theme_classic()`, and `ggsave(\"six_decades.png\", p_final, width = 6, height = 4)`."
+  ]
+}

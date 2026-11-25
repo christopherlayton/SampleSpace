@@ -1,0 +1,13 @@
+{
+  "id": "plot-nebula.broken-telescope",
+  "title": "Broken Telescope",
+  "summary": "Debug two broken plots: a missing library, a + in the wrong place, |> for +, and a colour inside aes().",
+  "type": "debug",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "`could not find function \"ggplot\"` means the package isn't loaded. Then: a line can't *start* with `+`; move it to the end of the line before.",
+    "Layers join with `+`, not `|>`.",
+    "`fill = \"steelblue\"` inside `aes()` is treated as data. Move it into `geom_histogram(bins = 30, fill = \"steelblue\")`."
+  ]
+}

@@ -26,6 +26,10 @@ data will take.
   first woman, longest mission, most missions). No lesson asks about an individual's
   personal details.
 - Ages are approximate: the log has year of birth and year of mission, not dates.
+- **"564 astronauts" counts IDs.** In the source, ID 385 is shared by two people (Yuri Baturin
+  and Pedro Duque), so there are really 565 people. The game follows the source's IDs, as the
+  published database does, and Crew Roster (Wrangler's Reach) points the problem out as a
+  lesson in checking that an ID identifies one person.
 
 ## Where the story appears
 
@@ -76,4 +80,7 @@ sd(a$hours_mission)                                                  # 1714.8 (S
 age <- f$year_of_mission - f$year_of_birth; mean(age); sd(age)      # 40.3, 5.25 (Distribution Sculptor)
 c("Hungry", "Malysia") %in% f$nationality                           # TRUE TRUE (typos in the source)
 c("pilot", "Pilot") %in% a$occupation                                # TRUE TRUE (inconsistent capitals)
+"Netherland" %in% f$nationality                                     # TRUE (a third nationality typo)
+r <- tapply(a$eva_hrs_mission, a$number, sum); length(r); sum(r > 0) # 564 IDs, 232 spacewalkers (Crew Roster)
+unique(a$name[a$number == 385])                                      # Baturin, Duque: one ID, two people
 ```

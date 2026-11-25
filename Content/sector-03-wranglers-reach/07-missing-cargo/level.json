@@ -1,0 +1,13 @@
+{
+  "id": "wranglers-reach.missing-cargo",
+  "title": "Missing Cargo",
+  "summary": "Debug a missing-data report: a misspelt package, != NA, a missing na.rm and over-eager na.omit().",
+  "type": "debug",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "The first error names a package that doesn't exist. Check the spelling of dplyr.",
+    "`x != NA` is always NA, so `filter()` keeps nothing. Ask the question with `!is.na(sleep_hours)`. And `mean()` needs `na.rm = TRUE`.",
+    "`na.omit(morale)` drops anyone missing *anything*, sleep included. Look only at the items: `morale |> filter(if_all(m1:m6, ~ !is.na(.x))) |> nrow()`."
+  ]
+}

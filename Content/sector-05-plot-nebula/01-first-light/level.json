@@ -1,0 +1,13 @@
+{
+  "id": "plot-nebula.first-light",
+  "title": "First Light",
+  "summary": "Your first ggplot: histograms of mission length and age at first flight, and what their shapes say.",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "`p_hours <- ggplot(astronauts, aes(x = hours_mission)) + geom_histogram(bins = 40)`, then `p_hours` on its own line to draw it.",
+    "Make the ages first: `first_flights <- astronauts |> filter(mission_number == 1) |> mutate(age = year_of_mission - year_of_birth)`.",
+    "`p_age <- ggplot(first_flights, aes(x = age)) + geom_histogram(binwidth = 2)`, and print it too."
+  ]
+}

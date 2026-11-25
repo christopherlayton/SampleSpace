@@ -1,0 +1,13 @@
+{
+  "id": "descriptive-drift.z-scores",
+  "title": "Standard Candles",
+  "summary": "Standardise mission lengths as z-scores, find the extremes, and see what z can't do.",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "hints": [
+    "`z_hours <- (hours - mean(hours)) / sd(hours)`, or `as.numeric(scale(hours))`.",
+    "`sum(abs(z_hours) > 3)` counts values more than 3 SDs from the mean, on either side.",
+    "Below the mean means a negative z: `mean(z_hours < 0)` gives the proportion. Compare it with 0.5."
+  ]
+}

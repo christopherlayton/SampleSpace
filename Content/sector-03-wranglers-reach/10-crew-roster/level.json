@@ -1,0 +1,45 @@
+{
+  "id": "wranglers-reach.crew-roster",
+  "title": "Crew Roster",
+  "summary": "Translate SPSS Aggregate: collapse the mission log to one row per astronaut and count the spacewalkers.",
+  "type": "spss_translate",
+  "xp": 150,
+  "par": 3,
+  "hints": [
+    "Fix the nationalities first with `case_when()`, exactly as in Typo Patrol.",
+    "SPSS's BREAK variable is the `group_by()`: `group_by(number) |> summarise(name = first(name), sex = first(sex), nationality = first(nationality), missions = n(), total_hours = sum(hours_mission), eva_hours = sum(eva_hrs_mission))`.",
+    "A spacewalker has `eva_hours > 0`: `sum(roster$eva_hours > 0)`, and the percentage is that divided by `nrow(roster)`, times 100, rounded to 1 decimal."
+  ],
+  "spss": {
+    "menu": ["Data", "Aggregate…"],
+    "dialog": [
+      { "label": "Break Variable(s)", "value": "number" },
+      { "label": "Summaries of Variable(s)", "value": "name = FIRST(name), sex = FIRST(sex), nationality = FIRST(nationality), missions = N, total_hours = SUM(hours_mission), eva_hours = SUM(eva_hrs_mission)" },
+      { "label": "Save", "value": "Create a new dataset: roster" }
+    ],
+    "syntax": "DATASET DECLARE roster.\nAGGREGATE\n  /OUTFILE='roster'\n  /BREAK=number\n  /name=FIRST(name)\n  /sex=FIRST(sex)\n  /nationality=FIRST(nationality)\n  /missions=N\n  /total_hours=SUM(hours_mission)\n  /eva_hours=SUM(eva_hrs_mission).\nDATASET ACTIVATE roster.\nCOMPUTE spacewalker = eva_hours > 0.\nFREQUENCIES VARIABLES=spacewalker.",
+    "output": [
+      {
+        "title": "roster (Data Editor, first 5 cases)",
+        "columns": ["", "number", "name", "sex", "nationality", "missions", "total_hours", "eva_hours"],
+        "rows": [
+          ["1", "1", "Gagarin, Yuri", "male", "U.S.S.R/Russia", "1", "1.77", ".00"],
+          ["2", "2", "Titov, Gherman", "male", "U.S.S.R/Russia", "1", "25.00", ".00"],
+          ["3", "3", "Glenn, John H., Jr.", "male", "U.S.", "2", "218.00", ".00"],
+          ["4", "4", "Carpenter, M. Scott", "male", "U.S.", "1", "5.00", ".00"],
+          ["5", "5", "Nikolayev, Andriyan", "male", "U.S.S.R/Russia", "2", "518.00", ".00"]
+        ]
+      },
+      {
+        "title": "spacewalker",
+        "columns": ["", "", "Frequency", "Percent", "Valid Percent", "Cumulative Percent"],
+        "row_header_columns": 2,
+        "rows": [
+          ["Valid", ".00", "332", "58.9", "58.9", "58.9"],
+          ["", "1.00", "232", "41.1", "41.1", "100.0"],
+          ["", "Total", "564", "100.0", "100.0", ""]
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "plot-nebula.crew-bars",
+  "title": "Crew Bars",
+  "summary": "Bar charts of counts and proportions with geom_bar(), stacked, dodged and filled.",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "hints": [
+    "First flights with decades: `astronauts |> filter(mission_number == 1) |> mutate(decade = floor(year_of_mission / 10) * 10)`.",
+    "`geom_bar()` counts rows for you: `ggplot(first_flights, aes(x = factor(decade), fill = sex)) + geom_bar()`. Add `position = \"fill\"` inside `geom_bar()` for proportions.",
+    "Counts per decade: `group_by(decade) |> summarise(flyers = n(), women = sum(sex == \"female\"))`."
+  ]
+}

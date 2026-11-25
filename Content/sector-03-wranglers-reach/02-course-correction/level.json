@@ -1,0 +1,13 @@
+{
+  "id": "wranglers-reach.course-correction",
+  "title": "Course Correction",
+  "summary": "Make new columns with mutate(), sort with arrange(), and take the top rows with slice_head().",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "One `mutate()` can make several columns: `mutate(days = hours_mission / 24, age_at_mission = year_of_mission - year_of_birth)`.",
+    "`arrange(desc(days))` puts the longest first; then `select(name, year_of_mission, days)` and `slice_head(n = 5)`.",
+    "`max(missions$age_at_mission)` gives the oldest age."
+  ]
+}

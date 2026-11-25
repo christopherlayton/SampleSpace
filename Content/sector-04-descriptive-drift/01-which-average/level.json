@@ -1,0 +1,13 @@
+{
+  "id": "descriptive-drift.which-average",
+  "title": "Which Average?",
+  "summary": "Mean, median and mode of real mission lengths, and why they disagree.",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "`mean(astronauts$hours_mission)` and `median(astronauts$hours_mission)`.",
+    "R has no function for the mode. Count with `table()` on the first-flight rows, then take the name of the biggest count: `names(counts)[which.max(counts)]`.",
+    "`names()` gives text, so turn the mode into a number with `as.numeric()`."
+  ]
+}

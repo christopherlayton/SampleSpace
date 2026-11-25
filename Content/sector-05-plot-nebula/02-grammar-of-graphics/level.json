@@ -1,0 +1,72 @@
+{
+  "id": "plot-nebula.grammar-of-graphics",
+  "title": "Grammar of Graphics",
+  "summary": "Data, aesthetics, geoms and layers: how a ggplot is put together.",
+  "type": "briefing",
+  "xp": 50,
+  "hints": [
+    "Inside `aes()` you map a *column*; outside it you set one fixed value.",
+    "`fill` colours the inside of bars and boxes; `colour` colours points, lines and outlines.",
+    "Layers are joined with `+`. A `+` has to end a line, not start one."
+  ],
+  "quiz": [
+    {
+      "prompt": "`ggplot(crew, aes(x = programme, y = morale)) + geom_boxplot()`. What does `aes()` do here?",
+      "choices": [
+        "Sets the colours of the boxes",
+        "Maps the `programme` column to the x-axis and `morale` to the y-axis",
+        "Sorts the data by programme",
+        "Chooses the boxplot style"
+      ],
+      "answer": 1,
+      "explain": "`aes()` (aesthetics) connects **columns** to visual properties. Every value of `programme` gets its own x position; morale sets the height."
+    },
+    {
+      "prompt": "You write `geom_point(aes(colour = \"blue\"))` and get red points with a legend that says \"blue\". Why?",
+      "choices": [
+        "ggplot doesn't know the colour blue",
+        "Inside `aes()`, \"blue\" is treated as data (a category called \"blue\"), so it gets the first default colour",
+        "Points can only be red",
+        "colour should be spelt color"
+      ],
+      "answer": 1,
+      "explain": "**Inside** `aes()` maps data; **outside** sets a constant. For blue points, write `geom_point(colour = \"blue\")`. (Both spellings, colour and color, work.)"
+    },
+    {
+      "prompt": "Bars should be filled by sex. Which do you need?",
+      "choices": [
+        "`aes(colour = sex)`",
+        "`aes(fill = sex)`",
+        "`fill(sex)`",
+        "`aes(group = sex)`"
+      ],
+      "answer": 1,
+      "explain": "`fill` is the inside of bars, boxes and areas; `colour` is points, lines and the *outline* of shapes. `colour = sex` on bars would only tint their edges."
+    },
+    {
+      "prompt": "This fails with *invalid argument to unary operator*. What's wrong?",
+      "choices": [
+        "`geom_histogram()` needs a `bins` argument",
+        "The `+` starts the second line, so R thinks the first line was already complete",
+        "`ggplot()` must be stored in an object first",
+        "Histograms need a y aesthetic"
+      ],
+      "answer": 1,
+      "explain": "R runs a line as soon as it is a complete expression. Line 1 is complete, so line 2 is read as \"plus geom_histogram()\" on its own. Always end the line with `+`.",
+      "code": "ggplot(astronauts, aes(x = hours_mission))\n  + geom_histogram()",
+      "run": false,
+      "choices_are_code": false
+    },
+    {
+      "prompt": "`p <- ggplot(a, aes(x = hours)) + geom_histogram()` runs without error, but no plot appears. Why?",
+      "choices": [
+        "The data are empty",
+        "Assigning stores the plot without drawing it; run `p` or `print(p)`",
+        "ggplot2 isn't loaded",
+        "Histograms only draw in RStudio"
+      ],
+      "answer": 1,
+      "explain": "Assignment is silent in R, for plots as for numbers. Storing plots is useful: you can add layers later (`p + labs(...)`) or save them with `ggsave()`."
+    }
+  ]
+}

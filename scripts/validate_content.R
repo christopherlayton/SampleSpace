@@ -7,7 +7,8 @@
 # Quiz levels (briefing, predict): no R files needed; every question has a prompt, at
 #                  least two choices and a valid 0-based answer; Predict questions have code,
 #                  which must run, and (unless "match_output": false) R's printed output must
-#                  match the right choice and no other choice.
+#                  match the right choice and no other choice. ("run": false shows code without
+#                  running it.)
 # SPSS Translate:  an "spss" object with a menu path and output tables whose rows have as
 #                  many cells as there are columns.
 #
@@ -124,7 +125,7 @@ check_quiz <- function(raw, meta, level_dir, where) {
       next
     }
     if (identical(meta$type, "predict") && is.null(q$code)) problem(where, paste(tag, "needs code to predict"))
-    if (is.null(q$code)) next
+    if (is.null(q$code) || isFALSE(q$run)) next
     result <- run_job(level_dir, q$code, NULL, meta)
     shown <- console_text(result)
     if (identical(result$status, "runner_error")) {

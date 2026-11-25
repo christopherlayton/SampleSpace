@@ -1,0 +1,64 @@
+{
+  "id": "descriptive-drift.shape-of-data",
+  "title": "Shape of the Data",
+  "summary": "Skewness, kurtosis and outliers: reading a distribution's shape from its numbers.",
+  "type": "briefing",
+  "xp": 50,
+  "hints": [
+    "The mean is pulled toward the long tail.",
+    "For skewed data, describe the centre and spread with statistics that ignore extremes.",
+    "Excess kurtosis compares the tails with a normal curve, which has 0."
+  ],
+  "quiz": [
+    {
+      "prompt": "Mission lengths have a mean of 1,051 hours and a median of 261 hours. What shape is the distribution?",
+      "choices": [
+        "Symmetric",
+        "Positively (right) skewed: a long tail of very long missions",
+        "Negatively (left) skewed: a long tail of very short missions",
+        "You can't tell anything from the mean and median"
+      ],
+      "answer": 1,
+      "explain": "The mean is far above the median, so a few very large values are pulling it up: a long **right** tail, positive skew. Most missions are short shuttle flights; a minority are station stays of months."
+    },
+    {
+      "prompt": "For a strongly skewed variable, which pair best describes a typical value and spread?",
+      "choices": ["Mean and SD", "Median and IQR", "Mode and range", "Mean and IQR"],
+      "answer": 1,
+      "explain": "The median and IQR describe the middle of the data and aren't moved by the tail. Mean and SD go together, and median and IQR go together; don't mix them."
+    },
+    {
+      "prompt": "`psych::describe()` reports a skew of **2.09** for mission length. What does that tell you?",
+      "choices": [
+        "The distribution is roughly normal",
+        "Two missions are outliers",
+        "The right tail is much longer than the left: clearly non-normal",
+        "The mean is about twice the median"
+      ],
+      "answer": 2,
+      "explain": "A normal distribution has skew 0. Rules of thumb differ, but a skew beyond about ±1 is usually read as substantial, and 2 is a lot. It's a description of shape, not a count of anything."
+    },
+    {
+      "prompt": "A variable has excess kurtosis of **+4**. Compared with a normal curve, it has…",
+      "choices": [
+        "a flatter top and no tails",
+        "heavier tails: more extreme values than a normal curve would give",
+        "two peaks",
+        "a larger mean"
+      ],
+      "answer": 1,
+      "explain": "R (psych) and SPSS report *excess* kurtosis, where a normal curve scores 0. Positive values mean heavier tails, so extreme values turn up more often than the normal curve predicts; negative values mean lighter tails."
+    },
+    {
+      "prompt": "SPSS says a variable's skewness is 0.576, but `psych::describe()` says 0.53. Which is wrong?",
+      "choices": [
+        "SPSS",
+        "psych",
+        "Neither: they use different formulas, and `describe(x, type = 2)` matches SPSS",
+        "Both, because skewness can't be estimated with missing values"
+      ],
+      "answer": 2,
+      "explain": "There are several standard estimators of skewness and kurtosis. psych defaults to *type 3*; SPSS uses *type 2*. They converge in large samples. Add `type = 2` when you need your R output to match SPSS exactly."
+    }
+  ]
+}

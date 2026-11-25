@@ -103,7 +103,8 @@ struct QuizView: View {
 
             if let code = question.code {
                 VStack(alignment: .leading, spacing: 6) {
-                    Label(session.level.type == .predict ? "Predict what R prints" : "Code", systemImage: "terminal")
+                    Label(session.level.type == .predict && question.runsCode ? "Predict what R prints" : "Code",
+                          systemImage: "terminal")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     CodeBlock(code: code)
@@ -208,7 +209,7 @@ struct QuizView: View {
             if let explain = question.explain {
                 MarkdownView(markdown: explain)
             }
-            if question.code != nil {
+            if question.runsCode {
                 VStack(alignment: .leading, spacing: 6) {
                     Label("What R actually printed", systemImage: "terminal")
                         .font(.caption.weight(.semibold))

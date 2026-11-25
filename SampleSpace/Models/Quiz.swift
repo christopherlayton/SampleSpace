@@ -15,6 +15,8 @@ import Foundation
 /// - `code` (Predict levels) is shown read-only and run in real R once the answer is locked in,
 ///   so the learner sees the actual output. The validator checks that the right choice matches
 ///   what R prints, unless `"match_output": false` (for questions like "what type is it?").
+/// - `"run": false` shows the code without running it (for code that is meant to fail, or that
+///   needs data the level doesn't have).
 /// - `choices_are_code` shows the choices in a monospaced font (default: on when there is code).
 struct QuizQuestion: Hashable, Sendable, Decodable {
     let prompt: String
@@ -24,6 +26,10 @@ struct QuizQuestion: Hashable, Sendable, Decodable {
     var explain: String?
     var matchOutput: Bool?
     var choicesAreCode: Bool?
+    var run: Bool?
+
+    /// Runs `code` in R once answered.
+    var runsCode: Bool { code != nil && run != false }
 
     var showsChoicesAsCode: Bool { choicesAreCode ?? (code != nil) }
 }

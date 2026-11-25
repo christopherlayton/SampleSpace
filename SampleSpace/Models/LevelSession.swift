@@ -206,7 +206,8 @@ final class LevelSession {
     }
 
     private func runQuizCode(_ question: Int) {
-        guard let code = quiz.questions[question].code, quizOutputs[question] == nil else { return }
+        let q = quiz.questions[question]
+        guard q.runsCode, let code = q.code, quizOutputs[question] == nil else { return }
         guard let engine else {
             quizOutputs[question] = [ConsoleEntry(kind: .error, text: engineError ?? "R isn't available.")]
             return

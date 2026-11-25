@@ -1,0 +1,13 @@
+{
+  "id": "plot-nebula.scatter-field",
+  "title": "Scatter Field",
+  "summary": "Scatterplots with transparency, colour by group, and a trend line.",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "hints": [
+    "`ggplot(missions, aes(x = year_of_mission, y = age_at_mission)) + geom_point(alpha = 0.3)`.",
+    "`alpha` is a setting (outside `aes()`); colour by sex is a mapping (inside): `aes(..., colour = sex)`.",
+    "Add the trend line with `+ geom_smooth(method = \"lm\")`."
+  ]
+}

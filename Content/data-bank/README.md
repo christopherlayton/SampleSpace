@@ -20,6 +20,12 @@ civilian, selection programme, mission year and title, mission hours and spacewa
   https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-07-14,
   downloaded 2026-11-24.
 - **Licence:** CC BY 4.0. Use and adapt freely with credit to the authors.
-- **Used by:** `sector-02-data-frame-docks/09-crew-manifest`.
+- **Used by:** `sector-02-data-frame-docks/11-crew-manifest`; Wrangler's Reach (Pipe Dream,
+  Course Correction, Fleet Summary, Typo Patrol, Crew Roster); Descriptive Drift (Which Average?,
+  Spread Scanner, Standard Candles, The Long Tail); Plot Nebula (all code levels except Error
+  Bars); and the Sampling Machine lab in Probability Expanse.
+- **Known quirks** (taught, not fixed): nationality typos "Hungry", "Malysia", "Netherland";
+  occupations in mixed capitals; ID (`number`) 385 is shared by two people (Baturin and Duque),
+  so counting IDs gives 564 where there are 565 people; six missions have 0 hours.
 - **Note:** the data name real people. Levels use it for group-level questions
   (missions, hours, programmes), not for singling out individuals.

@@ -1,0 +1,13 @@
+{
+  "id": "descriptive-drift.spread-scanner",
+  "title": "Spread Scanner",
+  "summary": "Measure spread with sd(), var(), IQR(), quantile() and range().",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "`sd()`, `var()` and `IQR()` each take the column: `sd(astronauts$hours_mission)`.",
+    "`quantile(x, 0.9)` gives the 90th percentile. Wrap it in `as.numeric()` to drop the \"90%\" name.",
+    "`range(x)` returns the minimum and maximum together; `diff(range(x))` is the distance between them."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "plot-nebula.error-bars",
+  "title": "Error Bars",
+  "summary": "Means with ±1 SE error bars from a summary table, using geom_col() and geom_errorbar().",
+  "type": "code",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "In `summarise()`: `n = sum(!is.na(anxiety_post))`, `mean_post = mean(anxiety_post, na.rm = TRUE)`, `se = sd(anxiety_post, na.rm = TRUE) / sqrt(n)`.",
+    "`ggplot(post_summary, aes(x = group, y = mean_post)) + geom_col()`: `geom_col()` uses the heights you computed.",
+    "`+ geom_errorbar(aes(ymin = mean_post - se, ymax = mean_post + se), width = 0.2)`."
+  ]
+}

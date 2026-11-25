@@ -26,8 +26,13 @@ survey <- data.frame(
 survey$anxiety_post[c(7, 19, 33)] <- NA   # three students missed the post-test
 survey$satisfaction[c(12, 27)] <- NA
 survey$age[24] <- NA
-for (level in c("06-read-csv", "07-hull-breach", "12-docking-review")) {
-  write.csv(survey, file.path(docks, level, "wellbeing_survey.csv"), row.names = FALSE, na = "")
+content <- file.path(root, "Content")
+survey_levels <- c(file.path(docks, c("06-read-csv", "07-hull-breach", "12-docking-review")),
+                   file.path(content, "sector-04-descriptive-drift", c("05-describe-everything", "06-descriptives-translator")),
+                   file.path(content, "sector-05-plot-nebula", "06-error-bars"))
+for (level in survey_levels) {
+  dir.create(level, showWarnings = FALSE)
+  write.csv(survey, file.path(level, "wellbeing_survey.csv"), row.names = FALSE, na = "")
 }
 
 # --- teaching_study.sav: an SPSS file with value labels and a user-missing code -------
@@ -51,4 +56,30 @@ teach <- data.frame(
 for (level in c("08-read-sav", "09-value-labels", "10-frequency-translator")) {
   haven::write_sav(teach, file.path(docks, level, "teaching_study.sav"))
 }
-cat("Wrote wellbeing_survey.csv and teaching_study.sav\n")
+# --- crew_morale.csv: a six-item morale scale, 48 participants, two items reverse-worded ----
+# Used by Wrangler's Reach (reverse-scoring, composites, missing data).
+set.seed(1969)
+k <- 48
+reach <- file.path(root, "Content", "sector-03-wranglers-reach")
+programme <- sample(rep(c("Mentoring", "Standard"), each = k / 2))
+latent <- rnorm(k, ifelse(programme == "Mentoring", 0.4, -0.2), 1)
+item <- function(reverse = FALSE) {
+  x <- round(pmin(pmax(3 + 0.9 * latent + rnorm(k, 0, 0.7), 1), 5))
+  if (reverse) 6 - x else x
+}
+morale <- data.frame(
+  id = sprintf("C%02d", 1:k),
+  programme = programme,
+  m1 = item(), m2 = item(reverse = TRUE), m3 = item(), m4 = item(), m5 = item(reverse = TRUE), m6 = item(),
+  sleep_hours = round(pmin(pmax(rnorm(k, 6.8 + 0.3 * latent, 0.9), 4), 9.5), 1)
+)
+morale$m3[c(6, 30)] <- NA
+morale$m5[c(14)] <- NA
+morale$m6[c(30, 41)] <- NA
+morale$sleep_hours[c(9, 22)] <- NA
+for (level in c("06-reverse-thrusters", "07-missing-cargo", "09-reshape-bay")) {
+  dir.create(file.path(reach, level), showWarnings = FALSE)
+  write.csv(morale, file.path(reach, level, "crew_morale.csv"), row.names = FALSE, na = "")
+}
+
+cat("Wrote wellbeing_survey.csv, teaching_study.sav and crew_morale.csv\n")

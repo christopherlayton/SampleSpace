@@ -1,0 +1,13 @@
+{
+  "id": "wranglers-reach.pipe-dream",
+  "title": "Pipe Dream",
+  "summary": "Load dplyr, chain steps with |>, and keep the rows and columns you need with filter() and select().",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "Load both packages first: `library(readr)` and `library(dplyr)`.",
+    "`astronauts |> filter(year_of_mission >= 2010) |> select(name, nationality, year_of_mission, hours_mission)`. `select()` keeps columns in the order you list them.",
+    "Two conditions in one `filter()`, separated by a comma, must both be true: `filter(sex == \"female\", hours_mission > 4000)`."
+  ]
+}

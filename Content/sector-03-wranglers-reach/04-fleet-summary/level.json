@@ -1,0 +1,13 @@
+{
+  "id": "wranglers-reach.fleet-summary",
+  "title": "Fleet Summary",
+  "summary": "Summarise groups with group_by() and summarise(), and count categories with count().",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "hints": [
+    "`astronauts |> group_by(sex) |> summarise(missions = n(), median_hours = median(hours_mission))`.",
+    "Count *people*, not missions: filter `mission_number == 1` first, then `count(nationality, sort = TRUE)`.",
+    "After `count(..., sort = TRUE)` the biggest group is in the first row: `nation_counts$nationality[1]`."
+  ]
+}

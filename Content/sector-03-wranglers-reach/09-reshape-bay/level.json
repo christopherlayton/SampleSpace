@@ -1,0 +1,13 @@
+{
+  "id": "wranglers-reach.reshape-bay",
+  "title": "Reshape Bay",
+  "summary": "Pivot the morale items to long format, summarise each item, and pivot back to wide.",
+  "type": "code",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "`morale |> pivot_longer(m1:m6, names_to = \"item\", values_to = \"rating\")` gives 48 × 6 rows.",
+    "`group_by(item) |> summarise(mean_rating = mean(rating, na.rm = TRUE), n_missing = sum(is.na(rating)))`.",
+    "The lowest mean: `item_summary$item[which.min(item_summary$mean_rating)]`. Back to wide: `pivot_wider(names_from = item, values_from = rating)`."
+  ]
+}

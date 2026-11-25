@@ -37,6 +37,19 @@ struct ContentLibraryTests {
         }
     }
 
+    @Test func sectorsThreeToFiveAreCharted() throws {
+        let sectors = try ContentLibrary.loadBundled().sectors
+        #expect(sectors[3...5].map(\.levels.count) == [10, 8, 8])
+        for sector in sectors[3...5] {
+            #expect(sector.levels.contains { $0.type != .code }, "\(sector.name) has only code levels")
+            for level in sector.levels {
+                #expect(level.id.hasPrefix(sector.levels[0].id.split(separator: ".")[0] + "."), "\(level.id)")
+                #expect(level.hints.count >= 3, "\(level.id)")
+                #expect(level.lesson.hasPrefix("# \(level.title)\n"), "\(level.id): lesson should start with its title")
+            }
+        }
+    }
+
     @Test func everySectorHasItsStory() throws {
         for sector in try ContentLibrary.loadBundled().sectors {
             #expect(!sector.briefing.isEmpty, "\(sector.name) has no arrival briefing")
@@ -67,7 +80,7 @@ struct ContentLibraryTests {
 
     /// The same promise `scripts/validate_content.sh` makes, but through the app's own engine
     /// and `Level.job(code:)`, so the Swift wiring (seed, setup, data folder) is covered too.
-    @Test(.timeLimit(.minutes(2)))
+    @Test(.timeLimit(.minutes(5)))
     func everySolutionPassesThroughTheEngine() async throws {
         let engine = try REngine()
         for level in try ContentLibrary.loadBundled().levels where !level.type.isQuiz {
@@ -90,7 +103,7 @@ struct ContentLibraryTests {
             s.split(whereSeparator: \.isWhitespace).joined(separator: " ")
         }
         for level in levels {
-            for (index, question) in (level.quiz ?? []).enumerated() where question.matchOutput != false {
+            for (index, question) in (level.quiz ?? []).enumerated() where question.matchOutput != false && question.runsCode {
                 let code = try #require(question.code, "\(level.id) q\(index + 1) has no code")
                 let console = try await engine.run(level.job(code: code, check: false)).console
                 let shown = squash(console.filter { $0.kind != .input && $0.kind != .message }

@@ -1,0 +1,38 @@
+{
+  "id": "descriptive-drift.descriptives-translator",
+  "title": "Descriptives Translator",
+  "summary": "Reproduce an SPSS Descriptives table, skewness and kurtosis included, with describe(type = 2).",
+  "type": "spss_translate",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "`describe(survey[, c(\"age\", \"anxiety_pre\", \"anxiety_post\")], type = 2)` matches SPSS's skewness and kurtosis.",
+    "SPSS's \"Valid N (listwise)\" counts people with none of the three missing: `sum(complete.cases(survey[, c(\"age\", \"anxiety_pre\", \"anxiety_post\")]))`.",
+    "Pick single numbers out of `desc`: `desc[\"anxiety_post\", \"skew\"]` and `desc[\"age\", \"kurtosis\"]`."
+  ],
+  "spss": {
+    "menu": ["Analyze", "Descriptive Statistics", "Descriptives…"],
+    "dialog": [
+      { "label": "Variable(s)", "value": "age, anxiety_pre, anxiety_post" },
+      { "label": "Options", "value": "Mean, Std. deviation, Minimum, Maximum, Kurtosis, Skewness" }
+    ],
+    "syntax": "DESCRIPTIVES VARIABLES=age anxiety_pre anxiety_post\n  /STATISTICS=MEAN STDDEV MIN MAX KURTOSIS SKEWNESS.",
+    "output": [
+      {
+        "title": "Descriptive Statistics",
+        "groups": [
+          { "text": "", "span": 1 }, { "text": "N", "span": 1 }, { "text": "Minimum", "span": 1 },
+          { "text": "Maximum", "span": 1 }, { "text": "Mean", "span": 1 }, { "text": "Std. Deviation", "span": 1 },
+          { "text": "Skewness", "span": 2 }, { "text": "Kurtosis", "span": 2 }
+        ],
+        "columns": ["", "Statistic", "Statistic", "Statistic", "Statistic", "Statistic", "Statistic", "Std. Error", "Statistic", "Std. Error"],
+        "rows": [
+          ["age", "39", "18", "34", "23.95", "3.162", ".576", ".378", "1.427", ".741"],
+          ["anxiety_pre", "40", "20", "40", "29.63", "5.027", ".256", ".374", "-.528", ".733"],
+          ["anxiety_post", "37", "12", "38", "26.86", "6.537", "-.318", ".388", "-.566", ".759"],
+          ["Valid N (listwise)", "36", "", "", "", "", "", "", "", ""]
+        ]
+      }
+    ]
+  }
+}

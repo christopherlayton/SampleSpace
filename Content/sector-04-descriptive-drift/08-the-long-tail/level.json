@@ -1,0 +1,13 @@
+{
+  "id": "descriptive-drift.the-long-tail",
+  "title": "The Long Tail",
+  "summary": "Sector review: describe mission length properly, find the record, and write the APA sentence.",
+  "type": "code",
+  "xp": 150,
+  "par": 3,
+  "hints": [
+    "One `summarise()` makes all four: `astronauts |> summarise(mean_hours = mean(hours_mission), median_hours = median(hours_mission), sd_hours = sd(hours_mission), iqr_hours = IQR(hours_mission))`.",
+    "`slice_max(hours_mission, n = 1)` keeps the row with the largest value; then `select(name, year_of_mission, hours_mission)`.",
+    "`sprintf(\"Mdn = %.0f h\", centre$median_hours)` puts a rounded number into text. Build the whole sentence in one `sprintf()` with four `%.0f`s."
+  ]
+}

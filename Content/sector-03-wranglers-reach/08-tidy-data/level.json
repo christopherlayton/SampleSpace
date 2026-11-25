@@ -1,0 +1,54 @@
+{
+  "id": "wranglers-reach.tidy-data",
+  "title": "Tidy Data",
+  "summary": "Wide versus long: what tidy data are, and why SPSS and the tidyverse lay data out differently.",
+  "type": "briefing",
+  "xp": 50,
+  "hints": [
+    "Tidy: one variable per column, one observation per row, one value per cell.",
+    "SPSS repeated-measures data have one row per person and one column per occasion. That's wide.",
+    "Going long, each person gets one row per occasion: 40 people × 2 occasions."
+  ],
+  "quiz": [
+    {
+      "prompt": "Which description fits **tidy** data?",
+      "choices": [
+        "Each variable is a column, each observation is a row, each value is a cell",
+        "Each person is a row, whatever else is measured",
+        "Columns are sorted alphabetically and there are no missing values",
+        "Every column holds numbers"
+      ],
+      "answer": 0,
+      "explain": "Those three rules are Hadley Wickham's definition. What counts as an *observation* depends on the question: a person, a person at one time point, or one answer to one item."
+    },
+    {
+      "prompt": "An SPSS file has one row per student and two columns, `anxiety_pre` and `anxiety_post`. What layout is that?",
+      "choices": ["Long", "Wide", "Tidy for any analysis", "Nested"],
+      "answer": 1,
+      "explain": "One column per occasion is **wide**. SPSS's *Repeated Measures* dialogs and `t.test(pre, post, paired = TRUE)` both expect it."
+    },
+    {
+      "prompt": "You want ggplot to draw one box for *pre* and one for *post*. What do you need?",
+      "choices": [
+        "The wide file, with `aes(x = anxiety_pre, y = anxiety_post)`",
+        "Two separate data frames",
+        "A long file, with a `time` column (pre/post) and one `anxiety` column",
+        "A summary table of means"
+      ],
+      "answer": 2,
+      "explain": "ggplot maps *columns* to aesthetics, so time has to be a column: `aes(x = time, y = anxiety)`. Most tidyverse tools (and mixed models) want long data."
+    },
+    {
+      "prompt": "`survey |> pivot_longer(c(anxiety_pre, anxiety_post), names_to = \"time\", values_to = \"anxiety\")` on 40 students gives how many rows?",
+      "choices": ["40", "2", "80", "160"],
+      "answer": 2,
+      "explain": "Each student gets one row per occasion: 40 × 2 = **80**. The other columns (id, group, …) are repeated on both rows."
+    },
+    {
+      "prompt": "Which function turns long data back into wide?",
+      "choices": ["`pivot_wider()`", "`spread_long()`", "`summarise()`", "`ungroup()`"],
+      "answer": 0,
+      "explain": "`pivot_wider(names_from = time, values_from = anxiety)` makes one column per value of `time`. Both pivots are in **tidyr**, which `library(tidyverse)` loads with dplyr."
+    }
+  ]
+}

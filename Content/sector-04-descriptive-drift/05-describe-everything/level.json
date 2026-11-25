@@ -1,0 +1,13 @@
+{
+  "id": "descriptive-drift.describe-everything",
+  "title": "Describe Everything",
+  "summary": "Get n, mean, SD, median, skew and kurtosis for several variables at once with psych::describe().",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "hints": [
+    "`desc <- describe(survey[, c(\"age\", \"anxiety_pre\", \"anxiety_post\", \"satisfaction\")])` after `library(psych)`.",
+    "`describe()` returns a data frame with one row per variable, so `desc[\"satisfaction\", \"median\"]` picks one cell.",
+    "`rownames(desc)[which.max(abs(desc$skew))]` names the most skewed variable, whichever direction it leans."
+  ]
+}
