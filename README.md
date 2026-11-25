@@ -112,3 +112,9 @@ The Crew Log is the **astronaut database** by Stavnichuk & Corlett (2020), *Mend
 TidyTuesday project (2020-07-14). Levels use it for group-level questions, not to single out
 individuals. The other datasets (survey, teaching and training studies) are simulated by
 `scripts/make_sample_data.R`. See `Content/data-bank/README.md` for details.
+
+## Licence
+
+The code and lessons are under the [MIT License](LICENSE). The astronaut database in
+`Content/data-bank/` (and its copies in level folders) keeps its own licence, CC BY 4.0. If you
+reuse it, credit its authors as shown above.
