@@ -1,0 +1,47 @@
+{
+  "id": "relationship-ring.correlation-drag",
+  "title": "Correlation Drag",
+  "summary": "Drag points to feel what Pearson's r measures, then watch one outlier pull it around. Then compare cor() with Spearman's rho.",
+  "type": "lab",
+  "xp": 150,
+  "par": 3,
+  "seed": 2026,
+  "hints": [
+    "`cor(x, y)` gives Pearson's r.",
+    "Add the outlier by extending both vectors: `x2 <- c(x, 9.6)` and `y2 <- c(y, 0.4)`.",
+    "`cor(x2, y2, method = \"spearman\")` works on ranks, so one extreme point counts as just one rank. Then `plot(x2, y2)`."
+  ],
+  "lab": {
+    "kind": "correlation_drag",
+    "settings": {
+      "points": 20,
+      "start_r": 0.3
+    },
+    "goals": [
+      {
+        "text": "Drag points until **r is above 0.8**.",
+        "detail": "A strong positive correlation: the points hug a rising line. r says how *tightly*, not how *steeply*.",
+        "when": [
+          { "reading": "r", "min": 0.8 },
+          { "reading": "outliers", "equals": 0 }
+        ]
+      },
+      {
+        "text": "Now make it **negative: r below −0.5**.",
+        "detail": "Negative r: as one variable rises, the other tends to fall. The sign is the direction; the size is the strength.",
+        "when": [
+          { "reading": "r", "max": -0.5 },
+          { "reading": "outliers", "equals": 0 }
+        ]
+      },
+      {
+        "text": "Make a **new cloud at r = 0**, then add **one outlier** that moves r by at least **0.35**.",
+        "detail": "One point out of 21 dragged r a long way. Always plot your data before trusting r, and check what drives it.",
+        "when": [
+          { "reading": "outliers", "equals": 1 },
+          { "reading": "outlier_effect", "min": 0.35 }
+        ]
+      }
+    ]
+  }
+}

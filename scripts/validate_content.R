@@ -81,7 +81,8 @@ describe_failure <- function(result) {
 
 # Lab levels need a `lab` object: a known kind and goals, each with text and conditions.
 # (Reading names are checked against each instrument by the Swift tests.)
-lab_kinds <- c("distribution_sculptor", "sampling_machine")
+lab_kinds <- c("distribution_sculptor", "sampling_machine", "ci_rain", "p_value_courtroom", "power_reactor",
+               "correlation_drag", "least_squares")
 check_lab <- function(lab, where) {
   if (is.null(lab)) return(problem(where, "a lab level needs a \"lab\" object"))
   if (!(lab$kind %||% "") %in% lab_kinds) problem(where, sprintf("unknown lab kind \"%s\"", lab$kind %||% ""))

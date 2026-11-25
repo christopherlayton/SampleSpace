@@ -1,0 +1,66 @@
+{
+  "id": "inference-station.p-value-courtroom",
+  "title": "p-value Courtroom",
+  "summary": "Put H₀ on trial: what a p-value measures, one- vs two-sided tests, and why big samples make small differences significant. Then compute p with pt().",
+  "type": "lab",
+  "xp": 170,
+  "par": 3,
+  "seed": 2026,
+  "hints": [
+    "`se <- sd_pooled * sqrt(2 / n)`, then `t_obs <- diff / se` and `df <- 2 * n - 2`.",
+    "Two-sided: `2 * pt(-abs(t_obs), df)`. One-sided (greater): `pt(t_obs, df, lower.tail = FALSE)`.",
+    "Inside `replicate()`, draw `a` and `b` with `rnorm(n, 0, sd_pooled)` and return `t.test(a, b, var.equal = TRUE)$statistic`. Then `mean(abs(sim_t) >= abs(t_obs))`."
+  ],
+  "lab": {
+    "kind": "p_value_courtroom",
+    "settings": {
+      "population_label": "Difference in post-test anxiety (points)",
+      "start_diff": 1.8,
+      "start_sd": 6.5,
+      "start_n": 19,
+      "max_n": 500,
+      "diff_range": [-10, 10],
+      "sd_range": [1, 20],
+      "tails": "two",
+      "alpha": 0.05
+    },
+    "goals": [
+      {
+        "text": "Find evidence that convicts **only just**: a two-sided p between **.04 and .05** at α = .05.",
+        "detail": "p is the probability of evidence at least this strong *if H₀ were true*. It isn't the probability that H₀ is true.",
+        "when": [
+          { "reading": "two_sided", "equals": 1 },
+          { "reading": "alpha", "equals": 0.05, "tolerance": 1e-6 },
+          { "reading": "p", "min": 0.04, "max": 0.05 }
+        ]
+      },
+      {
+        "text": "Switch to a **one-sided** test and convict with **t below 1.95**.",
+        "detail": "A one-sided test puts all of α in one tail, so it needs less evidence in that direction and ignores the other. Choose the direction before you see the data, or not at all.",
+        "when": [
+          { "reading": "one_sided", "equals": 1 },
+          { "reading": "alpha", "equals": 0.05, "tolerance": 1e-6 },
+          { "reading": "reject", "equals": 1 },
+          { "reading": "t", "min": 0, "max": 1.95 }
+        ]
+      },
+      {
+        "text": "Two-sided again: keep the difference at **1.8** and the SD at **6.5**, and raise n until **p < .001**.",
+        "detail": "The same small difference becomes \"highly significant\" with enough people. p measures surprise under H₀, not size or importance; that's what effect sizes are for.",
+        "when": [
+          { "reading": "two_sided", "equals": 1 },
+          { "reading": "diff", "equals": 1.8, "tolerance": 0.05 },
+          { "reading": "sd", "equals": 6.5, "tolerance": 0.05 },
+          { "reading": "p", "max": 0.001 }
+        ]
+      },
+      {
+        "text": "Simulate at least **1,000 studies under H₀** and compare their share with p.",
+        "detail": "In a world with no difference, the share of studies at least as extreme as yours *is* the p-value.",
+        "when": [
+          { "reading": "simulations", "min": 1000 }
+        ]
+      }
+    ]
+  }
+}

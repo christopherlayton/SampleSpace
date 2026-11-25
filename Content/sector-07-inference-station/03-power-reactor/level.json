@@ -1,0 +1,63 @@
+{
+  "id": "inference-station.power-reactor",
+  "title": "Power Reactor",
+  "summary": "Effect size, sample size and α against the chance of detecting a real effect. Then plan a study with power.t.test().",
+  "type": "lab",
+  "xp": 170,
+  "par": 3,
+  "hints": [
+    "`power.t.test(n = 20, delta = 0.5, sd = 1)$power`. With `sd = 1`, delta is Cohen's d.",
+    "Leave out the thing you want and give the rest: `power.t.test(power = 0.80, delta = 0.5, sd = 1)$n`, then round **up** with `ceiling()`.",
+    "For the effect size: `power.t.test(n = 30, power = 0.80, sd = 1)$delta`."
+  ],
+  "lab": {
+    "kind": "power_reactor",
+    "settings": {
+      "start_d": 0.2,
+      "start_n": 10,
+      "max_n": 500,
+      "alpha": 0.05,
+      "tails": "two"
+    },
+    "goals": [
+      {
+        "text": "Set a **medium effect, d = 0.5**, with **20 per group**.",
+        "detail": "Read the power: even if the effect is real, a study this size misses it about two times in three.",
+        "when": [
+          { "reading": "d", "equals": 0.5, "tolerance": 0.005 },
+          { "reading": "n", "equals": 20 }
+        ]
+      },
+      {
+        "text": "Keep d = 0.5 (two-sided, α = .05) and raise n until power reaches **80%**.",
+        "detail": "80% is the usual target: a 1-in-5 chance of missing a real effect of this size.",
+        "when": [
+          { "reading": "d", "equals": 0.5, "tolerance": 0.005 },
+          { "reading": "alpha", "equals": 0.05, "tolerance": 1e-6 },
+          { "reading": "two_sided", "equals": 1 },
+          { "reading": "power", "min": 0.8 }
+        ]
+      },
+      {
+        "text": "You can only recruit **30 per group**. How big must the effect be for 80% power?",
+        "detail": "This is the smallest effect your study can reliably detect. Is an effect that large plausible in your field?",
+        "when": [
+          { "reading": "n", "equals": 30 },
+          { "reading": "alpha", "equals": 0.05, "tolerance": 1e-6 },
+          { "reading": "two_sided", "equals": 1 },
+          { "reading": "power", "min": 0.8 }
+        ]
+      },
+      {
+        "text": "A **small effect, d = 0.2**: how many per group for 80% power?",
+        "detail": "Halving d roughly quadruples the n you need. Small effects need big studies.",
+        "when": [
+          { "reading": "d", "equals": 0.2, "tolerance": 0.005 },
+          { "reading": "alpha", "equals": 0.05, "tolerance": 1e-6 },
+          { "reading": "two_sided", "equals": 1 },
+          { "reading": "power", "min": 0.8 }
+        ]
+      }
+    ]
+  }
+}

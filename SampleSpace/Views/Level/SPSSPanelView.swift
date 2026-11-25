@@ -20,7 +20,7 @@ struct SPSSPanelView: View {
                     ForEach(Array(dialog.enumerated()), id: \.offset) { _, setting in
                         GridRow {
                             Text(setting.label + ":").foregroundStyle(.secondary)
-                            Text(setting.value)
+                            Text(setting.value).fixedSize(horizontal: false, vertical: true)
                         }
                     }
                 }
@@ -44,7 +44,11 @@ struct SPSSPanelView: View {
             if !panel.output.isEmpty {
                 VStack(alignment: .leading, spacing: 18) {
                     ForEach(Array(panel.output.enumerated()), id: \.offset) { _, table in
-                        SPSSTableView(table: table)
+                        // Wide tables scroll sideways rather than widening the lesson pane.
+                        ScrollView(.horizontal) {
+                            SPSSTableView(table: table)
+                        }
+                        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
                     }
                 }
                 .padding(16)
@@ -142,7 +146,7 @@ struct SPSSTableView: View {
                 .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(minWidth: 0)
         .textSelection(.enabled)
     }
 

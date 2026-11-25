@@ -82,4 +82,13 @@ for (level in c("06-reverse-thrusters", "07-missing-cargo", "09-reshape-bay")) {
   write.csv(morale, file.path(reach, level, "crew_morale.csv"), row.names = FALSE, na = "")
 }
 
-cat("Wrote wellbeing_survey.csv, teaching_study.sav and crew_morale.csv\n")
+# --- sleep_morale.csv: complete cases of sleep and the morale composite (Least-Squares Fit lab) ---
+items <- cbind(morale$m1, 6 - morale$m2, morale$m3, morale$m4, 6 - morale$m5, morale$m6)
+fit_data <- data.frame(id = morale$id, sleep_hours = morale$sleep_hours,
+                       morale_score = round(rowMeans(items, na.rm = TRUE), 2))
+fit_data <- fit_data[complete.cases(fit_data), ]
+ring <- file.path(content, "sector-10-relationship-ring", "02-least-squares-fit")
+dir.create(ring, showWarnings = FALSE)
+write.csv(fit_data, file.path(ring, "sleep_morale.csv"), row.names = FALSE)
+
+cat("Wrote wellbeing_survey.csv, teaching_study.sav, crew_morale.csv and sleep_morale.csv\n")

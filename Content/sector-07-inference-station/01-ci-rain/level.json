@@ -1,0 +1,63 @@
+{
+  "id": "inference-station.ci-rain",
+  "title": "CI Rain",
+  "summary": "Rain confidence intervals from sample after sample and count how many capture the true mean. Then do it with t.test() and replicate().",
+  "type": "lab",
+  "xp": 160,
+  "par": 3,
+  "seed": 2026,
+  "hints": [
+    "`t.test(ages)$conf.int` is the 95% interval; add `conf.level = 0.99` for 99%.",
+    "Inside `replicate()`, put the steps in braces: draw `x`, get `ci <- t.test(x)$conf.int`, and end with `ci[1] <= 40 & 40 <= ci[2]`.",
+    "`mean(captured)` turns 1,000 TRUE/FALSE values into the proportion captured."
+  ],
+  "lab": {
+    "kind": "ci_rain",
+    "settings": {
+      "mu": 40,
+      "sigma": 5,
+      "population_label": "Age at first flight (model)",
+      "unit": "years",
+      "start_n": 10,
+      "max_n": 200,
+      "level": 0.95
+    },
+    "goals": [
+      {
+        "text": "Rain at least **100 intervals** at **95%** with **n = 10**.",
+        "detail": "Count the red ones. About 5 in 100 miss μ, and nothing about a single interval tells you whether it's one of them.",
+        "when": [
+          { "reading": "n", "equals": 10 },
+          { "reading": "level", "equals": 0.95, "tolerance": 1e-6 },
+          { "reading": "intervals", "min": 100 }
+        ]
+      },
+      {
+        "text": "Switch to **99%** and rain at least 100 more.",
+        "detail": "Fewer misses, but every interval is wider. More confidence costs precision.",
+        "when": [
+          { "reading": "level", "equals": 0.99, "tolerance": 1e-6 },
+          { "reading": "intervals", "min": 100 }
+        ]
+      },
+      {
+        "text": "Back at 95%, make the intervals **narrower than 2 years** on average (at least 50 intervals).",
+        "detail": "Width shrinks with √n: to halve it you need four times the sample.",
+        "when": [
+          { "reading": "level", "equals": 0.95, "tolerance": 1e-6 },
+          { "reading": "mean_width", "max": 2 },
+          { "reading": "intervals", "min": 50 }
+        ]
+      },
+      {
+        "text": "Rain at least **1,000 intervals** at 95% and read the coverage.",
+        "detail": "The 95% is a property of the *method*: in the long run, about 95% of intervals made this way capture μ.",
+        "when": [
+          { "reading": "level", "equals": 0.95, "tolerance": 1e-6 },
+          { "reading": "intervals", "min": 1000 },
+          { "reading": "coverage", "min": 0.93, "max": 0.97 }
+        ]
+      }
+    ]
+  }
+}

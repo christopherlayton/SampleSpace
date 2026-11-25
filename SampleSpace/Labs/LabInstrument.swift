@@ -5,6 +5,11 @@ import SwiftUI
 enum LabInstrument {
     case sculptor(DistributionSculptor)
     case sampler(SamplingMachine)
+    case ciRain(CIRain)
+    case courtroom(PValueCourtroom)
+    case power(PowerReactor)
+    case correlation(CorrelationDrag)
+    case leastSquares(LeastSquaresFit)
     /// The instrument couldn't start (e.g. its data file is missing).
     case unavailable(String)
 
@@ -19,6 +24,16 @@ enum LabInstrument {
             } catch {
                 return .unavailable(error.localizedDescription)
             }
+        case .ciRain: return .ciRain(CIRain(settings: spec.settings))
+        case .pValueCourtroom: return .courtroom(PValueCourtroom(settings: spec.settings))
+        case .powerReactor: return .power(PowerReactor(settings: spec.settings))
+        case .correlationDrag: return .correlation(CorrelationDrag(settings: spec.settings))
+        case .leastSquares:
+            do {
+                return .leastSquares(try LeastSquaresFit.make(settings: spec.settings, folder: level.folder))
+            } catch {
+                return .unavailable(error.localizedDescription)
+            }
         }
     }
 
@@ -26,12 +41,18 @@ enum LabInstrument {
         switch self {
         case .sculptor(let lab): lab.readings
         case .sampler(let lab): lab.readings
+        case .ciRain(let lab): lab.readings
+        case .courtroom(let lab): lab.readings
+        case .power(let lab): lab.readings
+        case .correlation(let lab): lab.readings
+        case .leastSquares(let lab): lab.readings
         case .unavailable: [:]
         }
     }
 
     func stop() {
         if case .sampler(let lab) = self { lab.stopAuto() }
+        if case .ciRain(let lab) = self { lab.stopAuto() }
     }
 }
 
@@ -43,6 +64,11 @@ struct LabInstrumentView: View {
         switch instrument {
         case .sculptor(let lab): DistributionSculptorView(lab: lab)
         case .sampler(let lab): SamplingMachineView(lab: lab)
+        case .ciRain(let lab): CIRainView(lab: lab)
+        case .courtroom(let lab): PValueCourtroomView(lab: lab)
+        case .power(let lab): PowerReactorView(lab: lab)
+        case .correlation(let lab): CorrelationDragView(lab: lab)
+        case .leastSquares(let lab): LeastSquaresFitView(lab: lab)
         case .unavailable(let message):
             ContentUnavailableView("Lab offline", systemImage: "exclamationmark.triangle", description: Text(message))
         }

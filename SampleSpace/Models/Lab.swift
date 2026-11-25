@@ -5,11 +5,21 @@ import Foundation
 enum LabKind: String, Sendable, Codable, CaseIterable {
     case distributionSculptor = "distribution_sculptor"
     case samplingMachine = "sampling_machine"
+    case ciRain = "ci_rain"
+    case pValueCourtroom = "p_value_courtroom"
+    case powerReactor = "power_reactor"
+    case correlationDrag = "correlation_drag"
+    case leastSquares = "least_squares"
 
     var title: String {
         switch self {
         case .distributionSculptor: "Distribution Sculptor"
         case .samplingMachine: "Sampling Machine"
+        case .ciRain: "CI Rain"
+        case .pValueCourtroom: "p-value Courtroom"
+        case .powerReactor: "Power Reactor"
+        case .correlationDrag: "Correlation Drag"
+        case .leastSquares: "Least-Squares Fit"
         }
     }
 
@@ -17,6 +27,11 @@ enum LabKind: String, Sendable, Codable, CaseIterable {
         switch self {
         case .distributionSculptor: "bell.fill"
         case .samplingMachine: "square.stack.3d.down.right.fill"
+        case .ciRain: "cloud.rain.fill"
+        case .pValueCourtroom: "building.columns.fill"
+        case .powerReactor: "bolt.circle.fill"
+        case .correlationDrag: "hand.draw.fill"
+        case .leastSquares: "line.diagonal"
         }
     }
 
@@ -26,6 +41,16 @@ enum LabKind: String, Sendable, Codable, CaseIterable {
             "Shape a normal curve with its mean and SD, shade areas and read them as proportions and z-scores."
         case .samplingMachine:
             "Draw random crews from the Crew Log and watch their averages pile up into a sampling distribution."
+        case .ciRain:
+            "Build a confidence interval from sample after sample and count how many capture the true mean."
+        case .pValueCourtroom:
+            "Put H₀ on trial: see where your t falls on the null distribution, what p means, and how n moves it."
+        case .powerReactor:
+            "Effect size, sample size and α against the chance of detecting a real effect, matched to power.t.test()."
+        case .correlationDrag:
+            "Drag points and watch Pearson's r respond, then see how far one outlier can pull it."
+        case .leastSquares:
+            "Fit a line by hand, watch the squared residuals, and find what least squares minimises."
         }
     }
 
@@ -57,6 +82,61 @@ enum LabKind: String, Sendable, Codable, CaseIterable {
             "skew": "skewness of the sample means",
             "pop_mean": "population mean",
             "pop_sd": "population SD",
+        ]
+        case .ciRain: [
+            "n": "sample size",
+            "level": "confidence level (0.95 for 95%)",
+            "intervals": "intervals drawn at these settings",
+            "coverage": "proportion of intervals that capture μ",
+            "misses": "intervals that miss μ",
+            "mean_width": "average interval width",
+            "mu": "the population mean",
+        ]
+        case .pValueCourtroom: [
+            "t": "the observed t statistic",
+            "df": "degrees of freedom (2n − 2)",
+            "p": "the p-value for the chosen tails",
+            "alpha": "significance level",
+            "critical": "critical t (positive)",
+            "reject": "1 when p < α",
+            "two_sided": "1 for a two-sided test",
+            "one_sided": "1 for a one-sided test",
+            "n": "sample size per group",
+            "diff": "observed mean difference",
+            "sd": "pooled standard deviation",
+            "simulations": "studies simulated under H₀",
+            "sim_p": "proportion of simulated studies at least as extreme",
+        ]
+        case .powerReactor: [
+            "d": "effect size (Cohen's d)",
+            "n": "sample size per group",
+            "alpha": "significance level",
+            "two_sided": "1 for a two-sided test",
+            "power": "probability of rejecting H₀ when the effect is real",
+            "beta": "1 − power",
+            "ncp": "noncentrality, d·√(n/2)",
+            "critical": "critical t",
+            "n_for_80": "smallest n per group with 80% power",
+        ]
+        case .correlationDrag: [
+            "r": "Pearson's r",
+            "abs_r": "size of r, ignoring its sign",
+            "r_squared": "r²",
+            "n": "number of points",
+            "slope": "least-squares slope",
+            "outliers": "outliers added",
+            "outlier_effect": "how far the outliers moved r",
+        ]
+        case .leastSquares: [
+            "intercept": "your line's intercept",
+            "slope": "your line's slope",
+            "sse": "your line's sum of squared errors",
+            "best_sse": "the least-squares SSE",
+            "sse_ratio": "your SSE ÷ the least-squares SSE",
+            "r_squared": "R² of your line (1 − SSE/SST)",
+            "best_slope": "least-squares slope",
+            "best_intercept": "least-squares intercept",
+            "best_shown": "1 while the least-squares line is shown",
         ]
         }
     }
@@ -116,6 +196,34 @@ struct LabSettings: Hashable, Sendable, Decodable {
     var unit: String?
     var startN: Int?
     var maxN: Int?
+
+    // CI Rain
+    var mu: Double?
+    var sigma: Double?
+    var level: Double?
+
+    // p-value Courtroom (also uses start_sd, start_n, max_n, population_label)
+    var startDiff: Double?
+    var diffRange: [Double]?
+    /// "two", "greater" or "less".
+    var tails: String?
+    var alpha: Double?
+
+    // Power Reactor (also uses start_n, max_n, alpha, tails)
+    var startD: Double?
+
+    // Correlation Drag
+    var points: Int?
+    var startR: Double?
+
+    // Least-Squares Fit
+    var dataFile: String?
+    var xColumn: String?
+    var yColumn: String?
+    var xLabel: String?
+    var yLabel: String?
+    var startIntercept: Double?
+    var startSlope: Double?
 }
 
 /// One goal: met when every condition holds at the same moment. Once met it stays met.
