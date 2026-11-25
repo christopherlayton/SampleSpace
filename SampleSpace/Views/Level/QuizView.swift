@@ -104,11 +104,12 @@ struct QuizView: View {
 
             if let code = question.code {
                 VStack(alignment: .leading, spacing: 6) {
-                    Label(session.level.type == .predict && question.runsCode ? "Predict what R prints" : "Code",
+                    Label(session.level.type == .predict && question.runsCode
+                          ? "Predict what \(session.level.language.displayName) prints" : "Code",
                           systemImage: "terminal")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                    CodeBlock(code: code)
+                    CodeBlock(code: code, language: session.level.language)
                 }
             }
 
@@ -212,14 +213,14 @@ struct QuizView: View {
             }
             if question.runsCode {
                 VStack(alignment: .leading, spacing: 6) {
-                    Label("What R actually printed", systemImage: "terminal")
+                    Label("What \(session.level.language.displayName) actually printed", systemImage: "terminal")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Group {
                         if let entries = session.quizOutputs[quiz.index] {
                             VStack(alignment: .leading, spacing: 4) {
                                 ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
-                                    ConsoleLine(entry: entry)
+                                    ConsoleLine(entry: entry, language: session.level.language)
                                 }
                             }
                         } else {

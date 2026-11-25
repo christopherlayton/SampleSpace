@@ -46,6 +46,27 @@ enum LevelType: String, Sendable, Codable, CaseIterable {
     var isPlayable: Bool { true }
 }
 
+/// The language a level is written in. Every level is R except those in the optional Python
+/// Wormhole, whose levels say `"language": "python"` in level.json.
+enum CodeLanguage: String, Sendable, Codable, CaseIterable {
+    case r, python
+
+    var displayName: String {
+        switch self {
+        case .r: "R"
+        case .python: "Python"
+        }
+    }
+
+    /// The extension of a level's code files: starter.R / starter.py, check.R / check.py…
+    var fileExtension: String {
+        switch self {
+        case .r: "R"
+        case .python: "py"
+        }
+    }
+}
+
 /// One step of a Boss level, e.g. "Import" or "Write it up".
 struct BossStep: Hashable, Sendable, Decodable {
     let title: String
@@ -71,6 +92,10 @@ struct BossStep: Hashable, Sendable, Decodable {
 /// A level with `"document": "report.qmd"` is written as a Quarto document: its starter and
 /// solution are `starter.qmd` and `solution.qmd`, and runs knit it (see `R/runner.R`).
 /// A Boss level has `steps`, and its check.R groups checks with `step(n)`.
+/// A Python level (`"language": "python"`) has starter.py, solution.py, check.py (using the
+/// helpers in `Python/checks.py`) and optional setup.py instead, run by `Python/runner.py`. It
+/// may also have twin.R: the same analysis in R, shown at a `{{twin}}` line in lesson.md with a
+/// button that runs it in R, so the two languages can be compared side by side.
 struct Level: Identifiable, Hashable, Sendable {
     let id: String
     let title: String
@@ -94,6 +119,9 @@ struct Level: Identifiable, Hashable, Sendable {
     var steps: [BossStep]? = nil
     /// The document's file name (e.g. `report.qmd`) when the level is a Quarto document.
     var document: String? = nil
+    var language: CodeLanguage = .r
+    /// For Python levels: the same analysis in R (twin.R), shown beside the lesson.
+    var twinCode: String? = nil
 
     let lesson: String
     let starterCode: String
@@ -101,7 +129,7 @@ struct Level: Identifiable, Hashable, Sendable {
     let checkCode: String
     let setupCode: String?
 
-    /// The folder the level was loaded from. Any data files in it are copied into R's
+    /// The folder the level was loaded from. Any data files in it are copied into the
     /// working directory for each run.
     let folder: URL
 
@@ -111,6 +139,12 @@ struct Level: Identifiable, Hashable, Sendable {
     /// Predict questions' code is always plain R, so pass `asDocument: false` for those.
     func job(code: String, check: Bool = true, asDocument: Bool = true) -> RJob {
         RJob(code: code, checks: check && !checkCode.isEmpty ? checkCode : nil, setup: setupCode, seed: seed,
-             timeLimit: timeLimit, dataDirectory: folder, document: asDocument ? document : nil)
+             timeLimit: timeLimit, dataDirectory: folder, document: asDocument ? document : nil,
+             language: language)
+    }
+
+    /// A job that runs the level's R twin (twin.R), for comparing with the Python.
+    func twinJob() -> RJob? {
+        twinCode.map { RJob(code: $0, seed: seed, timeLimit: max(timeLimit, 20), dataDirectory: folder) }
     }
 }

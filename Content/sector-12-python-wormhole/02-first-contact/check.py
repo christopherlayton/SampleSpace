@@ -1,0 +1,8 @@
+expect_object("hours", [1.77, 25.0, 5.0, 213.0, 5.0])
+expect_object("n", 5, message="`n` should be how many missions `hours` holds: `len(hours)`.")
+expect_object("total", 249.77, message="`total` should be `sum(hours)`.")
+expect_object("mean_hours", 49.954, message="`mean_hours` is `total / n`.")
+expect_object("first", 1.77, message="The first item is at position 0: `hours[0]`. (`hours[1]` is the second.)")
+expect_object("last_two", [213.0, 5.0], message="The last two are `hours[-2:]`, or `hours[3:5]` (the end is left out).")
+expect_imported("numpy")
+expect_object("np_mean", 49.954, message="`np.mean(hours)` gives the mean.")

@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.wormhole-turbulence",
+  "title": "Wormhole Turbulence",
+  "summary": "Debug: five R habits that break Python code: = for ==, a missing import name, capitals, a method without (), and counting from 1.",
+  "type": "debug",
+  "xp": 100,
+  "par": 4,
+  "hints": [
+    "Python reads the whole script first, so a syntax error (the `=` inside the brackets) stops everything before line 1 runs. Comparisons use `==`.",
+    "`import pandas` gives the name `pandas`, not `pd`: write `import pandas as pd`. Column names are case-sensitive: `\"age\"`.",
+    "`.mean` without `()` stores the method instead of calling it. And `[1:4]` skips position 0: the top three are `[0:3]` (or `.head(3)`)."
+  ]
+}

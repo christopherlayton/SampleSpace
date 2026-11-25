@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.first-contact",
+  "title": "First Contact",
+  "summary": "Variables, lists, len() and sum(), counting from 0, and numpy.",
+  "type": "code",
+  "xp": 60,
+  "par": 3,
+  "hints": [
+    "`n = len(hours)` and `total = sum(hours)`; then `mean_hours = total / n`.",
+    "The first item is `hours[0]`. The last two are `hours[-2:]` (or `hours[3:5]`: the end position is left out).",
+    "`import numpy as np` once at the top, then `np_mean = np.mean(hours)`."
+  ]
+}

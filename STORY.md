@@ -71,7 +71,7 @@ data will take.
 | 9 | Variance Rift | Mean age at first flight: ≈ 35 (1960s) → ≈ 42 (2010s). Bigger than the spread within decades? | Compared with ANOVA after checking assumptions. |
 | 10 | Relationship Ring | More missions, more spacewalk hours? Military status and nationality? | Correlation, regression and chi-square on the log. |
 | 11 | Dissertation Dock | Turn it all into one reproducible report. | Report filed. The survey is complete. |
-| 12 | Python Wormhole | The same log in another language. | Analyses reproduced in Python. |
+| 12 | Python Wormhole | The same log in another language: can Python give exactly the numbers R gave? | 1,277 missions, 564 IDs, median 261 h vs mean 1,051 h again; every analysis matches R once Python's defaults are set to match. |
 
 ## Reproducing the facts
 
@@ -102,4 +102,15 @@ sum(f$sex == "female"); mean(f$sex == "female")                      # 64, .113 
 table(ifelse(f$year_of_mission >= 2000, "2000 on", "before 2000"))  # 172, 392 (Shuffle Test eras)
 table(floor(f$year_of_mission / 10) * 10)                            # 44 49 132 167 117 55 (Ages Across Decades groups)
 sort(table(f$sex))                                                   # 64 female, 500 male (Dry Run cases)
+```
+
+The Python Wormhole (sector 12) reproduces these in pandas; the level checks compute every
+number in Python, and each level's `twin.R` is the R that gives the same result:
+
+```python
+import pandas as pd
+a = pd.read_csv("Content/data-bank/astronauts.csv")
+len(a), a["number"].nunique()                                        # 1277, 564
+a["hours_mission"].median(), a["hours_mission"].mean()               # 261.0, 1050.88
+a["number"].value_counts().max()                                     # 7 (Pandas Docks)
 ```

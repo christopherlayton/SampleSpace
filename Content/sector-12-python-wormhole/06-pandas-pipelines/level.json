@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.pandas-pipelines",
+  "title": "Pandas Pipelines",
+  "summary": "dplyr in pandas: filter rows, assign() new columns, value_counts(), groupby().agg() and sort_values().",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "Filter with a condition in brackets: `first = log[log[\"mission_number\"] == 1]`. Then `first = first.assign(age=first[\"year_of_mission\"] - first[\"year_of_birth\"])`.",
+    "`by_nation = first[\"nationality\"].value_counts()` is sorted already; `by_nation.index[0]` is the top label.",
+    "`first.groupby(\"sex\")[\"age\"].agg([\"count\", \"mean\"])`, and `first.sort_values(\"age\", ascending=False).head(3)[[\"name\", \"age\"]]`."
+  ]
+}

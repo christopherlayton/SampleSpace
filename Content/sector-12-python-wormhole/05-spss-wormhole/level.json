@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.spss-wormhole",
+  "title": "SPSS Signal, Python Side",
+  "summary": "Read an SPSS .sav file with pyreadstat: value labels, applying them, and declared-missing codes.",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "`import pyreadstat`, then `teach, meta = pyreadstat.read_sav(\"teaching_study.sav\")`: it returns two things.",
+    "`meta.variable_value_labels[\"method\"]` is a dict of codes and labels. For labels in the data: `pyreadstat.read_sav(\"teaching_study.sav\", apply_value_formats=True)`.",
+    "`(teach_lab[\"method\"] == \"Active learning\").sum()`, `teach[\"anxiety\"].isna().sum()` and `teach[\"anxiety\"].mean()`."
+  ]
+}

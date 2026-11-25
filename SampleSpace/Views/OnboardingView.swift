@@ -49,7 +49,8 @@ struct OnboardingView: View {
         }
         .frame(width: 720, height: 540)
         .task { diagnostics = await RDiagnostics.run(rscriptPath: Preferences.customRscriptPath,
-                                                     quartoPath: Preferences.customQuartoPath) }
+                                                     quartoPath: Preferences.customQuartoPath,
+                                                     pythonPath: Preferences.customPythonPath) }
     }
 
     private var welcome: some View {
@@ -103,7 +104,7 @@ struct OnboardingView: View {
             if let diagnostics {
                 DiagnosticsView(diagnostics: diagnostics)
                 if !diagnostics.rReady {
-                    Text("You can still look around. Fix this in Settings → R & Quarto (⌘,), then press Apply and Check.")
+                    Text("You can still look around. Fix this in Settings → R & Python (⌘,), then press Apply and Check.")
                         .font(.callout).foregroundStyle(Theme.warn)
                 } else {
                     Label("All systems go.", systemImage: "checkmark.seal.fill").foregroundStyle(Theme.pass)

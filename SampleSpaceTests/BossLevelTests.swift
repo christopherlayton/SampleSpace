@@ -22,7 +22,7 @@ struct BossLevelTests {
         let library = try ContentLibrary.loadBundled()
         let bosses = library.levels.filter { $0.type == .boss }
         #expect(bosses.map(\.id) == ["dissertation-dock.mentoring-boss", "dissertation-dock.programme-boss",
-                                     "dissertation-dock.dry-run"])
+                                     "dissertation-dock.dry-run", "python-wormhole.round-trip"])
         #expect(bosses.allSatisfy { ($0.steps ?? []).count >= 2 && $0.type.isPlayable })
         let finale = try #require(library.level(id: "dissertation-dock.dry-run"))
         #expect(finale.document == "report.qmd")

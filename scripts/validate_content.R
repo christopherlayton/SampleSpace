@@ -16,10 +16,15 @@
 #                  instead of starter.R and solution.R; they are knitted, not run line by line.
 # SPSS Translate:  an "spss" object with a menu path and output tables whose rows have as
 #                  many cells as there are columns.
+# Python levels:   "language": "python" in level.json: starter.py, solution.py and check.py
+#                  (helpers in Python/checks.py), optional setup.py, run by Python/runner.py
+#                  with the first python3 found (or $SS_PYTHON). An optional twin.R (the same
+#                  analysis in R) must run in R without an error. Predict questions run in Python.
 # Review cards:    a sector's optional review.json (Review Nebula, see Models/Review.swift):
 #                  unique card ids, each tied to a level in that sector, a known type; concept
 #                  cards have choices and a valid answer; fill cards have one ___ blank and
-#                  answers, and the code parses as R with each answer filled in; which_test
+#                  answers, and the code parses as R (as Python for "language": "python")
+#                  with each answer filled in; which_test
 #                  cards use the test keys below.
 #
 # Usage: Rscript validate_content.R <repo root> [level id or folder name filter]
@@ -31,6 +36,13 @@ filter <- if (length(args) >= 2) args[2] else NULL
 content_dir <- file.path(root, "Content")
 runner <- file.path(root, "R", "runner.R")
 rscript <- file.path(R.home("bin"), "Rscript")
+py_runner <- file.path(root, "Python", "runner.py")
+python <- Sys.getenv("SS_PYTHON", "")
+if (!nzchar(python)) {
+  found <- Filter(file.exists, c("/usr/local/bin/python3", "/opt/homebrew/bin/python3",
+                                 "/Library/Frameworks/Python.framework/Versions/Current/bin/python3"))
+  python <- if (length(found)) found[[1]] else ""
+}
 
 level_types <- c("briefing", "code", "predict", "debug", "spss_translate", "lab", "boss")
 level_files <- c("level.json", "lesson.md", "starter.R", "solution.R", "check.R")
@@ -53,20 +65,31 @@ read_json <- function(path, where) {
 
 read_text <- function(path) paste(readLines(path, warn = FALSE, encoding = "UTF-8"), collapse = "\n")
 
-# Runs code through the real runner, the same way the app does.
+is_python <- function(meta) identical(meta$language, "python")
+code_ext <- function(meta) if (is_python(meta)) "py" else "R"
+
+# Runs code through the real runner, the same way the app does (Python levels through
+# Python/runner.py).
 run_job <- function(level_dir, code, checks, meta) {
   out <- tempfile("ss-validate-")
   dir.create(out)
   on.exit(unlink(out, recursive = TRUE))
-  setup_path <- file.path(level_dir, "setup.R")
+  setup_path <- file.path(level_dir, paste0("setup.", code_ext(meta)))
   job <- list(code = code, checks = checks, output_dir = out, data_dir = level_dir,
               time_limit = meta$time_limit %||% 10, seed = meta$seed, document = meta$document,
               setup = if (file.exists(setup_path)) read_text(setup_path) else NULL)
   job <- job[!vapply(job, is.null, TRUE)]
   job_path <- file.path(out, "job.json")
   jsonlite::write_json(job, job_path, auto_unbox = TRUE, digits = NA)
-  log <- suppressWarnings(system2(rscript, c("--no-init-file", shQuote(runner), shQuote(job_path)),
-                                  stdout = TRUE, stderr = TRUE))
+  log <- if (is_python(meta)) {
+    if (!nzchar(python)) return(list(status = "runner_error", passed = FALSE, checks = list(),
+                                     console = list(list(type = "error", text = "python3 not found"))))
+    suppressWarnings(system2(python, c("-X", "utf8", shQuote(py_runner), shQuote(job_path)),
+                             stdout = TRUE, stderr = TRUE, env = "PYTHONDONTWRITEBYTECODE=1"))
+  } else {
+    suppressWarnings(system2(rscript, c("--no-init-file", shQuote(runner), shQuote(job_path)),
+                             stdout = TRUE, stderr = TRUE))
+  }
   result_path <- file.path(out, "result.json")
   if (!file.exists(result_path)) {
     return(list(status = "runner_error", passed = FALSE, checks = list(),
@@ -78,7 +101,7 @@ run_job <- function(level_dir, code, checks, meta) {
 describe_failure <- function(result) {
   lines <- character()
   for (entry in result$console) {
-    if (entry$type == "error") lines <- c(lines, paste("R error:", entry$text))
+    if (entry$type == "error") lines <- c(lines, paste("Error:", entry$text, entry$call %||% ""))
   }
   for (check in result$checks) {
     if (!isTRUE(check$passed)) {
@@ -109,8 +132,14 @@ check_lab <- function(lab, where) {
 }
 
 # What the console shows for a run, as the app prints it (output, warnings and errors).
-console_text <- function(result) {
+# Python entries print as ConsoleEntry.consoleText(language: .python) shows them.
+console_text <- function(result, python = FALSE) {
   lines <- vapply(result$console, function(e) {
+    if (python) return(switch(e$type,
+      output = e$text,
+      warning = if (is.null(e$call)) paste("Warning:", e$text) else sprintf("Warning on %s: %s", e$call, e$text),
+      error = if (is.null(e$call)) paste("Error:", e$text) else sprintf("Error on %s: %s", e$call, e$text),
+      ""))
     switch(e$type,
       output = e$text,
       warning = if (is.null(e$call)) paste("Warning:", e$text) else sprintf("Warning in %s: %s", e$call, e$text),
@@ -139,14 +168,15 @@ check_quiz <- function(raw, meta, level_dir, where) {
     if (identical(meta$type, "predict") && is.null(q$code)) problem(where, paste(tag, "needs code to predict"))
     if (is.null(q$code) || isFALSE(q$run)) next
     result <- run_job(level_dir, q$code, NULL, meta)
-    shown <- console_text(result)
+    shown <- console_text(result, python = is_python(meta))
     if (identical(result$status, "runner_error")) {
       problem(where, sprintf("%s: the code couldn't run\n      %s", tag, shown))
     } else if (!isFALSE(q$match_output)) {
       matches <- which(squash(choices) == squash(shown))
       if (!(answer + 1) %in% matches) {
-        problem(where, sprintf("%s: R prints\n        %s\n      but the right choice is\n        %s",
-                               tag, gsub("\n", "\n        ", shown), choices[answer + 1]))
+        problem(where, sprintf("%s: %s prints\n        %s\n      but the right choice is\n        %s",
+                               tag, if (is_python(meta)) "Python" else "R",
+                               gsub("\n", "\n        ", shown), choices[answer + 1]))
       } else if (length(matches) > 1) {
         problem(where, paste(tag, "has more than one choice matching R's output"))
       }
@@ -188,6 +218,16 @@ stat_tests <- c("one_sample_t", "independent_t", "paired_t", "one_way_anova", "f
                 "repeated_measures_anova", "chi_square", "correlation", "regression")  # StatTest in Swift
 cards_seen <- list()   # review card id -> sector
 
+python_parses <- function(code) {
+  if (!nzchar(python)) return(FALSE)
+  file <- tempfile(fileext = ".py")
+  on.exit(unlink(file))
+  writeLines(code, file, useBytes = TRUE)
+  status <- suppressWarnings(system2(python, c("-c", shQuote("import ast,sys; ast.parse(open(sys.argv[1]).read())"),
+                                               shQuote(file)), stdout = FALSE, stderr = FALSE))
+  identical(as.integer(status), 0L)
+}
+
 check_review <- function(path, level_ids, where) {
   review <- tryCatch(jsonlite::fromJSON(path, simplifyVector = FALSE),
                      error = function(e) { problem(where, paste("review.json: invalid JSON:", conditionMessage(e))); NULL })
@@ -213,10 +253,12 @@ check_review <- function(path, level_ids, where) {
       code <- card$code %||% ""
       if (lengths(regmatches(code, gregexpr("___", code, fixed = TRUE))) != 1) bad("code needs exactly one ___ blank")
       if (!length(card$answers)) bad("needs accepted answers")
+      py <- identical(card$language, "python")
+      if (!is.null(card$language) && !card$language %in% c("r", "python")) bad("language must be \"r\" or \"python\"")
       for (answer in card$answers) {
         filled <- sub("___", answer, code, fixed = TRUE)
-        ok <- tryCatch({ parse(text = filled); TRUE }, error = function(e) FALSE)
-        if (!ok) bad(sprintf("filled with \"%s\" the code doesn't parse as R", answer))
+        ok <- if (py) python_parses(filled) else tryCatch({ parse(text = filled); TRUE }, error = function(e) FALSE)
+        if (!ok) bad(sprintf("filled with \"%s\" the code doesn't parse as %s", answer, if (py) "Python" else "R"))
       }
     } else if (type == "which_test") {
       options <- unlist(card$options %||% list("one_sample_t", "independent_t", "paired_t",
@@ -282,6 +324,9 @@ for (sector_dir in sector_dirs) {
     }
     if (!is.null(meta$xp) && (!is.numeric(meta$xp) || meta$xp <= 0)) problem(where, "xp must be a positive number")
     if (!is.null(meta$hints) && !is.character(meta$hints)) problem(where, "hints must be a list of strings")
+    if (!is.null(meta$language) && !meta$language %in% c("r", "python")) problem(where, "language must be \"r\" or \"python\"")
+    if (is_python(meta) && !is.null(meta$document)) problem(where, "a Python level can't be a Quarto document")
+    if (is_python(meta) && !nzchar(python)) problem(where, "python3 not found (set SS_PYTHON), so this Python level can't be checked")
     if (identical(meta$type, "lab")) check_lab(meta$lab, where)
     raw <- jsonlite::fromJSON(file.path(level_dir, "level.json"), simplifyVector = FALSE)
     if (identical(meta$type, "spss_translate")) check_spss(raw$spss, where)
@@ -297,6 +342,7 @@ for (sector_dir in sector_dirs) {
     }
 
     wanted <- level_files
+    if (is_python(meta)) wanted <- sub("\\.R$", ".py", wanted)
     if (!is.null(meta$document)) wanted <- sub("^(starter|solution)\\.R$", "\\1.qmd", wanted)
     missing_files <- wanted[!file.exists(file.path(level_dir, wanted))]
     if (length(missing_files)) {
@@ -304,18 +350,19 @@ for (sector_dir in sector_dirs) {
       next
     }
     if (!nzchar(trimws(read_text(file.path(level_dir, "lesson.md"))))) problem(where, "lesson.md is empty")
-    checks <- read_text(file.path(level_dir, "check.R"))
+    check_file <- paste0("check.", code_ext(meta))
+    checks <- read_text(file.path(level_dir, check_file))
     if (!nzchar(trimws(checks))) {
-      problem(where, "check.R is empty")
+      problem(where, paste(check_file, "is empty"))
       next
     }
 
-    ext <- if (is.null(meta$document)) "R" else "qmd"
+    ext <- if (is.null(meta$document)) code_ext(meta) else "qmd"
     if (!is.null(meta$document) && !grepl("\\.(qmd|Rmd)$", meta$document)) problem(where, "document must be a .qmd or .Rmd file name")
     solution <- run_job(level_dir, read_text(file.path(level_dir, paste0("solution.", ext))), checks, meta)
     if (!isTRUE(solution$passed) || any(vapply(solution$checks, function(c) isTRUE(c$internal), TRUE))) {
-      problem(where, sprintf("solution.R doesn't pass its checks (status: %s)\n%s",
-                             solution$status, describe_failure(solution)))
+      problem(where, sprintf("solution.%s doesn't pass its checks (status: %s)\n%s",
+                             ext, solution$status, describe_failure(solution)))
     } else if (length(solution$checks) == 0) {
       problem(where, "check.R ran but recorded no checks")
     }
@@ -323,6 +370,14 @@ for (sector_dir in sector_dirs) {
     if (identical(meta$type, "boss")) check_boss(raw, solution, where)
     starter <- run_job(level_dir, read_text(file.path(level_dir, paste0("starter.", ext))), checks, meta)
     if (isTRUE(starter$passed)) problem(where, sprintf("starter.%s already passes the checks", ext))
+
+    twin_path <- file.path(level_dir, "twin.R")
+    if (is_python(meta) && file.exists(twin_path)) {
+      twin <- run_job(level_dir, read_text(twin_path), NULL, list(seed = meta$seed, time_limit = 30))
+      if (!identical(twin$status, "ok")) {
+        problem(where, sprintf("twin.R doesn't run in R (status: %s)\n%s", twin$status, describe_failure(twin)))
+      }
+    }
 
     if (length(problems) == problems_before) {
       cat(sprintf("  ✓ solution passes %d checks; starter doesn't pass\n", length(solution$checks)))

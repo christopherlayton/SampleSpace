@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.seaborn-sky",
+  "title": "Seaborn Sky",
+  "summary": "Plots in Python: seaborn histplot() and boxplot() on matplotlib, labels with plt.xlabel(), one figure per plt.show().",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "`sns.histplot(data=log, x=\"hours_mission\", bins=40)`, then `plt.xlabel(\"Hours per mission\")` and `plt.show()`.",
+    "Make `decade` with `first[\"year_of_mission\"] // 10 * 10` inside `assign()`.",
+    "`sns.boxplot(data=first, x=\"decade\", y=\"age\")`, `plt.ylabel(\"Age at first flight\")`, `plt.show()`."
+  ]
+}

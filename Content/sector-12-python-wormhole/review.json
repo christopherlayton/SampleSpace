@@ -1,0 +1,263 @@
+{
+  "cards": [
+    {
+      "id": "wormhole/import-as",
+      "level": "python-wormhole.first-contact",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Load pandas under its usual short name.",
+      "code": "import pandas ___ pd",
+      "answers": [
+        "as"
+      ],
+      "explain": "`import pandas as pd` makes the name `pd`, so you write `pd.read_csv()`."
+    },
+    {
+      "id": "wormhole/first-item",
+      "level": "python-wormhole.first-contact",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Store the **first** mission's hours.",
+      "code": "hours = [1.77, 25.0, 5.0]\nfirst = hours[___]",
+      "answers": [
+        "0"
+      ],
+      "explain": "Python counts from 0: `hours[0]` is the first item."
+    },
+    {
+      "id": "wormhole/zero-based",
+      "level": "python-wormhole.index-forecast",
+      "type": "concept",
+      "prompt": "`x = [10, 20, 30, 40]`. What is `x[1:3]`?",
+      "choices": [
+        "[20, 30]",
+        "[10, 20, 30]",
+        "[20, 30, 40]",
+        "[10, 20]"
+      ],
+      "answer": 0,
+      "explain": "Start at position 1, stop *before* 3: positions 1 and 2."
+    },
+    {
+      "id": "wormhole/ddof",
+      "level": "python-wormhole.describe-in-python",
+      "type": "concept",
+      "prompt": "Which gives the same SD as R's `sd(x)` and SPSS?",
+      "choices": [
+        "`x.std()` on a pandas Series",
+        "`np.std(x)`",
+        "`np.std(x, ddof=0)`",
+        "`x.var()`"
+      ],
+      "answer": 0,
+      "explain": "pandas divides by n − 1 (`ddof=1`); numpy's default divides by n. `x.var()` is the variance, not the SD."
+    },
+    {
+      "id": "wormhole/skipna",
+      "level": "python-wormhole.index-forecast",
+      "type": "concept",
+      "prompt": "`pd.Series([4, None, 6]).mean()` gives…",
+      "choices": [
+        "5.0: pandas skips missing values by default",
+        "NaN, like R without na.rm",
+        "An error",
+        "3.33: None counts as 0"
+      ],
+      "answer": 0,
+      "explain": "pandas' `skipna=True` default is the opposite of R's `mean()`, which returns NA unless `na.rm = TRUE`."
+    },
+    {
+      "id": "wormhole/read-csv",
+      "level": "python-wormhole.pandas-docks",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Read the Crew Log into a DataFrame.",
+      "code": "log = pd.___(\"astronauts.csv\")",
+      "answers": [
+        "read_csv"
+      ],
+      "explain": "`pd.read_csv()` is pandas' `read_csv()`."
+    },
+    {
+      "id": "wormhole/nunique",
+      "level": "python-wormhole.pandas-docks",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Count the different astronaut IDs (R: `length(unique(log$number))`).",
+      "code": "log[\"number\"].___()",
+      "answers": [
+        "nunique"
+      ],
+      "explain": "`.nunique()` counts distinct values; `.value_counts()` counts each one."
+    },
+    {
+      "id": "wormhole/value-labels",
+      "level": "python-wormhole.spss-wormhole",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Read an SPSS file with its value labels in place of the codes (like `haven::as_factor()`).",
+      "code": "teach, meta = pyreadstat.read_sav(\"teaching_study.sav\", ___=True)",
+      "answers": [
+        "apply_value_formats"
+      ],
+      "explain": "`apply_value_formats=True` swaps codes for labels. Declared-missing codes arrive as NaN either way."
+    },
+    {
+      "id": "wormhole/equals",
+      "level": "python-wormhole.pandas-pipelines",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Keep only first missions.",
+      "code": "first = log[log[\"mission_number\"] ___ 1]",
+      "answers": [
+        "=="
+      ],
+      "explain": "A comparison is `==`; a single `=` stores a value (and is a syntax error here)."
+    },
+    {
+      "id": "wormhole/groupby",
+      "level": "python-wormhole.pandas-pipelines",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Mean age by sex (R: `group_by(sex) |> summarise(mean(age))`).",
+      "code": "first.___(\"sex\")[\"age\"].mean()",
+      "answers": [
+        "groupby"
+      ],
+      "explain": "`groupby()` then a column and a method: pandas' group_by + summarise."
+    },
+    {
+      "id": "wormhole/show",
+      "level": "python-wormhole.seaborn-sky",
+      "type": "concept",
+      "prompt": "You draw a seaborn histogram, then a boxplot, with no `plt.show()` between them. What happens?",
+      "choices": [
+        "Both are drawn on the same axes, one on top of the other",
+        "Python draws two separate figures",
+        "The second plot replaces the first",
+        "An error: one plot at a time"
+      ],
+      "answer": 0,
+      "explain": "seaborn draws on the current matplotlib figure. `plt.show()` finishes a figure so the next plot starts a new one."
+    },
+    {
+      "id": "wormhole/method-call",
+      "level": "python-wormhole.wormhole-turbulence",
+      "type": "concept",
+      "prompt": "`mean_age = first[\"age\"].mean` (no brackets). What is in `mean_age`?",
+      "choices": [
+        "The method itself, not a number",
+        "The mean age",
+        "NaN",
+        "A syntax error stops the script"
+      ],
+      "answer": 0,
+      "explain": "Without `()` the method isn't called; you've stored the function. `.mean()` calls it."
+    },
+    {
+      "id": "wormhole/welch",
+      "level": "python-wormhole.t-test-wormhole",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Welch's t-test (R's `t.test()` default).",
+      "code": "stats.ttest_ind(civ, mil, equal_var=___)",
+      "answers": [
+        "False"
+      ],
+      "explain": "scipy assumes equal variances (Student's t) unless `equal_var=False`."
+    },
+    {
+      "id": "wormhole/levene-center",
+      "level": "python-wormhole.t-test-wormhole",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Levene's test as SPSS computes it.",
+      "code": "stats.levene(civ, mil, center=___)",
+      "answers": [
+        "\"mean\"",
+        "'mean'"
+      ],
+      "explain": "scipy (like `car::leveneTest`) centres on the median by default; SPSS uses the mean."
+    },
+    {
+      "id": "wormhole/C-factor",
+      "level": "python-wormhole.anova-wormhole",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Treat `decade` as categories in a statsmodels formula (R: `factor(decade)`).",
+      "code": "smf.ols(\"age ~ ___(decade)\", data=first).fit()",
+      "answers": [
+        "C"
+      ],
+      "explain": "`C()` makes a variable categorical; without it decade is one number with 1 df."
+    },
+    {
+      "id": "wormhole/yates",
+      "level": "python-wormhole.crosstab-wormhole",
+      "type": "concept",
+      "prompt": "`stats.chi2_contingency(table)` on a 2 × 2 table, with no other arguments, gives…",
+      "choices": [
+        "The χ² with Yates' continuity correction, like R's chisq.test() default",
+        "SPSS's Pearson Chi-Square row",
+        "Fisher's exact test",
+        "The likelihood-ratio χ²"
+      ],
+      "answer": 0,
+      "explain": "Add `correction=False` for the uncorrected Pearson χ² that SPSS lists first."
+    },
+    {
+      "id": "wormhole/categorical",
+      "level": "python-wormhole.crosstab-wormhole",
+      "type": "concept",
+      "prompt": "Why make `era` a `pd.Categorical(..., categories=[\"before 2000\", \"2000 on\"])`?",
+      "choices": [
+        "So tables keep that order instead of sorting the text alphabetically",
+        "chi2_contingency only accepts categoricals",
+        "To turn the labels into numbers for the test",
+        "To drop missing values"
+      ],
+      "answer": 0,
+      "explain": "It is pandas' `factor(levels = ...)`: the order of categories is kept in crosstabs and plots."
+    },
+    {
+      "id": "wormhole/rsquared",
+      "level": "python-wormhole.regression-wormhole",
+      "type": "fill",
+      "language": "python",
+      "prompt": "R² of a fitted statsmodels regression (R: `summary(model)$r.squared`).",
+      "code": "model.___",
+      "answers": [
+        "rsquared"
+      ],
+      "explain": "`model.rsquared`; the coefficients are `model.params`."
+    },
+    {
+      "id": "wormhole/fstring",
+      "level": "python-wormhole.round-trip",
+      "type": "fill",
+      "language": "python",
+      "prompt": "Put t, rounded to two decimals, into the sentence.",
+      "code": "f\"t = {welch.statistic:___}\"",
+      "answers": [
+        ".2f"
+      ],
+      "explain": "`:.2f` formats a number with two decimals, like `sprintf(\"%.2f\", x)`."
+    },
+    {
+      "id": "wormhole/which-sex-age",
+      "level": "python-wormhole.round-trip",
+      "type": "which_test",
+      "prompt": "In Python: do women and men (two separate groups of astronauts) differ in age at first flight?",
+      "answer": "independent_t",
+      "explain": "Two independent groups, one numeric outcome: `stats.ttest_ind(..., equal_var=False)`."
+    },
+    {
+      "id": "wormhole/which-missions-eva",
+      "level": "python-wormhole.regression-wormhole",
+      "type": "which_test",
+      "prompt": "In Python: is the number of missions an astronaut flew related to their total spacewalk hours?",
+      "answer": "correlation",
+      "explain": "Two numeric variables measured on the same people: `stats.pearsonr()` (or `spearmanr()`)."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.crosstab-wormhole",
+  "title": "Crosstab Wormhole",
+  "summary": "Era by sex in Python: ordered categories, pd.crosstab() with row percentages, chi2_contingency() without Yates, expected counts and Cramér's V.",
+  "type": "code",
+  "xp": 140,
+  "par": 3,
+  "hints": [
+    "`era = pd.Categorical(np.where(first[\"year_of_mission\"] >= 2000, \"2000 on\", \"before 2000\"), categories=[\"before 2000\", \"2000 on\"])`, then `first = first.assign(era=era)`.",
+    "`pd.crosstab(first[\"era\"], first[\"sex\"])`, and the same with `normalize=\"index\"` (times 100) for row percentages.",
+    "`chi = stats.chi2_contingency(crew_table, correction=False)`; `(chi.expected_freq >= 5).all()`; V = `np.sqrt(chi.statistic / (n * (min(crew_table.shape) - 1)))`."
+  ]
+}

@@ -83,6 +83,13 @@ final class LevelSession {
     private(set) var quizRunning: Int?
     private var quizTask: Task<Void, Never>?
 
+    // R twin (Python levels)
+    /// What R printed for the level's twin.R, once run.
+    private(set) var twinOutput: [ConsoleEntry]?
+    private(set) var twinPlots = 0
+    private(set) var twinRunning = false
+    private var twinTask: Task<Void, Never>?
+
     private let engine: REngine?
     let engineError: String?
     private var task: Task<Void, Never>?
@@ -303,6 +310,35 @@ final class LevelSession {
         }
     }
 
+    /// Runs the level's R twin and keeps what R printed.
+    func runTwin() {
+        guard let job = level.twinJob(), !twinRunning else { return }
+        guard let engine else {
+            twinOutput = [ConsoleEntry(kind: .error, text: engineError ?? "R isn't available.")]
+            return
+        }
+        twinRunning = true
+        twinTask = Task {
+            let result: RRunResult?
+            let entries: [ConsoleEntry]
+            do {
+                let r = try await engine.run(job)
+                result = r
+                entries = r.console
+            } catch {
+                result = nil
+                entries = [ConsoleEntry(kind: .error, text: error.localizedDescription)]
+            }
+            twinRunning = false
+            guard !Task.isCancelled else { return }
+            twinOutput = entries
+            twinPlots = result?.plots.count ?? 0
+        }
+    }
+
+    /// Waits for the twin's R run (for tests).
+    func waitForTwin() async { await twinTask?.value }
+
     /// Waits for a Predict question's R run (for tests).
     func waitForQuizRun() async { await quizTask?.value }
 
@@ -351,6 +387,8 @@ final class LevelSession {
         task = nil
         quizTask?.cancel()
         quizRunning = nil
+        twinTask?.cancel()
+        twinRunning = false
         renderTask?.cancel()
         if renderState == .rendering { renderState = .idle }
         instrument?.stop()

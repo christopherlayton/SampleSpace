@@ -98,7 +98,7 @@ struct LevelView: View {
 
     private var bugReport: some View {
         Label {
-            Text("**Bug report:** this code is broken. Run it, read what R says, and fix it. Reset brings the broken version back.")
+            Text("**Bug report:** this code is broken. Run it, read what \(level.language.displayName) says, and fix it. Reset brings the broken version back.")
                 .fixedSize(horizontal: false, vertical: true)
         } icon: {
             Image(systemName: "ladybug.fill").foregroundStyle(Theme.fail)
@@ -117,7 +117,9 @@ struct LevelView: View {
                 Divider()
                 if level.type == .debug { bugReport }
                 if session.isBoss { BossStepBar(session: session) }
-                CodeEditor(text: Bindable(session).code, language: level.isDocument ? .quarto : .r, fontSize: codeFontSize)
+                CodeEditor(text: Bindable(session).code,
+                           language: level.isDocument ? .quarto : level.language == .python ? .python : .r,
+                           fontSize: codeFontSize)
             }
             .frame(minHeight: 220, idealHeight: 380)
 
@@ -133,7 +135,7 @@ struct LevelView: View {
                     Label("Stop", systemImage: "stop.fill")
                 }
                 .keyboardShortcut(".", modifiers: .command)
-                .help("Stop R (⌘.)")
+                .help("Stop \(level.language.displayName) (⌘.)")
             } else {
                 Button { session.run() } label: {
                     Label("Run", systemImage: "play.fill")

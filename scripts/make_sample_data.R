@@ -61,7 +61,8 @@ teach <- data.frame(
 sav_levels <- c(file.path(docks, c("08-read-sav", "09-value-labels", "10-frequency-translator")),
                 file.path(content, "sector-08-means-cluster",
                           c("05-t-test-translator", "07-effect-size", "09-apa-report")),
-                file.path(content, "sector-10-relationship-ring", "10-crosstabs-translator"))
+                file.path(content, "sector-10-relationship-ring", "10-crosstabs-translator"),
+                file.path(content, "sector-12-python-wormhole", "05-spss-wormhole"))
 for (level in sav_levels) {
   dir.create(level, showWarnings = FALSE)
   haven::write_sav(teach, file.path(level, "teaching_study.sav"))

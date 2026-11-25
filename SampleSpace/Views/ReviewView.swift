@@ -203,11 +203,13 @@ private struct ReviewCardView: View {
                 .fixedSize(horizontal: false, vertical: true)
             if let code = card.code {
                 VStack(alignment: .leading, spacing: 6) {
-                    Label(card.kind == .predict ? "Predict what R prints" : (card.kind == .fill ? "Fill the blank" : "Code"),
+                    Label(card.kind == .predict ? "Predict what \(card.language.displayName) prints"
+                          : (card.kind == .fill ? "Fill the blank" : "Code"),
                           systemImage: "terminal")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                    CodeBlock(code: answered && card.kind == .fill ? (card.filledCode ?? code) : code)
+                    CodeBlock(code: answered && card.kind == .fill ? (card.filledCode ?? code) : code,
+                              language: card.language)
                 }
             }
             if card.isChoice { choices } else { fillField }

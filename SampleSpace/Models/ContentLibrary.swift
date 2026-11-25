@@ -92,8 +92,12 @@ struct ContentLibrary: Sendable {
         if file.type == .boss, (file.steps ?? []).count < 2 {
             throw ContentError.badJSON(json, "a boss level needs a \"steps\" list with at least two steps")
         }
-        // Documents keep their starter and solution as .qmd files.
-        let ext = file.document == nil ? "R" : "qmd"
+        let language = file.language ?? .r
+        if language == .python, file.document != nil {
+            throw ContentError.badJSON(json, "Quarto documents are R levels; a Python level can't have a \"document\"")
+        }
+        // Documents keep their starter and solution as .qmd files; Python levels use .py files.
+        let ext = file.document == nil ? language.fileExtension : "qmd"
         // Quiz levels don't use the editor, so their R files are optional.
         func code(_ name: String) throws -> String {
             file.type.isQuiz ? ((try? text(folder, name)) ?? "") : try text(folder, name)
@@ -105,12 +109,13 @@ struct ContentLibrary: Sendable {
             xp: file.xp, par: par, hints: file.hints ?? [], unlocks: file.unlocks,
             timeLimit: file.timeLimit ?? 10, seed: file.seed, lab: file.lab, quiz: file.quiz,
             spss: file.spss,
-            steps: file.steps, document: file.document,
+            steps: file.steps, document: file.document, language: language,
+            twinCode: language == .python ? try? text(folder, "twin.R") : nil,
             lesson: try text(folder, "lesson.md"),
             starterCode: try code("starter.\(ext)"),
             solutionCode: try code("solution.\(ext)"),
-            checkCode: try code("check.R"),
-            setupCode: try? text(folder, "setup.R"),
+            checkCode: try code("check.\(language.fileExtension)"),
+            setupCode: try? text(folder, "setup.\(language.fileExtension)"),
             folder: folder)
     }
 
@@ -194,4 +199,5 @@ private struct LevelFile: Decodable {
     let spss: SPSSPanel?
     let steps: [BossStep]?
     let document: String?
+    let language: CodeLanguage?
 }

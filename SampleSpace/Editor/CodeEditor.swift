@@ -1,11 +1,11 @@
 import AppKit
 import SwiftUI
 
-/// An R code editor: an `NSTextView` with syntax colouring, line numbers, two-space
-/// indents and automatic indentation. Smart quotes and other text substitutions are off,
-/// because curly quotes break R code.
+/// A code editor for R, Quarto documents or Python: an `NSTextView` with syntax colouring,
+/// line numbers, indents (two spaces for R, four for Python) and automatic indentation.
+/// Smart quotes and other text substitutions are off, because curly quotes break code.
 struct CodeEditor: NSViewRepresentable {
-    enum Language { case r, quarto }
+    enum Language { case r, quarto, python }
 
     @Binding var text: String
     var language: Language = .r
@@ -44,7 +44,12 @@ struct CodeEditor: NSViewRepresentable {
         textView.selectedTextAttributes = [.backgroundColor: NSColor(Theme.accent).withAlphaComponent(0.3)]
         textView.textContainerInset = NSSize(width: 6, height: 10)
         textView.isEditable = isEditable
-        textView.setAccessibilityLabel(language == .quarto ? "Quarto document editor" : "R code editor")
+        textView.setAccessibilityLabel(language == .quarto ? "Quarto document editor"
+                                       : language == .python ? "Python code editor" : "R code editor")
+        if language == .python {
+            textView.indentUnit = "    "
+            textView.opensBlock = [":", "(", "[", "{"]
+        }
 
         // Wrap long lines to the width of the pane.
         textView.minSize = .zero
@@ -127,7 +132,11 @@ struct CodeEditor: NSViewRepresentable {
             let all = NSRange(location: 0, length: storage.length)
             storage.beginEditing()
             storage.setAttributes([.font: font, .foregroundColor: NSColor(Theme.codeText)], range: all)
-            let tokens = language == .quarto ? RSyntax.documentTokens(in: storage.string) : RSyntax.tokens(in: storage.string)
+            let tokens = switch language {
+            case .quarto: RSyntax.documentTokens(in: storage.string)
+            case .python: PythonSyntax.tokens(in: storage.string)
+            case .r: RSyntax.tokens(in: storage.string)
+            }
             for token in tokens where NSMaxRange(token.range) <= storage.length {
                 storage.addAttribute(.foregroundColor, value: token.kind.nsColor, range: token.range)
             }
@@ -141,13 +150,14 @@ struct CodeEditor: NSViewRepresentable {
 
 // MARK: - Text view
 
-/// Tab inserts two spaces; Return keeps the current line's indent and adds two more
-/// after an opening `{` or `(`.
+/// Tab inserts one indent (two spaces; four for Python); Return keeps the current line's
+/// indent and adds one more after an opening `{` or `(` (for Python, also `:` and `[`).
 final class RCodeTextView: NSTextView {
-    static let indent = "  "
+    var indentUnit = "  "
+    var opensBlock: Set<Character> = ["{", "("]
 
     override func insertTab(_ sender: Any?) {
-        insertText(Self.indent, replacementRange: selectedRange())
+        insertText(indentUnit, replacementRange: selectedRange())
     }
 
     override func insertNewline(_ sender: Any?) {
@@ -157,7 +167,7 @@ final class RCodeTextView: NSTextView {
         let before = text.substring(with: NSRange(location: lineStart, length: cursor - lineStart))
         var indent = String(before.prefix(while: { $0 == " " || $0 == "\t" }))
         let lastChar = before.trimmingCharacters(in: .whitespaces).last
-        if lastChar == "{" || lastChar == "(" { indent += Self.indent }
+        if let lastChar, opensBlock.contains(lastChar) { indent += indentUnit }
         insertText("\n" + indent, replacementRange: selectedRange())
     }
 }

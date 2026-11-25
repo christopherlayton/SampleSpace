@@ -20,7 +20,7 @@ import Foundation
 ///       ] }
 ///
 ///   `fill` cards have one `___` blank in `code` and the accepted `answers` (compared without
-///   spaces, quotes made straight). `which_test` answers and options are `StatTest` keys;
+///   spaces, quotes made straight). A card whose code is Python says `"language": "python"`. `which_test` answers and options are `StatTest` keys;
 ///   `options` defaults to `StatTest.defaultOptions`. Card ids must be unique across sectors.
 struct ReviewCard: Identifiable, Hashable, Sendable {
     enum Kind: String, Sendable, CaseIterable {
@@ -59,6 +59,8 @@ struct ReviewCard: Identifiable, Hashable, Sendable {
     /// Fill cards: accepted answers for the blank.
     var answers: [String] = []
     var explain: String?
+    /// The language of `code` (Python for Python Wormhole cards).
+    var language: CodeLanguage = .r
 
     var isChoice: Bool { kind != .fill }
 
@@ -69,7 +71,8 @@ struct ReviewCard: Identifiable, Hashable, Sendable {
             ReviewCard(id: "quiz:\(level.id)#\(index + 1)", kind: level.type == .predict ? .predict : .concept,
                        levelID: level.id, prompt: question.prompt, code: question.code,
                        choices: question.choices, answer: question.answer,
-                       choicesAreCode: question.showsChoicesAsCode, explain: question.explain)
+                       choicesAreCode: question.showsChoicesAsCode, explain: question.explain,
+                       language: level.language)
         }
     }
 
@@ -162,6 +165,7 @@ struct ReviewFile: Decodable {
         let answers: [String]?
         let options: [String]?
         let explain: String?
+        let language: CodeLanguage?
     }
 
     /// An index for choice cards, a test key for Which-test cards.
@@ -194,7 +198,8 @@ struct ReviewFile: Decodable {
                 }
                 cards.append(ReviewCard(id: entry.id, kind: .concept, levelID: entry.level, prompt: entry.prompt,
                                         code: entry.code, choices: choices, answer: answer,
-                                        choicesAreCode: false, explain: entry.explain))
+                                        choicesAreCode: false, explain: entry.explain,
+                                        language: entry.language ?? .r))
             case "fill":
                 guard let code = entry.code, code.components(separatedBy: ReviewCard.blank).count == 2 else {
                     return bad("needs code with exactly one \(ReviewCard.blank) blank")
@@ -202,7 +207,8 @@ struct ReviewFile: Decodable {
                 let answers = entry.answers ?? []
                 guard !answers.isEmpty else { return bad("needs at least one accepted answer") }
                 cards.append(ReviewCard(id: entry.id, kind: .fill, levelID: entry.level, prompt: entry.prompt,
-                                        code: code, answers: answers, explain: entry.explain))
+                                        code: code, answers: answers, explain: entry.explain,
+                                        language: entry.language ?? .r))
             case "which_test":
                 let keys = entry.options ?? StatTest.defaultOptions.map(\.rawValue)
                 let options = keys.compactMap(StatTest.init(rawValue:))

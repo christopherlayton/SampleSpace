@@ -1,8 +1,8 @@
 {
   "id": 12,
   "name": "Python Wormhole",
-  "r_skills": "pandas, statsmodels, seaborn",
-  "stats_concepts": "The same analyses in Python",
+  "r_skills": "Python: pandas, scipy.stats, statsmodels, seaborn, pyreadstat",
+  "stats_concepts": "The same analyses in Python, side by side with R",
   "hue": 0.85,
   "map_position": {
     "x": 0.92,
@@ -10,9 +10,9 @@
   },
   "planet_size": 54,
   "optional": true,
-  "briefing": "Through the wormhole the same Crew Log looks different: pandas instead of dplyr. Same questions, another language.",
+  "briefing": "Through the wormhole the ship's computer reads the Crew Log in a second language: Python. Same log, same questions, other words. Can you make Python give exactly the numbers R gave?",
   "log": {
     "title": "Entry 13: Two languages",
-    "text": "Your Crew Log analyses reproduced in Python, side by side with R."
+    "text": "Read through Python, the log is unchanged: 1,277 missions, 564 astronaut IDs, a median mission of 261 hours against a mean of 1,051. Every analysis you ran in R came back with the same numbers in pandas and scipy, once their defaults were set to match. The findings belong to the data, not to the software."
   }
 }

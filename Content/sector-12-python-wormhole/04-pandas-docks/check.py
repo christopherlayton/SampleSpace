@@ -1,0 +1,8 @@
+expect_imported("pandas")
+expect_called("read_csv")
+expect_type("log", "DataFrame", message="`log` should be the DataFrame from `pd.read_csv(\"astronauts.csv\")`.")
+expect_object("n_rows", 1277, message="`log.shape[0]` (or `len(log)`) counts the rows.")
+expect_object("n_columns", 24, message="`log.shape[1]` counts the columns.")
+expect_object("n_people", 564, message="Count *different* IDs: `log[\"number\"].nunique()`.")
+expect_object("most_missions", 7, message="`log[\"number\"].value_counts()` counts missions per ID; `.max()` takes the largest.")
+expect_called("head")

@@ -1,0 +1,6 @@
+library(readr)
+log <- read_csv("astronauts.csv", show_col_types = FALSE)
+dim(log)
+length(unique(log$number))
+max(table(log$number))
+head(log)

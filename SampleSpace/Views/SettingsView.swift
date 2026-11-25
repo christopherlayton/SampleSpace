@@ -10,7 +10,7 @@ struct SettingsView: View {
             TextSettings()
                 .tabItem { Label("Text", systemImage: "textformat.size") }
             RSettings()
-                .tabItem { Label("R & Quarto", systemImage: "terminal") }
+                .tabItem { Label("R & Python", systemImage: "terminal") }
         }
         .frame(width: 560)
         .padding(.vertical, 8)
@@ -89,6 +89,7 @@ private struct RSettings: View {
     @Environment(GameModel.self) private var model
     @AppStorage(Preferences.rscriptPath) private var rscriptPath = ""
     @AppStorage(Preferences.quartoPath) private var quartoPath = ""
+    @AppStorage(Preferences.pythonPath) private var pythonPath = ""
     @State private var diagnostics: RDiagnostics?
     @State private var checking = false
 
@@ -97,6 +98,7 @@ private struct RSettings: View {
             Section {
                 pathRow("Rscript", text: $rscriptPath, placeholder: "Automatic (\(REngine.rscriptCandidates[0]))")
                 pathRow("Quarto", text: $quartoPath, placeholder: "Automatic (\(QuartoRenderer.candidates[0]))")
+                pathRow("Python", text: $pythonPath, placeholder: "Automatic (\(REngine.pythonCandidates[0]))")
             } footer: {
                 Text("Leave a path empty to let Sample Space look in the usual places. Changes apply when you press Apply.")
                     .font(.caption).foregroundStyle(.secondary)
@@ -114,7 +116,7 @@ private struct RSettings: View {
             }
         }
         .formStyle(.grouped)
-        .frame(height: 420)
+        .frame(height: 500)
         .task { if diagnostics == nil { await check() } }
     }
 
@@ -144,12 +146,13 @@ private struct RSettings: View {
     private func check() async {
         checking = true
         diagnostics = await RDiagnostics.run(rscriptPath: Preferences.customRscriptPath,
-                                             quartoPath: Preferences.customQuartoPath)
+                                             quartoPath: Preferences.customQuartoPath,
+                                             pythonPath: Preferences.customPythonPath)
         checking = false
     }
 }
 
-/// The results of a systems check: R, its packages, and Quarto.
+/// The results of a systems check: R, its packages, Quarto, and Python for the optional sector.
 struct DiagnosticsView: View {
     let diagnostics: RDiagnostics
 
@@ -165,8 +168,18 @@ struct DiagnosticsView: View {
             row(ok: diagnostics.quartoPath != nil,
                 title: diagnostics.quartoVersion.map { "Quarto \($0)" } ?? "Quarto not found",
                 detail: diagnostics.quartoPath ?? "Only needed for Render (quarto.org). Knitting in the app works without it.")
+            row(ok: diagnostics.pythonReady,
+                title: pythonTitle,
+                detail: diagnostics.pythonInstallCommand.map { "Only needed for the optional Python Wormhole. Install them in Terminal with:\n\($0)" }
+                    ?? diagnostics.pythonPath ?? "Only needed for the optional Python Wormhole (python.org).")
         }
         .textSelection(.enabled)
+    }
+
+    private var pythonTitle: String {
+        guard let version = diagnostics.pythonVersion else { return "Python not found" }
+        if diagnostics.missingPythonPackages.isEmpty { return "\(version), with all \(RDiagnostics.pythonPackages.count) libraries" }
+        return "\(version); missing: \(diagnostics.missingPythonPackages.joined(separator: ", "))"
     }
 
     private func row(ok: Bool, title: String, detail: String) -> some View {

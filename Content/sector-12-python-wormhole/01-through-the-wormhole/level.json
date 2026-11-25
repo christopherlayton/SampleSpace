@@ -1,0 +1,68 @@
+{
+  "language": "python",
+  "id": "python-wormhole.through-the-wormhole",
+  "title": "Through the Wormhole",
+  "summary": "Python for an R user: what changes (imports, counting from 0, methods, indentation) and what doesn't (the statistics).",
+  "type": "briefing",
+  "xp": 40,
+  "hints": [
+    "Python counts positions from 0, so the second item is at position 1."
+  ],
+  "quiz": [
+    {
+      "prompt": "Which line loads pandas the way almost every Python analyst writes it?",
+      "choices": [
+        "`import pandas as pd`",
+        "`library(pandas)`",
+        "`install pandas`",
+        "`from pd import pandas`"
+      ],
+      "answer": 0,
+      "explain": "`import pandas as pd` loads the library and gives it the short name `pd`, so you write `pd.read_csv()`. It does what `library(readr)` does in R, except that Python keeps the name in front: `pd.read_csv`, not just `read_csv`."
+    },
+    {
+      "prompt": "`crew = [\"Gagarin\", \"Tereshkova\", \"Glenn\"]`. Which expression gives `\"Tereshkova\"`?",
+      "choices": [
+        "`crew[1]`",
+        "`crew[2]`",
+        "`crew(2)`",
+        "`crew$2`"
+      ],
+      "answer": 0,
+      "explain": "Python counts from **0**: `crew[0]` is Gagarin, `crew[1]` is Tereshkova. In R, `crew[2]` would be Tereshkova. This is the single most common slip when moving between the two."
+    },
+    {
+      "prompt": "In R you write `mean(hours)`. With `hours` a pandas column (a *Series*), the usual Python is…",
+      "choices": [
+        "`hours.mean()`",
+        "`mean.hours()`",
+        "`hours$mean`",
+        "`mean(hours, na.rm = True)`"
+      ],
+      "answer": 0,
+      "explain": "pandas puts most tools on the data as **methods**: `hours.mean()`, `hours.median()`, `log.groupby(...)`. The dot reads as \"take `hours`, then compute its mean\", much like `hours |> mean()`."
+    },
+    {
+      "prompt": "How does Python know which lines belong inside a `for` loop or an `if`?",
+      "choices": [
+        "They are indented under a line that ends in `:`",
+        "They are wrapped in `{ }`",
+        "They end with `;`",
+        "They come before the word `end`"
+      ],
+      "answer": 0,
+      "explain": "Indentation *is* the grammar in Python: a block starts after a colon and lasts as long as the lines stay indented (four spaces is the convention). R ignores indentation and uses `{ }`."
+    },
+    {
+      "prompt": "Which Python library does the job of R's `t.test()`, `chisq.test()` and `cor.test()`?",
+      "choices": [
+        "`scipy.stats`",
+        "`pandas`",
+        "`seaborn`",
+        "`numpy.random`"
+      ],
+      "answer": 0,
+      "explain": "`scipy.stats` has the classic tests: `ttest_ind()`, `chi2_contingency()`, `pearsonr()`, `levene()`… Models with formulas (`aov()`, `lm()`) live in `statsmodels`, plots in matplotlib and seaborn."
+    }
+  ]
+}

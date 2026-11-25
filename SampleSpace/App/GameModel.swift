@@ -42,10 +42,11 @@ final class GameModel {
         refreshUnlocks()
     }
 
-    /// R and Quarto, from the paths in Settings (or the usual places when those are empty).
+    /// R, Python and Quarto, from the paths in Settings (or the usual places when those are empty).
     private static func makeEngine() -> (REngine?, String?, QuartoRenderer?) {
         do {
-            let engine = try REngine(rscriptPath: Preferences.customRscriptPath)
+            let engine = try REngine(rscriptPath: Preferences.customRscriptPath,
+                                     pythonPath: Preferences.customPythonPath)
             return (engine, nil, QuartoRenderer(rscriptURL: engine.rscriptURL, quartoPath: Preferences.customQuartoPath))
         } catch {
             return (nil, error.localizedDescription, nil)

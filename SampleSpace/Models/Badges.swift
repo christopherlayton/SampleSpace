@@ -16,7 +16,7 @@ struct Badge: Identifiable, Hashable, Sendable {
               symbol: "star.circle.fill"),
         Badge(id: "solo-flight", title: "Solo Flight", detail: "Clear five levels without hints.",
               symbol: "person.fill.checkmark"),
-        Badge(id: "first-plot", title: "First Plot", detail: "Draw your first plot in R.",
+        Badge(id: "first-plot", title: "First Plot", detail: "Draw your first plot.",
               symbol: "chart.xyaxis.line"),
         Badge(id: "bug-hunter", title: "Bug Hunter", detail: "Clear a level after your code hit an error.",
               symbol: "ladybug.fill"),
@@ -37,6 +37,8 @@ struct Badge: Identifiable, Hashable, Sendable {
               detail: "Chart every level in Inference Station.", symbol: "shield.lefthalf.filled"),
         Badge(id: "nebula-regular", title: "Nebula Regular",
               detail: "Meet the daily review goal in the Review Nebula on 5 days.", symbol: "sparkles"),
+        Badge(id: "wormhole-pilot", title: "Wormhole Pilot",
+              detail: "Clear a code level in Python, in the Python Wormhole.", symbol: "tornado"),
     ]
 
     static func named(_ id: String) -> Badge? { all.first { $0.id == id } }
@@ -69,8 +71,12 @@ struct Badge: Identifiable, Hashable, Sendable {
         if levels.contains(where: { $0.type == .spssTranslate && cleared[$0.id] != nil }) {
             ids.insert("spss-defector")
         }
+        if levels.contains(where: { $0.language == .python && !$0.type.isQuiz && cleared[$0.id] != nil }) {
+            ids.insert("wormhole-pilot")
+        }
         if let code = clearedCode, clearedLevel != nil,
-           ["shapiro.test(", "leveneTest(", "levene_test(", "check_model("].contains(where: code.contains) {
+           ["shapiro.test(", "leveneTest(", "levene_test(", "check_model(", "stats.levene(", "stats.shapiro("]
+            .contains(where: code.contains) {
             ids.insert("assumption-checker")
         }
         return ids

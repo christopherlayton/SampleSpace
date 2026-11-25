@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.regression-wormhole",
+  "title": "Regression Wormhole",
+  "summary": "Missions and spacewalk hours in Python: pearsonr(), spearmanr(), smf.ols() with params, rsquared, summary() and predict().",
+  "type": "code",
+  "xp": 140,
+  "par": 3,
+  "hints": [
+    "`people = log.groupby(\"number\").agg(missions=(\"id\", \"size\"), eva_hours=(\"eva_hrs_mission\", \"sum\"))`.",
+    "`stats.pearsonr(people[\"missions\"], people[\"eva_hours\"])` and `stats.spearmanr(...)`; `model = smf.ols(\"eva_hours ~ missions\", data=people).fit()`.",
+    "`model.params[\"missions\"]`, `model.rsquared`, and `model.predict(pd.DataFrame({\"missions\": [3]})).iloc[0]`."
+  ]
+}

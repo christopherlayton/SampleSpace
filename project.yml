@@ -18,6 +18,10 @@ targets:
       - path: R
         type: folder
         buildPhase: resources
+      # runner.py and checks.py for Python Wormhole levels, copied in as Resources/Python/
+      - path: Python
+        type: folder
+        buildPhase: resources
       # Sectors and levels, copied into the app as Resources/Content/
       - path: Content
         type: folder

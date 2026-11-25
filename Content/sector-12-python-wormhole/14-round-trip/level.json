@@ -1,0 +1,41 @@
+{
+  "language": "python",
+  "id": "python-wormhole.round-trip",
+  "title": "Round Trip",
+  "summary": "Boss: a whole analysis in Python. Do women and men start flying at different ages? Import, describe, plot, check, test, and write the APA sentence with an f-string.",
+  "type": "boss",
+  "xp": 250,
+  "par": 6,
+  "steps": [
+    {
+      "title": "Import",
+      "summary": "Import pandas, numpy, scipy.stats, seaborn and pyplot; read the log; make `first` with `age`."
+    },
+    {
+      "title": "Describe",
+      "summary": "`by_sex`: count, mean and std of age for each sex."
+    },
+    {
+      "title": "Plot",
+      "summary": "A boxplot of age by sex, y label \"Age at first flight\", then plt.show()."
+    },
+    {
+      "title": "Check",
+      "summary": "`women` and `men` (their ages); Levene's test centred on the mean in `levene`."
+    },
+    {
+      "title": "Test",
+      "summary": "Welch's t (women first) in `welch`; Cohen's d (pooled SD) in `d`."
+    },
+    {
+      "title": "Write it up",
+      "summary": "`decision`, and an APA `sentence` built with an f-string: M, t(df), p and d."
+    }
+  ],
+  "hints": [
+    "Step 1: `first = log[log[\"mission_number\"] == 1]`, then `first = first.assign(age=first[\"year_of_mission\"] - first[\"year_of_birth\"])`.",
+    "Steps 2–4: `first.groupby(\"sex\")[\"age\"].agg([\"count\", \"mean\", \"std\"])`; `sns.boxplot(data=first, x=\"sex\", y=\"age\")`; `women = first.loc[first[\"sex\"] == \"female\", \"age\"]`.",
+    "Step 5: `stats.ttest_ind(women, men, equal_var=False)`; d = (mean of women − mean of men) / pooled SD.",
+    "Step 6: `p_text = \"p < .001\" if welch.pvalue < .001 else f\"p = {welch.pvalue:.3f}\".replace(\"0.\", \".\", 1)`, then `sentence = f\"... t({welch.df:.2f}) = {welch.statistic:.2f}, {p_text}, d = {d:.2f}.\"`."
+  ]
+}

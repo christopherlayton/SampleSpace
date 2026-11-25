@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.anova-wormhole",
+  "title": "ANOVA Wormhole",
+  "summary": "Ages across decades in Python: statsmodels formulas with C(), anova_lm(), η², Tukey HSD and Welch's ANOVA.",
+  "type": "code",
+  "xp": 140,
+  "par": 3,
+  "hints": [
+    "`model = smf.ols(\"age ~ C(decade)\", data=first).fit()`, then `table = sm.stats.anova_lm(model, typ=2)`.",
+    "η² = SS between / SS total: `table[\"sum_sq\"].iloc[0] / table[\"sum_sq\"].sum()`.",
+    "`tukey = pairwise_tukeyhsd(first[\"age\"], first[\"decade\"])`; `welch = anova_oneway(first[\"age\"], first[\"decade\"], use_var=\"unequal\")`; Levene: `stats.levene(*[g[\"age\"] for _, g in first.groupby(\"decade\")], center=\"mean\")`."
+  ]
+}

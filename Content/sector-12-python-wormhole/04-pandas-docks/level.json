@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.pandas-docks",
+  "title": "Pandas Docks",
+  "summary": "Import the Crew Log with pandas: read_csv, shape, columns, head(), nunique() and value_counts().",
+  "type": "code",
+  "xp": 80,
+  "par": 3,
+  "hints": [
+    "`import pandas as pd`, then `log = pd.read_csv(\"astronauts.csv\")`.",
+    "`log.shape` is (rows, columns): `n_rows = log.shape[0]`, `n_columns = log.shape[1]`. `len(log)` also counts rows.",
+    "`log[\"number\"].nunique()` counts different IDs; `log[\"number\"].value_counts().max()` is the most missions anyone flew."
+  ]
+}

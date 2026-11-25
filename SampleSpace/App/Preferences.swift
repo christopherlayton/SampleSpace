@@ -12,6 +12,8 @@ enum Preferences {
     static let rscriptPath = "rscriptPath"
     /// A custom quarto path; empty means "find it" (`QuartoRenderer.candidates`).
     static let quartoPath = "quartoPath"
+    /// A custom python3 path; empty means "find it" (`REngine.pythonCandidates`).
+    static let pythonPath = "pythonPath"
     static let hasSeenOnboarding = "hasSeenOnboarding"
 
     static let codeFontRange: ClosedRange<Double> = 10...22
@@ -30,6 +32,7 @@ enum Preferences {
 
     static var customRscriptPath: String? { nonEmpty(UserDefaults.standard.string(forKey: rscriptPath)) }
     static var customQuartoPath: String? { nonEmpty(UserDefaults.standard.string(forKey: quartoPath)) }
+    static var customPythonPath: String? { nonEmpty(UserDefaults.standard.string(forKey: pythonPath)) }
 
     private static func nonEmpty(_ s: String?) -> String? {
         guard let s = s?.trimmingCharacters(in: .whitespaces), !s.isEmpty else { return nil }

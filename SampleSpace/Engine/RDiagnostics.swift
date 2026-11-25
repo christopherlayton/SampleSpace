@@ -1,7 +1,8 @@
 import Foundation
 
 /// A quick "ship systems check": which R and Quarto the app will use, the R version, and which
-/// of the packages the levels need are missing. Shown in the welcome tour and in Settings.
+/// of the packages the levels need are missing; also which Python the optional Python Wormhole
+/// uses and which of its libraries are missing. Shown in the welcome tour and in Settings.
 struct RDiagnostics: Sendable, Equatable {
     /// Packages the levels load (PLAN.md §4), plus knitr and rmarkdown for Quarto documents.
     static let packages = ["tidyverse", "jsonlite", "psych", "car", "effectsize", "rstatix", "afex",
@@ -13,8 +14,21 @@ struct RDiagnostics: Sendable, Equatable {
     var quartoPath: String?
     var quartoVersion: String?
     var problem: String?
+    var pythonPath: String?
+    var pythonVersion: String?
+    var missingPythonPackages: [String] = []
+
+    /// Libraries the Python Wormhole levels import (pip names).
+    static let pythonPackages = ["numpy", "pandas", "scipy", "statsmodels", "matplotlib", "seaborn", "pyreadstat"]
 
     var rReady: Bool { rVersion != nil && missingPackages.isEmpty }
+    var pythonReady: Bool { pythonVersion != nil && missingPythonPackages.isEmpty }
+
+    /// The Terminal command that installs the missing Python libraries.
+    var pythonInstallCommand: String? {
+        guard let pythonPath, !missingPythonPackages.isEmpty else { return nil }
+        return "\(pythonPath) -m pip install \(missingPythonPackages.joined(separator: " "))"
+    }
 
     /// The command that installs whatever is missing.
     var installCommand: String? {
@@ -23,9 +37,25 @@ struct RDiagnostics: Sendable, Equatable {
         return "install.packages(c(\(list)), repos = \"https://cloud.r-project.org\")"
     }
 
-    static func run(rscriptPath: String?, quartoPath: String?) async -> RDiagnostics {
+    static func run(rscriptPath: String?, quartoPath: String?, pythonPath: String? = nil) async -> RDiagnostics {
         var result = RDiagnostics()
         let fm = FileManager.default
+        let pCandidates = pythonPath.map { [$0] } ?? REngine.pythonCandidates
+        if let python = pCandidates.first(where: { fm.isExecutableFile(atPath: $0) }) {
+            result.pythonPath = python
+            let names = pythonPackages.map { "\"\($0)\"" }.joined(separator: ",")
+            let code = """
+                import sys, importlib.util
+                print(sys.version.split()[0])
+                print(",".join(p for p in [\(names)] if importlib.util.find_spec(p) is None))
+                """
+            if let output = await Self.capture(python, ["-c", code], timeout: 30) {
+                let lines = output.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+                result.pythonVersion = lines.first.flatMap { $0.isEmpty ? nil : "Python \($0)" }
+                let missing = lines.dropFirst().joined().trimmingCharacters(in: .whitespacesAndNewlines)
+                result.missingPythonPackages = missing.isEmpty ? [] : missing.split(separator: ",").map(String.init)
+            }
+        }
         let rCandidates = rscriptPath.map { [$0] } ?? REngine.rscriptCandidates
         guard let rscript = rCandidates.first(where: { fm.isExecutableFile(atPath: $0) }) else {
             result.problem = "Couldn't find Rscript at \(rCandidates.joined(separator: ", "))."

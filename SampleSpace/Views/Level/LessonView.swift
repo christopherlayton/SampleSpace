@@ -12,10 +12,15 @@ struct LessonView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     header
                     MarkdownView(markdown: level.lesson) { name in
-                        if name == "spss", let spss = level.spss { AnyView(SPSSPanelView(panel: spss)) } else { nil }
+                        if name == "spss", let spss = level.spss { AnyView(SPSSPanelView(panel: spss)) }
+                        else if name == "twin", level.twinCode != nil { AnyView(TwinPanel(session: session)) }
+                        else { nil }
                     }
                     if let spss = level.spss, !level.lesson.contains("{{spss}}") {
                         SPSSPanelView(panel: spss)
+                    }
+                    if level.twinCode != nil, !level.lesson.contains("{{twin}}") {
+                        TwinPanel(session: session)
                     }
                     hints
                     if session.solutionShown, !level.solutionCode.isEmpty { solution.id("solution") }
@@ -80,8 +85,52 @@ struct LessonView: View {
             Text("Read it, then type it yourself rather than copying. Typing it is how it sticks.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
-            CodeBlock(code: level.solutionCode, isDocument: level.isDocument)
+            CodeBlock(code: level.solutionCode, isDocument: level.isDocument, language: level.language)
         }
+    }
+}
+
+/// A Python level's R twin: the same analysis in the R you already know, with a button that
+/// runs it in R so its output can be set beside Python's.
+struct TwinPanel: View {
+    let session: LevelSession
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("The same thing in R", systemImage: "arrow.left.arrow.right")
+                    .font(.headline)
+                    .foregroundStyle(Theme.gold)
+                Spacer()
+                if session.twinRunning {
+                    ProgressView().controlSize(.small)
+                } else {
+                    Button(session.twinOutput == nil ? "Run in R" : "Run Again") { session.runTwin() }
+                        .controlSize(.small)
+                        .help("Run this R code and show what R prints, to compare with your Python")
+                }
+            }
+            CodeBlock(code: session.level.twinCode ?? "", language: .r)
+            if let entries = session.twinOutput {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("What R printed").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                    ForEach(Array(entries.filter { $0.kind != .input }.enumerated()), id: \.offset) { _, entry in
+                        ConsoleLine(entry: entry)
+                    }
+                    if session.twinPlots > 0 {
+                        Text("R also drew \(session.twinPlots) plot\(session.twinPlots == 1 ? "" : "s") (not shown).")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.editorBackground.opacity(0.6), in: RoundedRectangle(cornerRadius: 10))
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.gold.opacity(0.06), in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.gold.opacity(0.3)))
     }
 }
 
@@ -133,7 +182,9 @@ struct MarkdownView: View {
             Text(AttributedString.inlineMarkdown(text))
                 .fixedSize(horizontal: false, vertical: true)
         case .code(let code, let language):
-            CodeBlock(code: code, isDocument: ["qmd", "quarto", "markdown", "md", "rmd"].contains(language?.lowercased() ?? ""))
+            let lang = language?.lowercased() ?? ""
+            CodeBlock(code: code, isDocument: ["qmd", "quarto", "markdown", "md", "rmd"].contains(lang),
+                      language: ["python", "py", "python3"].contains(lang) ? .python : .r)
         case .bullets(let items):
             list(items) { _ in Text("•") }
         case .numbered(let items):
@@ -191,15 +242,16 @@ struct MarkdownView: View {
     }
 }
 
-/// A read-only, highlighted R code block.
+/// A read-only, highlighted code block (R unless it says otherwise).
 struct CodeBlock: View {
     @Environment(\.codeFontSize) private var codeFontSize
     let code: String
     /// Highlight as a Quarto document rather than R.
     var isDocument = false
+    var language: CodeLanguage = .r
 
     var body: some View {
-        Text(isDocument ? RSyntax.attributedDocument(code) : RSyntax.attributed(code))
+        Text(isDocument ? RSyntax.attributedDocument(code) : RSyntax.attributed(code, language: language))
             .font(Theme.code(codeFontSize))
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)

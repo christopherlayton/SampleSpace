@@ -1,10 +1,11 @@
 import Foundation
 
-/// One piece of R code to run, plus the level checks to grade it with.
+/// One piece of code to run, plus the level checks to grade it with. Usually R; Python
+/// Wormhole levels send Python (`language`), with checks written for `Python/checks.py`.
 struct RJob: Sendable {
     /// The learner's code.
     var code: String
-    /// R code calling the helpers in `R/checks.R`. `nil` means "just run it".
+    /// Code calling the helpers in `R/checks.R` (or `Python/checks.py`). `nil` means "just run it".
     var checks: String?
     /// Code run silently in the learner's environment before their code (e.g. loading data).
     var setup: String?
@@ -20,6 +21,8 @@ struct RJob: Sendable {
     /// A file name such as `report.qmd`: the code is then a Quarto document, knitted rather
     /// than run line by line.
     var document: String?
+    /// Which runner runs it.
+    var language: CodeLanguage = .r
 }
 
 /// What happened when a job ran.
@@ -70,8 +73,27 @@ struct ConsoleEntry: Sendable, Hashable, Decodable {
     }
 
     /// The entry as the R console would print it.
-    var consoleText: String {
-        switch kind {
+    var consoleText: String { consoleText(language: .r) }
+
+    /// The entry as that language's console would print it. Python's runner sends errors and
+    /// warnings as "KeyError: 'hours'" with `call` = "line 3".
+    func consoleText(language: CodeLanguage) -> String {
+        if language == .python {
+            switch kind {
+            case .input:
+                return text.split(separator: "\n", omittingEmptySubsequences: false)
+                    .enumerated()
+                    .map { ($0.offset == 0 ? ">>> " : "... ") + $0.element }
+                    .joined(separator: "\n")
+            case .output, .message:
+                return text
+            case .warning:
+                return call.map { "Warning on \($0): \(text)" } ?? "Warning: \(text)"
+            case .error:
+                return call.map { "Error on \($0): \(text)" } ?? "Error: \(text)"
+            }
+        }
+        return switch kind {
         case .input:
             text.split(separator: "\n", omittingEmptySubsequences: false)
                 .enumerated()
@@ -102,6 +124,7 @@ struct CheckResult: Sendable, Hashable, Decodable {
 
 enum REngineError: Error, LocalizedError {
     case rscriptNotFound([String])
+    case pythonNotFound([String])
     case runnerNotFound
     case launchFailed(String)
 
@@ -109,6 +132,9 @@ enum REngineError: Error, LocalizedError {
         switch self {
         case .rscriptNotFound(let paths):
             "Couldn't find R. Looked for Rscript at: \(paths.joined(separator: ", "))."
+        case .pythonNotFound(let paths):
+            "Python Wormhole levels need Python 3 with pandas, scipy, statsmodels and seaborn. "
+                + "Couldn't find python3 at: \(paths.joined(separator: ", ")). Set its path in Settings → R & Python."
         case .runnerNotFound:
             "The R runner script is missing from the app bundle."
         case .launchFailed(let reason):

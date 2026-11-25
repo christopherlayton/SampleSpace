@@ -107,7 +107,7 @@ struct ContentLibraryTests {
                 let code = try #require(question.code, "\(level.id) q\(index + 1) has no code")
                 let console = try await engine.run(level.job(code: code, check: false)).console
                 let shown = squash(console.filter { $0.kind != .input && $0.kind != .message }
-                    .map(\.consoleText).joined(separator: "\n"))
+                    .map { $0.consoleText(language: level.language) }.joined(separator: "\n"))
                 let matching = question.choices.indices.filter { squash(question.choices[$0]) == shown }
                 #expect(matching == [question.answer], "\(level.id) q\(index + 1): R shows \(shown)")
             }

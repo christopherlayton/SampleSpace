@@ -1,0 +1,6 @@
+library(haven)
+teach <- read_sav("teaching_study.sav")
+teach_f <- as_factor(teach)
+sum(teach_f$method == "Active learning")
+sum(is.na(teach$anxiety))
+mean(teach$anxiety, na.rm = TRUE)

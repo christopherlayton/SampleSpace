@@ -1,13 +1,17 @@
 import Foundation
 import Synchronization
 
-/// Runs learner code in the system R.
+/// Runs learner code in the system R (and, for Python Wormhole levels, the system Python).
 ///
 /// Each run is a fresh `Rscript runner.R job.json` process with its own scratch folder,
 /// so runs can't leak objects into each other. `runner.R` enforces the time limit for
 /// ordinary R loops; this actor is the backstop for code R can't interrupt (long
 /// `Sys.sleep()`, C code, a learner calling `setTimeLimit()`), killing the process a
 /// little after the limit.
+///
+/// A job whose `language` is `.python` runs `python3 -X utf8 runner.py job.json` instead
+/// (`Python/runner.py`, the same job and result files). Python is optional: without it the
+/// engine still runs R, and Python jobs throw `REngineError.pythonNotFound`.
 actor REngine {
     static let rscriptCandidates = [
         "/usr/local/bin/Rscript",
@@ -15,14 +19,27 @@ actor REngine {
         "/Library/Frameworks/R.framework/Resources/bin/Rscript",
     ]
 
+    /// Where python3 usually is. (Not /usr/bin/python3: that's the Command Line Tools stub,
+    /// which may offer to install the tools instead of running.)
+    static let pythonCandidates = [
+        "/usr/local/bin/python3",
+        "/opt/homebrew/bin/python3",
+        "/Library/Frameworks/Python.framework/Versions/Current/bin/python3",
+    ]
+
     /// Extra time R gets to start up and write its result before the process is killed.
     static let killGrace: Double = 3
 
     nonisolated let rscriptURL: URL
     let runnerURL: URL
+    /// Python, for Python Wormhole levels; nil when it wasn't found.
+    nonisolated let pythonURL: URL?
+    let pythonRunnerURL: URL?
+    private let pythonLookedAt: [String]
     private let scratchRoot: URL
 
-    init(rscriptPath: String? = nil, runnerURL: URL? = nil) throws {
+    init(rscriptPath: String? = nil, runnerURL: URL? = nil,
+         pythonPath: String? = nil, pythonRunnerURL: URL? = nil) throws {
         let fm = FileManager.default
         let candidates = rscriptPath.map { [$0] } ?? Self.rscriptCandidates
         guard let path = candidates.first(where: { fm.isExecutableFile(atPath: $0) }) else {
@@ -34,11 +51,27 @@ actor REngine {
         }
         rscriptURL = URL(filePath: path)
         self.runnerURL = runner
+        pythonLookedAt = pythonPath.map { [$0] } ?? Self.pythonCandidates
+        pythonURL = pythonLookedAt.first(where: { fm.isExecutableFile(atPath: $0) }).map { URL(filePath: $0) }
+        self.pythonRunnerURL = pythonRunnerURL ?? Bundle.main.url(forResource: "runner", withExtension: "py",
+                                                                  subdirectory: "Python")
         scratchRoot = fm.temporaryDirectory.appending(path: "SampleSpace-runs", directoryHint: .isDirectory)
     }
 
     func run(_ job: RJob) async throws -> RRunResult {
         let fm = FileManager.default
+        let executable: URL
+        var arguments: [String]
+        switch job.language {
+        case .r:
+            executable = rscriptURL
+            arguments = ["--no-init-file", runnerURL.path]
+        case .python:
+            guard let pythonURL else { throw REngineError.pythonNotFound(pythonLookedAt) }
+            guard let pythonRunnerURL else { throw REngineError.runnerNotFound }
+            executable = pythonURL
+            arguments = ["-X", "utf8", pythonRunnerURL.path]
+        }
         let runDir = scratchRoot.appending(path: UUID().uuidString, directoryHint: .isDirectory)
         try fm.createDirectory(at: runDir, withIntermediateDirectories: true)
         defer { try? fm.removeItem(at: runDir) }
@@ -52,8 +85,9 @@ actor REngine {
         defer { try? log.close() }
 
         let process = Process()
-        process.executableURL = rscriptURL
-        process.arguments = ["--no-init-file", runnerURL.path, jobURL.path]
+        arguments.append(jobURL.path)
+        process.executableURL = executable
+        process.arguments = arguments
         process.currentDirectoryURL = runDir
         process.standardInput = FileHandle.nullDevice
         process.standardOutput = log
@@ -62,6 +96,8 @@ actor REngine {
         environment["LANG"] = "en_US.UTF-8"
         environment["LC_ALL"] = "en_US.UTF-8"
         environment["LANGUAGE"] = "en"
+        environment["PYTHONDONTWRITEBYTECODE"] = "1"
+        environment["PYTHONIOENCODING"] = "utf-8"
         process.environment = environment
 
         let watchdog = Watchdog()
@@ -90,7 +126,7 @@ actor REngine {
         guard let data = try? Data(contentsOf: resultURL),
               let file = try? JSONDecoder().decode(ResultFile.self, from: data) else {
             let logText = (try? String(contentsOf: logURL, encoding: .utf8)) ?? ""
-            return Self.failedResult(exitCode: process.terminationStatus, log: logText)
+            return Self.failedResult(exitCode: process.terminationStatus, log: logText, language: job.language)
         }
         let plots = file.plots.compactMap { try? Data(contentsOf: runDir.appending(path: $0)) }
         return RRunResult(status: file.status, console: file.console, plots: plots,
@@ -101,15 +137,15 @@ actor REngine {
     private static func killedResult(job: RJob) -> RRunResult {
         let limit = job.timeLimit.formatted(.number.precision(.fractionLength(0...1)))
         let message = "Your code ran for more than \(limit) second\(job.timeLimit == 1 ? "" : "s") "
-            + "and R couldn't stop it on its own, so Sample Space ended it. "
+            + "and \(job.language.displayName) couldn't stop it on its own, so Sample Space ended it. "
             + "Look for a loop that never ends or a very long Sys.sleep()."
         return RRunResult(status: .timeout, console: [ConsoleEntry(kind: .error, text: message)],
                           plots: [], checks: [], passed: false, duration: job.timeLimit)
     }
 
-    private static func failedResult(exitCode: Int32, log: String) -> RRunResult {
+    private static func failedResult(exitCode: Int32, log: String, language: CodeLanguage) -> RRunResult {
         let tail = log.split(separator: "\n").suffix(15).joined(separator: "\n")
-        var message = "R stopped without finishing (exit code \(exitCode))."
+        var message = "\(language.displayName) stopped without finishing (exit code \(exitCode))."
         if !tail.isEmpty { message += "\n\(tail)" }
         return RRunResult(status: .runnerError, console: [ConsoleEntry(kind: .error, text: message)],
                           plots: [], checks: [], passed: false, duration: 0)

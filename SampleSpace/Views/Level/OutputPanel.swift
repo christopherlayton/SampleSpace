@@ -32,7 +32,7 @@ struct OutputPanel: View {
 
             Group {
                 switch session.outputTab {
-                case .console: ConsoleView(entries: session.console)
+                case .console: ConsoleView(entries: session.console, language: session.level.language)
                 case .plots: PlotsView(session: session)
                 case .report: ReportView(session: session)
                 case .checks: ChecksView(session: session)
@@ -74,7 +74,7 @@ struct OutputPanel: View {
             let time = (session.lastDuration ?? 0).formatted(.number.precision(.fractionLength(2)))
             return "Ran in \(time) s"
         case .error: return "Stopped with an error"
-        case .parseError: return "R couldn't read the code"
+        case .parseError: return "\(session.level.language.displayName) couldn't read the code"
         case .timeout: return "Took too long"
         case .runnerError: return "Couldn't run"
         }
@@ -93,17 +93,18 @@ struct OutputPanel: View {
 
 struct ConsoleView: View {
     let entries: [ConsoleEntry]
+    var language: CodeLanguage = .r
 
     var body: some View {
         if entries.isEmpty {
-            placeholder("Press Run (⌘↩) to send your code to R. Its output appears here.",
+            placeholder("Press Run (⌘↩) to send your code to \(language.displayName). Its output appears here.",
                         symbol: "terminal")
         } else {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 4) {
                         ForEach(Array(entries.enumerated()), id: \.offset) { index, entry in
-                            ConsoleLine(entry: entry).id(index)
+                            ConsoleLine(entry: entry, language: language).id(index)
                         }
                     }
                     .padding(12)
@@ -120,14 +121,15 @@ struct ConsoleView: View {
 struct ConsoleLine: View {
     @Environment(\.codeFontSize) private var codeFontSize
     let entry: ConsoleEntry
+    var language: CodeLanguage = .r
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(entry.consoleText)
+            Text(entry.consoleText(language: language))
                 .font(Theme.code(codeFontSize))
                 .foregroundStyle(color)
                 .fixedSize(horizontal: false, vertical: true)
-            if let explanation = ErrorExplainer.explain(entry) {
+            if let explanation = ErrorExplainer.explain(entry, language: language) {
                 Label {
                     Text(AttributedString.inlineMarkdown(explanation))
                         .fixedSize(horizontal: false, vertical: true)

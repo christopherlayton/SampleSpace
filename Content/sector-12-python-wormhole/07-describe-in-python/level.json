@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.describe-in-python",
+  "title": "Describe in Python",
+  "summary": "Mean, median, SD (and numpy's n vs pandas' n − 1), skew, kurtosis, IQR and describe().",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "`hours = log[\"hours_mission\"]`, then `hours.mean()`, `hours.median()` and `hours.std()`.",
+    "`np.std(hours)` divides by n; that's the population SD. `hours.std()` divides by n − 1, like R's `sd()`.",
+    "`hours.skew()`, `hours.kurt()`, `hours.quantile(0.75) - hours.quantile(0.25)` and `hours.describe()`."
+  ]
+}

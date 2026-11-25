@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "id": "python-wormhole.t-test-wormhole",
+  "title": "t-Test Wormhole",
+  "summary": "Military or civilian, in Python: one row per person with groupby().agg(), Levene centred on the mean, Welch's t with equal_var=False, and d.",
+  "type": "code",
+  "xp": 140,
+  "par": 3,
+  "hints": [
+    "`people = log.groupby(\"number\").agg(military_civilian=(\"military_civilian\", \"first\"), mean_hours=(\"hours_mission\", \"mean\"))`.",
+    "`civ = people.loc[people[\"military_civilian\"] == \"civilian\", \"mean_hours\"]` (and `mil` the same way). Then `stats.levene(civ, mil, center=\"mean\")` and `stats.ttest_ind(civ, mil, equal_var=False)`.",
+    "Pooled SD: `sp = np.sqrt(((len(civ) - 1) * civ.var() + (len(mil) - 1) * mil.var()) / (len(civ) + len(mil) - 2))`; `d = (civ.mean() - mil.mean()) / sp`."
+  ]
+}
