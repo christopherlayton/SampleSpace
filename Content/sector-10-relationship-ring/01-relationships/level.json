@@ -1,0 +1,65 @@
+{
+  "id": "relationship-ring.relationships",
+  "title": "Kinds of Connection",
+  "summary": "Correlation, regression or chi-square? Match the variables to the method, and know what r, b, R² and Cramér's V each say, and what they don't.",
+  "type": "briefing",
+  "xp": 60,
+  "hints": [
+    "Look at the two variables' types: two numeric → correlation or regression; two categorical → chi-square.",
+    "Correlation is symmetric (r of x with y = r of y with x). Regression has a direction: an outcome predicted from a predictor, with a slope in the outcome's units.",
+    "r² (and R² in simple regression) is the share of variance the two variables have in common."
+  ],
+  "quiz": [
+    {
+      "prompt": "Teachers' years of experience and their burnout score, both numeric. You want one number for how strongly they go together. Which method?",
+      "choices": ["Chi-square test of independence", "Pearson correlation", "Independent-samples t-test", "One-way ANOVA"],
+      "answer": 1,
+      "explain": "Two numeric variables and a symmetric question (how strongly do they go together?): Pearson's r, with `cor.test()` for its CI and p-value. Plot them first."
+    },
+    {
+      "prompt": "Students' programme (online / in person) and whether they completed the course (yes / no). Which method?",
+      "choices": ["Pearson correlation", "Linear regression", "Chi-square test of independence", "Paired t-test"],
+      "answer": 2,
+      "explain": "Two categorical variables: count the combinations in a contingency table and test whether they're independent with χ². Cramér's V (here φ, for a 2 × 2 table) sizes the association."
+    },
+    {
+      "prompt": "Predict final exam score from hours of study. The slope is b = 2.4. What does it mean?",
+      "choices": [
+        "Exam score and study hours correlate at .24",
+        "Each extra hour of study goes with 2.4 more exam points, on average",
+        "Study hours explain 2.4% of exam scores",
+        "Studying causes 2.4 more points"
+      ],
+      "answer": 1,
+      "explain": "A slope is in the outcome's units per unit of the predictor. It describes association: without random assignment it isn't evidence that studying *causes* the gain."
+    },
+    {
+      "prompt": "r = .50 between sleep and morale. How much of the variance in morale does sleep account for?",
+      "choices": ["50%", "25%", "5%", "70%"],
+      "answer": 1,
+      "explain": "r² = .25: a quarter of the variance is shared. In a simple regression of morale on sleep, R² is the same .25."
+    },
+    {
+      "prompt": "Across towns, ice-cream sales and drownings correlate at r = .7. Which conclusion is sound?",
+      "choices": [
+        "Ice cream causes drowning",
+        "Drowning causes ice-cream sales",
+        "Something else, such as hot weather, may drive both",
+        "The correlation must be a calculation error"
+      ],
+      "answer": 2,
+      "explain": "Correlation isn't causation: a third variable (temperature) can produce a strong correlation between two things that don't affect each other. Designs and models that account for such variables are how causal claims are earned."
+    },
+    {
+      "prompt": "Which is **not** an assumption of the χ² test of independence?",
+      "choices": [
+        "Each person appears in only one cell",
+        "Expected counts are not too small (roughly all ≥ 5)",
+        "The counts are normally distributed",
+        "Observations are independent"
+      ],
+      "answer": 2,
+      "explain": "χ² needs independent observations, each counted once, and large enough expected counts. Nothing about normality. With small expected counts, use Fisher's exact test."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "relationship-ring.crew-connections",
+  "title": "Crew Connections",
+  "summary": "Sector review on the Crew Log: do astronauts who fly more missions log more spacewalk hours, and is military status related to nationality? Correlation, regression and χ², one row per astronaut.",
+  "type": "code",
+  "xp": 190,
+  "par": 3,
+  "hints": [
+    "`group_by(number) |> summarise(missions = n(), eva_hours = sum(eva_hrs_mission), military_civilian = first(military_civilian), nationality = first(nationality))`.",
+    "`case_when(nationality %in% c(\"U.S.\", \"U.S.S.R/Russia\") ~ nationality, .default = \"Other\")`. Spearman: `cor.test(people$missions, people$eva_hours, method = \"spearman\", exact = FALSE)`.",
+    "`lm(eva_hours ~ missions, data = people)`; `table(people$nation, people$military_civilian)`; `chisq.test(crosstab)` (no Yates for a 3 × 2 table); `cramers_v(crosstab, adjust = FALSE)`."
+  ]
+}

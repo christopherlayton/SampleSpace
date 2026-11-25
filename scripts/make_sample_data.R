@@ -60,7 +60,8 @@ teach <- data.frame(
 )
 sav_levels <- c(file.path(docks, c("08-read-sav", "09-value-labels", "10-frequency-translator")),
                 file.path(content, "sector-08-means-cluster",
-                          c("05-t-test-translator", "07-effect-size", "09-apa-report")))
+                          c("05-t-test-translator", "07-effect-size", "09-apa-report")),
+                file.path(content, "sector-10-relationship-ring", "10-crosstabs-translator"))
 for (level in sav_levels) {
   dir.create(level, showWarnings = FALSE)
   haven::write_sav(teach, file.path(level, "teaching_study.sav"))
@@ -96,8 +97,42 @@ items <- cbind(morale$m1, 6 - morale$m2, morale$m3, morale$m4, 6 - morale$m5, mo
 fit_data <- data.frame(id = morale$id, sleep_hours = morale$sleep_hours,
                        morale_score = round(rowMeans(items, na.rm = TRUE), 2))
 fit_data <- fit_data[complete.cases(fit_data), ]
-ring <- file.path(content, "sector-10-relationship-ring", "02-least-squares-fit")
-dir.create(ring, showWarnings = FALSE)
-write.csv(fit_data, file.path(ring, "sleep_morale.csv"), row.names = FALSE)
+ring_dir <- file.path(content, "sector-10-relationship-ring")
+for (level in c("03-cor-test", "04-least-squares-fit", "05-simple-regression")) {
+  dir.create(file.path(ring_dir, level), showWarnings = FALSE)
+  write.csv(fit_data, file.path(ring_dir, level, "sleep_morale.csv"), row.names = FALSE)
+}
 
-cat("Wrote wellbeing_survey.csv, teaching_study.sav, crew_morale.csv and sleep_morale.csv\n")
+# --- pd_study.csv: three professional-development programmes, 60 teachers ----------------
+# Teacher self-efficacy (1-9) before (t1), at the end (t2) and at a follow-up (t3); a balanced
+# 3 x 2 design (programme x experience, 10 per cell) for Variance Rift, plus workload and years
+# of teaching for multiple regression in the Relationship Ring.
+set.seed(1987)
+k <- 60
+programme <- rep(c("Workshop", "Coaching", "Online"), each = 20)
+experience <- rep(rep(c("Early career", "Experienced"), each = 10), 3)
+ord <- sample(k)
+programme <- programme[ord]
+experience <- experience[ord]
+years <- ifelse(experience == "Early career", sample(1:4, k, TRUE), sample(5:28, k, TRUE))
+t1 <- rnorm(k, 5.4 + 0.4 * (experience == "Experienced"), 0.8)
+coached_novice <- programme == "Coaching" & experience == "Early career"
+t2 <- t1 + c(Workshop = 0.4, Coaching = 1.1, Online = 0.25)[programme] + 0.6 * coached_novice + rnorm(k, 0, 0.55)
+workload <- round(rnorm(k, 47, 6))
+t3 <- t1 + c(Workshop = 0.15, Coaching = 0.85, Online = 0.0)[programme] + 0.4 * coached_novice -
+  0.03 * (workload - 47) + rnorm(k, 0, 0.6)
+bounded <- function(x) round(pmin(pmax(x, 1), 9), 2)
+pd <- data.frame(id = sprintf("T%02d", 1:k), programme, experience, years_teaching = years,
+                 workload_hours = workload, efficacy_t1 = bounded(t1), efficacy_t2 = bounded(t2),
+                 efficacy_t3 = bounded(t3))
+rift <- file.path(content, "sector-09-variance-rift")
+pd_levels <- c(file.path(rift, c("02-anova-splitter", "03-one-way", "06-post-hoc", "07-anova-assumptions",
+                                 "08-anova-translator", "09-two-factors", "10-repeated-measures",
+                                 "11-broken-splitter")),
+               file.path(ring_dir, c("07-multiple-regression", "11-tangled-threads")))
+for (level in pd_levels) {
+  dir.create(level, showWarnings = FALSE)
+  write.csv(pd, file.path(level, "pd_study.csv"), row.names = FALSE)
+}
+
+cat("Wrote wellbeing_survey.csv, teaching_study.sav, crew_morale.csv, sleep_morale.csv and pd_study.csv\n")

@@ -1,0 +1,63 @@
+{
+  "id": "variance-rift.anova-forecast",
+  "title": "F Forecast",
+  "summary": "Predict F-distribution areas and critical values, the df trap of numeric group codes, F = t² for two groups, and adjusted p-values.",
+  "type": "predict",
+  "xp": 80,
+  "hints": [
+    "`pf(f, df1, df2, lower.tail = FALSE)` is the area above f: the p-value. Without `lower.tail = FALSE` you get the area below.",
+    "A numeric grouping variable is treated as one straight-line predictor (1 df), not as groups. `factor()` makes it groups (k − 1 df).",
+    "Bonferroni multiplies each p by the number of tests. Holm multiplies the smallest by m, the next by m − 1, and so on, never letting a later p drop below an earlier one."
+  ],
+  "quiz": [
+    {
+      "prompt": "The p-value for F = 4.33 on 2 and 57 df:",
+      "code": "pf(4.33, df1 = 2, df2 = 57, lower.tail = FALSE)",
+      "choices": ["[1] 0.9822435", "[1] 0.01775654", "[1] 0.2054793", "[1] 0.0433"],
+      "answer": 1,
+      "explain": "The area of the F(2, 57) distribution above 4.33. Without `lower.tail = FALSE` you'd get the area below it, .982. Swapping the two df (the third choice) is a different distribution altogether."
+    },
+    {
+      "prompt": "The critical F for α = .05 with 2 and 57 df:",
+      "code": "qf(0.95, 2, 57)",
+      "choices": ["[1] 1.959964", "[1] 2.002465", "[1] 3.158843", "[1] 3.938256"],
+      "answer": 2,
+      "explain": "Any F above 3.16 has p < .05. F tests are one-tailed by nature (a bigger F is more evidence), so it's `qf(0.95, ...)`, not 0.975. The 1.96 and 2.00 are critical z and t values."
+    },
+    {
+      "prompt": "Groups coded 1, 2 and 3 as **numbers**. What df does the ANOVA table give?",
+      "code": "g <- c(1, 1, 2, 2, 3, 3)\ny <- c(4, 5, 6, 7, 9, 8)\nsummary(aov(y ~ g))[[1]]$Df",
+      "choices": ["[1] 2 3", "[1] 1 4", "[1] 3 6", "[1] 2 4"],
+      "answer": 1,
+      "explain": "R sees a number, so it fits one straight line through g: 1 df for the slope and 6 − 2 = 4 left over. That isn't a one-way ANOVA. It's the most common silent ANOVA mistake with SPSS-style numeric codes."
+    },
+    {
+      "prompt": "The same data, with `factor(g)`:",
+      "code": "g <- c(1, 1, 2, 2, 3, 3)\ny <- c(4, 5, 6, 7, 9, 8)\nsummary(aov(y ~ factor(g)))[[1]]$Df",
+      "choices": ["[1] 2 3", "[1] 1 4", "[1] 3 6", "[1] 2 4"],
+      "answer": 0,
+      "explain": "Now three groups: k − 1 = 2 df between and N − k = 3 within. Make grouping variables factors before `aov()`."
+    },
+    {
+      "prompt": "Two groups. Student's t is −4.899. What F does the ANOVA give?",
+      "code": "a <- c(3, 5, 4, 8, 9, 7)\ngrp <- rep(c(\"a\", \"b\"), each = 3)\nsummary(aov(a ~ grp))[[1]]$\"F value\"",
+      "choices": ["[1] -4.898979 NA", "[1] 4.898979 NA", "[1] 24 NA", "[1] 12 NA"],
+      "answer": 2,
+      "explain": "With two groups F = t² (4.899² = 24) and the p-values are identical: a one-way ANOVA on two groups *is* Student's t-test. (The NA belongs to the Residuals row, which has no F.)"
+    },
+    {
+      "prompt": "Three post hoc p-values, Bonferroni-adjusted:",
+      "code": "p.adjust(c(0.01, 0.02, 0.04), method = \"bonferroni\")",
+      "choices": ["[1] 0.03 0.06 0.12", "[1] 0.03 0.04 0.04", "[1] 0.0033 0.0067 0.0133", "[1] 0.01 0.02 0.04"],
+      "answer": 0,
+      "explain": "Each p times the number of tests (3). Comparing adjusted p with .05 is the same as comparing raw p with .05 / 3. Only the first stays significant."
+    },
+    {
+      "prompt": "The same p-values, Holm-adjusted:",
+      "code": "p.adjust(c(0.01, 0.02, 0.04), method = \"holm\")",
+      "choices": ["[1] 0.03 0.06 0.12", "[1] 0.03 0.04 0.04", "[1] 0.01 0.02 0.04", "[1] 0.03 0.02 0.04"],
+      "answer": 1,
+      "explain": "Holm: smallest × 3 = .03, next × 2 = .04, last × 1 = .04. It controls the familywise error rate as Bonferroni does but rejects at least as often, here all three. It's R's default in `pairwise.t.test()`."
+    }
+  ]
+}

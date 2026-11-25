@@ -39,6 +39,13 @@ data will take.
 - **"From the Crew Log" call-outs** in lessons, where a skill meets the real data.
 - **Labs:** the Sampling Machine (Probability Expanse) uses the log's hours per mission as its
   population, so "drawing random crews" is literally sampling missions from the log.
+- **Sector reviews** in the analysis sectors answer the arrival question on the log, and the
+  learner computes the answer: Military or Civilian? (Means Cluster), Ages Across Decades
+  (Variance Rift: age at first flight by decade, Levene, classic vs Welch ANOVA, Games–Howell,
+  η²) and Crew Connections (Relationship Ring: missions vs total EVA hours per astronaut,
+  Pearson and Spearman, regression; nation (U.S. / U.S.S.R/Russia / Other) × military status,
+  χ² and Cramér's V). Crew Crosstab revisits the Shuffle Test's eras with a χ² test. Their
+  lessons state only descriptive numbers already listed below.
 
 ## Log entries by sector
 
@@ -85,4 +92,5 @@ r <- tapply(a$eva_hrs_mission, a$number, sum); length(r); sum(r > 0) # 564 IDs, 
 unique(a$name[a$number == 385])                                      # Baturin, Duque: one ID, two people
 sum(f$sex == "female"); mean(f$sex == "female")                      # 64, .113 (Crew Lottery)
 table(ifelse(f$year_of_mission >= 2000, "2000 on", "before 2000"))  # 172, 392 (Shuffle Test eras)
+table(floor(f$year_of_mission / 10) * 10)                            # 44 49 132 167 117 55 (Ages Across Decades groups)
 ```

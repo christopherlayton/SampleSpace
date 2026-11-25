@@ -10,6 +10,9 @@ enum LabInstrument {
     case power(PowerReactor)
     case correlation(CorrelationDrag)
     case leastSquares(LeastSquaresFit)
+    case anova(AnovaSplitter)
+    case garden(PHackingGarden)
+    case chiSquare(ChiSquareGrid)
     /// The instrument couldn't start (e.g. its data file is missing).
     case unavailable(String)
 
@@ -34,6 +37,9 @@ enum LabInstrument {
             } catch {
                 return .unavailable(error.localizedDescription)
             }
+        case .anovaSplitter: return .anova(AnovaSplitter(settings: spec.settings))
+        case .pHackingGarden: return .garden(PHackingGarden(settings: spec.settings))
+        case .chiSquareGrid: return .chiSquare(ChiSquareGrid(settings: spec.settings))
         }
     }
 
@@ -46,6 +52,9 @@ enum LabInstrument {
         case .power(let lab): lab.readings
         case .correlation(let lab): lab.readings
         case .leastSquares(let lab): lab.readings
+        case .anova(let lab): lab.readings
+        case .garden(let lab): lab.readings
+        case .chiSquare(let lab): lab.readings
         case .unavailable: [:]
         }
     }
@@ -69,6 +78,9 @@ struct LabInstrumentView: View {
         case .power(let lab): PowerReactorView(lab: lab)
         case .correlation(let lab): CorrelationDragView(lab: lab)
         case .leastSquares(let lab): LeastSquaresFitView(lab: lab)
+        case .anova(let lab): AnovaSplitterView(lab: lab)
+        case .garden(let lab): PHackingGardenView(lab: lab)
+        case .chiSquare(let lab): ChiSquareGridView(lab: lab)
         case .unavailable(let message):
             ContentUnavailableView("Lab offline", systemImage: "exclamationmark.triangle", description: Text(message))
         }

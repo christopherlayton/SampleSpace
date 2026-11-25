@@ -1,0 +1,65 @@
+{
+  "id": "variance-rift.why-anova",
+  "title": "Why ANOVA?",
+  "summary": "Three groups, one test: the F ratio of variation between groups to variation within them, what a significant F does and doesn't tell you, and η².",
+  "type": "briefing",
+  "xp": 60,
+  "hints": [
+    "Each extra test at α = .05 is another chance of a false alarm; the chance of at least one grows with the number of tests.",
+    "F = MS between ÷ MS within. If H₀ is true, both estimate the same noise, so F hovers around 1.",
+    "η² = SS between ÷ SS total: the share of all the variation that lies between the group means."
+  ],
+  "quiz": [
+    {
+      "prompt": "Three programmes, three pairwise t-tests at α = .05, and in truth no programme makes any difference. Roughly what is the chance of at least one false alarm?",
+      "choices": [".05", "About .14", ".50", ".95"],
+      "answer": 1,
+      "explain": "Each test gives a .95 chance of no false alarm, so three give about .95³ = .857, and 1 − .857 ≈ .14. (The three tests share data, so the exact value is a little lower, but the point stands.) One ANOVA tests all three means at once at α = .05."
+    },
+    {
+      "prompt": "F = MS between ÷ MS within. If H₀ (all population means equal) is true, F tends to be close to…",
+      "choices": ["0", "1", "the number of groups", "the sample size"],
+      "answer": 1,
+      "explain": "Under H₀ the group means differ only by sampling noise, so MS between and MS within both estimate the same error variance, and their ratio hovers around 1. A real difference inflates MS between, so F grows."
+    },
+    {
+      "prompt": "The one-way ANOVA is significant, F(2, 57) = 4.33, p = .018. What can you conclude?",
+      "choices": [
+        "All three means differ from each other",
+        "At least one mean differs from another; post hoc tests say which",
+        "Coaching is the best programme",
+        "The effect is large"
+      ],
+      "answer": 1,
+      "explain": "The omnibus F only says the means aren't all equal. Which pairs differ is the job of post hoc comparisons (Tukey HSD, for example), and how big the difference is is the job of an effect size such as η²."
+    },
+    {
+      "prompt": "60 teachers split evenly across 3 programmes. What are the degrees of freedom for F?",
+      "choices": ["F(3, 60)", "F(2, 57)", "F(2, 59)", "F(3, 57)"],
+      "answer": 1,
+      "explain": "Between groups: k − 1 = 2. Within groups: N − k = 60 − 3 = 57. Report both: *F*(2, 57)."
+    },
+    {
+      "prompt": "η² = .13 for programme. What does that mean?",
+      "choices": [
+        "13% of the teachers improved",
+        "13% of the total variation in scores lies between the programme means",
+        "p = .13",
+        "The programmes differ by 0.13 points"
+      ],
+      "answer": 1,
+      "explain": "η² = SS between ÷ SS total, the share of all the variation in the outcome that goes with group membership. Cohen's rough guide for η²: .01 small, .06 medium, .14 large."
+    },
+    {
+      "prompt": "Which assumption does a one-way between-groups ANOVA **not** make?",
+      "choices": [
+        "Observations are independent",
+        "Residuals are roughly normal (or groups are large)",
+        "Variances are similar across groups",
+        "Every group has a mean above zero"
+      ],
+      "answer": 3,
+      "explain": "Independence (settled by the design), roughly normal residuals and homogeneous variances. When variances differ, Welch's ANOVA (`oneway.test()`) is the safer choice, just as Welch's t is for two groups."
+    }
+  ]
+}

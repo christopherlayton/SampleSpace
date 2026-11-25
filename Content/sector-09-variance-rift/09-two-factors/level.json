@@ -1,0 +1,13 @@
+{
+  "id": "variance-rift.two-factors",
+  "title": "Two-Factor Field",
+  "summary": "A 3 × 2 factorial ANOVA: cell means, main effects and the interaction, Type III tests like SPSS with afex, partial η² and an interaction plot.",
+  "type": "code",
+  "xp": 150,
+  "par": 3,
+  "hints": [
+    "Cell means: `group_by(programme, experience) |> summarise(n = n(), mean = mean(efficacy_t2), .groups = \"drop\")`.",
+    "`aov(efficacy_t2 ~ programme * experience, data = pd)` fits both main effects and the interaction. afex: `aov_car(efficacy_t2 ~ programme * experience + Error(id), data = pd)`.",
+    "`eta_squared(fit2, partial = TRUE)`. The plot: `ggplot(cells, aes(x = programme, y = mean, colour = experience, group = experience)) + geom_point() + geom_line()`."
+  ]
+}

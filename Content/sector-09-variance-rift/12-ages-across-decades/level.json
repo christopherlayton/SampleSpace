@@ -1,0 +1,13 @@
+{
+  "id": "variance-rift.ages-across-decades",
+  "title": "Ages Across Decades",
+  "summary": "Sector review: did age at first flight differ across six decades of spaceflight? One row per astronaut, assumptions first, then the right ANOVA, post hoc tests and η².",
+  "type": "code",
+  "xp": 180,
+  "par": 3,
+  "hints": [
+    "`filter(mission_number == 1)` keeps each astronaut's first mission; then `mutate(age = year_of_mission - year_of_birth, decade = factor(floor(year_of_mission / 10) * 10))`.",
+    "`leveneTest(age ~ decade, data = first, center = mean)`; `aov(age ~ decade, data = first)` and `oneway.test(age ~ decade, data = first)`.",
+    "`eta_squared(classic)`; `rstatix::games_howell_test(first, age ~ decade)`: rstatix has its own `eta_squared()`, so call it with `::` rather than loading it over effectsize's. The decision uses the test your Levene result points to."
+  ]
+}

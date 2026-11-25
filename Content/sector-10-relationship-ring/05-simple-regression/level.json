@@ -1,0 +1,13 @@
+{
+  "id": "relationship-ring.simple-regression",
+  "title": "Line of Best Fit",
+  "summary": "Simple regression with lm(): read summary(), pull out b, its CI and R², predict a new value, and see that the standardised slope is r.",
+  "type": "code",
+  "xp": 140,
+  "par": 3,
+  "hints": [
+    "`model <- lm(morale_score ~ sleep_hours, data = sleep)`: outcome on the left of `~`.",
+    "`coef(model)[\"sleep_hours\"]`, `confint(model)` and `summary(model)$r.squared`.",
+    "`predict(model, newdata = data.frame(sleep_hours = 8))`. Standardised: `lm(scale(morale_score) ~ scale(sleep_hours), data = sleep)`."
+  ]
+}

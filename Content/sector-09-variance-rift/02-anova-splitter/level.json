@@ -1,0 +1,45 @@
+{
+  "id": "variance-rift.anova-splitter",
+  "title": "ANOVA Splitter",
+  "summary": "Pull group means apart, widen the spread within groups, add people: watch the variation split and F respond. Then compute SS, F and p by hand in R.",
+  "type": "lab",
+  "xp": 160,
+  "par": 3,
+  "hints": [
+    "`means[pd$programme]` gives each teacher their own group's mean, because `means` is named by programme.",
+    "SS between: `sum(n * (means - grand)^2)`. SS within: `sum((pd$efficacy_t2 - means[pd$programme])^2)`.",
+    "`f <- (ss_between / 2) / (ss_within / 57)` and `p <- pf(f, 2, 57, lower.tail = FALSE)`. η² is SS between over the sum of both SS."
+  ],
+  "lab": {
+    "kind": "anova_splitter",
+    "settings": {
+      "group_labels": ["Workshop", "Coaching", "Online"],
+      "y_label": "Score",
+      "start_n": 10,
+      "start_sd": 10,
+      "start_diff": 6
+    },
+    "goals": [
+      {
+        "text": "Bring the three means together until **F is below 1**.",
+        "detail": "With no real difference between groups, MS between estimates only the noise, just like MS within, so F hovers around 1.",
+        "when": [ { "reading": "f", "max": 1 } ]
+      },
+      {
+        "text": "Keep the means **at least 10 points apart** (largest − smallest), but get **F below 2** by widening the spread within groups.",
+        "detail": "The same gap between means is less convincing when scores within each group are scattered: F compares the gap with the noise.",
+        "when": [ { "reading": "means_range", "min": 10 }, { "reading": "f", "max": 2 } ]
+      },
+      {
+        "text": "Means **no more than 6 points apart**, yet **p < .001**: shrink the noise or add people.",
+        "detail": "A small difference becomes clear evidence when the noise is small or the groups are large. Significant doesn't mean big: check η² too.",
+        "when": [ { "reading": "means_range", "max": 6 }, { "reading": "p", "max": 0.001 } ]
+      },
+      {
+        "text": "Put **at least half of the total variation** between groups: **η² ≥ .50**.",
+        "detail": "η² = SS between ÷ SS total. Watch the bar under the chart: the gold part is the between-groups share.",
+        "when": [ { "reading": "eta_squared", "min": 0.5 } ]
+      }
+    ]
+  }
+}

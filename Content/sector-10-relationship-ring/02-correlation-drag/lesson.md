@@ -1,6 +1,6 @@
 # Correlation Drag
 
-Welcome to the Relationship Ring. Here the question is whether two variables move together.
+Before testing a correlation, get a feel for what r measures.
 
 **Pearson's r** summarises a *linear* relationship between two numeric variables in one number from −1 to +1:
 

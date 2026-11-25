@@ -1,0 +1,13 @@
+{
+  "id": "variance-rift.post-hoc",
+  "title": "Post Hoc Probes",
+  "summary": "The F was significant; now which programmes differ? Tukey HSD, Bonferroni and Holm pairwise tests, and reading which pairs survive.",
+  "type": "code",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "`tukey <- TukeyHSD(fit)`; the table for programme is `tukey$programme`, with columns `diff`, `lwr`, `upr` and `p adj`.",
+    "`pairwise.t.test(pd$efficacy_t2, pd$programme, p.adjust.method = \"bonferroni\")`, and the same with `\"holm\"`.",
+    "`rownames(tukey$programme)[tukey$programme[, \"p adj\"] < 0.05]` names the pairs Tukey says differ."
+  ]
+}

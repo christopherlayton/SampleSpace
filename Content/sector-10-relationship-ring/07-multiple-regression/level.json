@@ -1,0 +1,13 @@
+{
+  "id": "relationship-ring.multiple-regression",
+  "title": "Many Predictors",
+  "summary": "Multiple regression: coefficients that hold the other predictors constant, standardised betas, R² change between blocks like SPSS's hierarchical regression, VIF and residual plots.",
+  "type": "code",
+  "xp": 160,
+  "par": 3,
+  "hints": [
+    "`base <- lm(efficacy_t3 ~ efficacy_t1, data = pd)` and `model <- lm(efficacy_t3 ~ efficacy_t1 + workload_hours + years_teaching, data = pd)`.",
+    "`anova(base, model)` tests the R² change; `summary(model)$r.squared - summary(base)$r.squared` is the change itself. `standardize_parameters(model)` gives the betas.",
+    "`vif(model)` from car. Diagnostics: `plot(model, which = 1)` (residuals vs fitted) and `plot(model, which = 2)` (Q–Q)."
+  ]
+}

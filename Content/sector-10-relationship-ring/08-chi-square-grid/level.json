@@ -1,0 +1,43 @@
+{
+  "id": "relationship-ring.chi-square-grid",
+  "title": "Chi-square Grid",
+  "summary": "Edit a contingency table and watch expected counts, χ², p and Cramér's V. Then run chisq.test() with and without Yates' correction, and Fisher's exact test.",
+  "type": "lab",
+  "xp": 160,
+  "par": 3,
+  "hints": [
+    "`chisq.test(counts, correct = FALSE)` is Pearson's χ²; `$expected` and `$residuals` hold the expected counts and Pearson residuals.",
+    "Cramér's V by hand: `sqrt(unname(pearson$statistic) / (sum(counts) * (min(dim(counts)) - 1)))`.",
+    "`chisq.test(counts)` applies Yates' correction to a 2 × 2 table by default; `fisher.test(counts)` is the exact test."
+  ],
+  "lab": {
+    "kind": "chi_square_grid",
+    "settings": {
+      "row_labels": ["Lecture", "Active learning"],
+      "col_labels": ["Passed", "Did not pass"],
+      "start_counts": [[28, 22], [20, 30]]
+    },
+    "goals": [
+      {
+        "text": "Make method and passing **independent**: get **χ² below 0.5**.",
+        "detail": "When every row splits across the columns in the same proportions, each observed count equals its expected count and χ² is 0. Try *Make independent*, or step the counts yourself.",
+        "when": [ { "reading": "chi_square", "max": 0.5 } ]
+      },
+      {
+        "text": "Create a **strong** association: **Cramér's V ≥ .30** with **p < .05**.",
+        "detail": "The red and blue cells show where the counts sit above or below expectation. V near .1 is small, .3 medium and .5 large for a 2 × 2 table.",
+        "when": [ { "reading": "cramers_v", "min": 0.3 }, { "reading": "p", "max": 0.05 } ]
+      },
+      {
+        "text": "Now a **weak** association that's still \"significant\": **p < .05** with **V below .10**.",
+        "detail": "With a big enough N, a trivial difference in proportions passes any α. That's why χ² is reported with N and an effect size. (The × 2 button doubles N without changing the pattern.)",
+        "when": [ { "reading": "p", "max": 0.05 }, { "reading": "cramers_v", "max": 0.1 } ]
+      },
+      {
+        "text": "Shrink the table until an **expected count is below 5**.",
+        "detail": "χ²'s p-value is an approximation that needs enough expected counts. Below about 5, use Fisher's exact test instead.",
+        "when": [ { "reading": "min_expected", "max": 4.999 } ]
+      }
+    ]
+  }
+}

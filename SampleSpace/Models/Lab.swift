@@ -10,6 +10,9 @@ enum LabKind: String, Sendable, Codable, CaseIterable {
     case powerReactor = "power_reactor"
     case correlationDrag = "correlation_drag"
     case leastSquares = "least_squares"
+    case anovaSplitter = "anova_splitter"
+    case pHackingGarden = "p_hacking_garden"
+    case chiSquareGrid = "chi_square_grid"
 
     var title: String {
         switch self {
@@ -20,6 +23,9 @@ enum LabKind: String, Sendable, Codable, CaseIterable {
         case .powerReactor: "Power Reactor"
         case .correlationDrag: "Correlation Drag"
         case .leastSquares: "Least-Squares Fit"
+        case .anovaSplitter: "ANOVA Splitter"
+        case .pHackingGarden: "p-Hacking Garden"
+        case .chiSquareGrid: "Chi-square Grid"
         }
     }
 
@@ -32,6 +38,9 @@ enum LabKind: String, Sendable, Codable, CaseIterable {
         case .powerReactor: "bolt.circle.fill"
         case .correlationDrag: "hand.draw.fill"
         case .leastSquares: "line.diagonal"
+        case .anovaSplitter: "rectangle.split.3x1.fill"
+        case .pHackingGarden: "leaf.fill"
+        case .chiSquareGrid: "tablecells.fill"
         }
     }
 
@@ -51,6 +60,12 @@ enum LabKind: String, Sendable, Codable, CaseIterable {
             "Drag points and watch Pearson's r respond, then see how far one outlier can pull it."
         case .leastSquares:
             "Fit a line by hand, watch the squared residuals, and find what least squares minimises."
+        case .anovaSplitter:
+            "Move group means and the spread within groups, and watch the variation split into between and within: F is their ratio."
+        case .pHackingGarden:
+            "Simulate studies with no real effect, then test many outcomes or peek early and watch false alarms bloom."
+        case .chiSquareGrid:
+            "Edit a contingency table and compare observed with expected counts, χ², p and Cramér's V."
         }
     }
 
@@ -138,6 +153,43 @@ enum LabKind: String, Sendable, Codable, CaseIterable {
             "best_intercept": "least-squares intercept",
             "best_shown": "1 while the least-squares line is shown",
         ]
+        case .anovaSplitter: [
+            "f": "the F ratio, MS between ÷ MS within",
+            "p": "the p-value for F",
+            "eta_squared": "η², SS between ÷ SS total",
+            "ss_between": "sum of squares between groups",
+            "ss_within": "sum of squares within groups",
+            "ss_total": "total sum of squares",
+            "df_between": "df between groups (k − 1)",
+            "df_within": "df within groups (N − k)",
+            "ms_between": "mean square between groups",
+            "ms_within": "mean square within groups",
+            "n": "people per group",
+            "groups": "number of groups",
+            "means_range": "largest group mean minus the smallest",
+            "within_sd": "SD within groups",
+        ]
+        case .pHackingGarden: [
+            "outcomes": "outcomes tested per study",
+            "looks": "times the data are tested as they come in",
+            "n": "people per group at the end",
+            "alpha": "significance level",
+            "bonferroni": "1 when the Bonferroni correction is on",
+            "studies": "studies run at these settings",
+            "false_positive_rate": "share of studies reporting a finding",
+            "theory_rate": "1 − (1 − α per test)^outcomes",
+            "per_test_alpha": "α used for each single test",
+        ]
+        case .chiSquareGrid: [
+            "chi_square": "the χ² statistic (Yates-corrected when that is on)",
+            "df": "degrees of freedom, (rows − 1)(columns − 1)",
+            "p": "the p-value",
+            "cramers_v": "Cramér's V",
+            "n": "total count",
+            "min_expected": "smallest expected count",
+            "yates": "1 when Yates' correction is on",
+            "max_residual": "largest |Pearson residual|",
+        ]
         }
     }
 }
@@ -224,6 +276,18 @@ struct LabSettings: Hashable, Sendable, Decodable {
     var yLabel: String?
     var startIntercept: Double?
     var startSlope: Double?
+
+    // ANOVA Splitter (also uses start_n, start_sd, start_diff as the spacing of the means, y_label)
+    var groupLabels: [String]?
+
+    // p-Hacking Garden (also uses start_n, alpha)
+    var outcomes: Int?
+    var looks: Int?
+
+    // Chi-square Grid
+    var rowLabels: [String]?
+    var colLabels: [String]?
+    var startCounts: [[Int]]?
 }
 
 /// One goal: met when every condition holds at the same moment. Once met it stays met.

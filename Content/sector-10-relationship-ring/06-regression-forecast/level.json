@@ -1,0 +1,71 @@
+{
+  "id": "relationship-ring.regression-forecast",
+  "title": "Regression Forecast",
+  "summary": "Predict what lm() prints: coefficients, predictions, R² as r², why y ~ x and x ~ y differ, the intercept-only model, and a dummy-coded group.",
+  "type": "predict",
+  "xp": 80,
+  "hints": [
+    "The least-squares line always passes through (mean of x, mean of y). Here that's (3, 4).",
+    "With one predictor, R² is r². Swapping outcome and predictor changes the line, because each minimises errors in its own outcome.",
+    "A factor in `lm()` becomes a 0/1 dummy: the intercept is the reference group's mean and the coefficient is the other group's difference from it."
+  ],
+  "quiz": [
+    {
+      "prompt": "The least-squares line for five points:",
+      "code": "x <- c(1, 2, 3, 4, 5)\ny <- c(2, 4, 5, 4, 5)\ncoef(lm(y ~ x))",
+      "choices": [
+        "(Intercept) x\n 2.2 0.6",
+        "(Intercept) x\n 4.0 0.6",
+        "(Intercept) x\n 0.6 2.2",
+        "(Intercept) y\n -1 1"
+      ],
+      "answer": 0,
+      "explain": "Slope b = Σ(x − x̄)(y − ȳ) ÷ Σ(x − x̄)² = 6 ÷ 10 = 0.6, and the line passes through the means (3, 4), so the intercept is 4 − 0.6 × 3 = 2.2."
+    },
+    {
+      "prompt": "The model's prediction for x = 6:",
+      "code": "x <- c(1, 2, 3, 4, 5)\ny <- c(2, 4, 5, 4, 5)\npredict(lm(y ~ x), newdata = data.frame(x = 6))",
+      "choices": ["1\n5.8", "1\n6.6", "1\n5", "1\n4.6"],
+      "answer": 0,
+      "explain": "2.2 + 0.6 × 6 = 5.8. (The 1 is the row name of the new data.) x = 6 is outside the data, so this is extrapolation: the line may not hold there."
+    },
+    {
+      "prompt": "R² of that model:",
+      "code": "x <- c(1, 2, 3, 4, 5)\ny <- c(2, 4, 5, 4, 5)\nsummary(lm(y ~ x))$r.squared",
+      "choices": ["[1] 0.7745967", "[1] 0.6", "[1] 0.36", "[1] 0.4"],
+      "answer": 1,
+      "explain": "r = .775 here, and with one predictor R² = r² = .60. The other 40% of the variance in y is in the residuals."
+    },
+    {
+      "prompt": "Swap the roles: predict x from y.",
+      "code": "x <- c(1, 2, 3, 4, 5)\ny <- c(2, 4, 5, 4, 5)\ncoef(lm(x ~ y))",
+      "choices": [
+        "(Intercept) y\n -3.666667 1.666667",
+        "(Intercept) y\n -1 1",
+        "(Intercept) x\n 2.2 0.6",
+        "(Intercept) y\n 2.2 0.6"
+      ],
+      "answer": 1,
+      "explain": "Not the inverse of the first line (which would be slope 1 ÷ 0.6 = 1.67). Regressing x on y minimises errors in x, a different line. Correlation is symmetric; regression isn't, so choose the outcome on purpose."
+    },
+    {
+      "prompt": "A model with no predictor at all:",
+      "code": "y <- c(2, 4, 5, 4, 5)\ncoef(lm(y ~ 1))",
+      "choices": ["(Intercept)\n 0", "(Intercept)\n 4", "(Intercept)\n 5", "(Intercept)\n 2.2"],
+      "answer": 1,
+      "explain": "With no predictor the best single prediction is the mean, 4. Its squared errors add up to SST, the yardstick R² compares the real model against."
+    },
+    {
+      "prompt": "A two-group factor as the predictor:",
+      "code": "g <- factor(c(\"a\", \"a\", \"b\", \"b\"))\nv <- c(3, 5, 8, 10)\ncoef(lm(v ~ g))",
+      "choices": [
+        "(Intercept) gb\n 4 5",
+        "(Intercept) gb\n 4 9",
+        "(Intercept) ga gb\n 0 4 9",
+        "(Intercept) gb\n 6.5 2.5"
+      ],
+      "answer": 0,
+      "explain": "R codes the factor as a dummy (b = 1, a = 0). The intercept is group a's mean (4) and `gb` is how much higher group b's mean is (9 − 4 = 5). Its t-test is Student's t-test: regression, t-tests and ANOVA are one model."
+    }
+  ]
+}

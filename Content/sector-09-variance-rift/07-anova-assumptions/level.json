@@ -1,0 +1,13 @@
+{
+  "id": "variance-rift.anova-assumptions",
+  "title": "Rift Stability Checks",
+  "summary": "Check an ANOVA's assumptions: Levene's test as SPSS runs it, normality of the residuals, then Welch's ANOVA and Kruskal–Wallis as the fallbacks.",
+  "type": "code",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "`leveneTest(efficacy_t2 ~ programme, data = pd, center = mean)` matches SPSS's \"Based on Mean\" row.",
+    "Normality is about the residuals: `shapiro.test(residuals(fit))`, and `qqnorm(residuals(fit))` then `qqline(residuals(fit))`.",
+    "Welch's ANOVA: `oneway.test(efficacy_t2 ~ programme, data = pd)` (it doesn't assume equal variances by default). Kruskal–Wallis: `kruskal.test(efficacy_t2 ~ programme, data = pd)`."
+  ]
+}

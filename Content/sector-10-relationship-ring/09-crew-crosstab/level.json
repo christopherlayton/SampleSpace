@@ -1,0 +1,13 @@
+{
+  "id": "relationship-ring.crew-crosstab",
+  "title": "Crew Crosstab",
+  "summary": "Back to the Shuffle Test's question with a χ² test: build a table from raw columns, read row percentages, expected counts and adjusted residuals, and size it with Cramér's V.",
+  "type": "code",
+  "xp": 140,
+  "par": 3,
+  "hints": [
+    "`factor(ifelse(year_of_mission >= 2000, \"2000 on\", \"before 2000\"), levels = c(\"before 2000\", \"2000 on\"))` puts the earlier era first.",
+    "`crew_table <- table(first$era, first$sex)`; `prop.table(crew_table, margin = 1)` gives each row's percentages (as proportions).",
+    "`chisq.test(crew_table, correct = FALSE)`; `$expected`, `$stdres`; `cramers_v(crew_table, adjust = FALSE)` matches SPSS's Cramér's V."
+  ]
+}

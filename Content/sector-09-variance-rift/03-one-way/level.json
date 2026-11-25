@@ -1,0 +1,13 @@
+{
+  "id": "variance-rift.one-way",
+  "title": "One-Way Rift",
+  "summary": "A one-way ANOVA with aov(): set the group order, describe each group, read the F table and pull out F, p and η².",
+  "type": "code",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "`factor(pd$programme, levels = c(\"Workshop\", \"Coaching\", \"Online\"))` sets the order groups appear in.",
+    "`fit <- aov(efficacy_t2 ~ programme, data = pd)`, then `tab <- summary(fit)[[1]]` is the ANOVA table as a data frame.",
+    "`tab$\"F value\"[1]` and `tab$\"Pr(>F)\"[1]`; `eta_squared(fit)` from effectsize gives η²."
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "id": "variance-rift.anova-translator",
+  "title": "One-Way Translator",
+  "summary": "Reproduce SPSS's One-Way ANOVA output, Descriptives, Levene, the ANOVA table, Welch and Tukey's Multiple Comparisons, in R.",
+  "type": "spss_translate",
+  "xp": 150,
+  "par": 3,
+  "hints": [
+    "Descriptives: `group_by(programme) |> summarise(n = n(), mean = mean(efficacy_t2), sd = sd(efficacy_t2), se = sd / sqrt(n))`.",
+    "Two Levene rows: `leveneTest(..., center = mean)` and `leveneTest(..., center = median)`. Welch: `oneway.test(efficacy_t2 ~ programme, data = pd)`.",
+    "`fit <- aov(efficacy_t2 ~ programme, data = pd)` and `tukey <- TukeyHSD(fit)`. SPSS lists every pair both ways round; R lists each pair once."
+  ],
+  "spss": {
+    "menu": ["Analyze", "Compare Means", "One-Way ANOVA…"],
+    "dialog": [
+      { "label": "Dependent List", "value": "Self-efficacy at end [efficacy_t2]" },
+      { "label": "Factor", "value": "Programme [programme] (1 Workshop, 2 Coaching, 3 Online)" },
+      { "label": "Post Hoc…", "value": "Tukey; Significance level .05" },
+      { "label": "Options…", "value": "Descriptive; Homogeneity of variance test; Welch" }
+    ],
+    "syntax": "ONEWAY efficacy_t2 BY programme\n  /STATISTICS DESCRIPTIVES HOMOGENEITY WELCH\n  /MISSING ANALYSIS\n  /POSTHOC=TUKEY ALPHA(0.05).",
+    "output": [
+      {
+        "title": "Descriptives",
+        "groups": [
+          { "text": "", "span": 5 },
+          { "text": "95% Confidence Interval for Mean", "span": 2 },
+          { "text": "", "span": 2 }
+        ],
+        "columns": ["", "N", "Mean", "Std. Deviation", "Std. Error", "Lower Bound", "Upper Bound", "Minimum", "Maximum"],
+        "rows": [
+          ["Workshop", "20", "6.0985", "1.28135", ".28652", "5.4988", "6.6982", "4.04", "8.45"],
+          ["Coaching", "20", "6.8410", "1.11599", ".24954", "6.3187", "7.3633", "4.88", "9.00"],
+          ["Online", "20", "5.8260", ".96620", ".21605", "5.3738", "6.2782", "3.78", "7.63"],
+          ["Total", "60", "6.2552", "1.19060", ".15371", "5.9476", "6.5627", "3.78", "9.00"]
+        ]
+      },
+      {
+        "title": "Tests of Homogeneity of Variances",
+        "columns": ["", "", "Levene Statistic", "df1", "df2", "Sig."],
+        "row_header_columns": 2,
+        "rows": [
+          ["Self-efficacy at end", "Based on Mean", "1.813", "2", "57", ".172"],
+          ["", "Based on Median", "1.776", "2", "57", ".179"]
+        ]
+      },
+      {
+        "title": "ANOVA",
+        "columns": ["", "Sum of Squares", "df", "Mean Square", "F", "Sig."],
+        "rows": [
+          ["Between Groups", "11.039", "2", "5.519", "4.334", ".018"],
+          ["Within Groups", "72.596", "57", "1.274", "", ""],
+          ["Total", "83.634", "59", "", "", ""]
+        ]
+      },
+      {
+        "title": "Robust Tests of Equality of Means",
+        "columns": ["", "Statistic", "df1", "df2", "Sig."],
+        "rows": [
+          ["Welch", "4.765", "2", "37.509", ".014"]
+        ],
+        "footnotes": ["Asymptotically F distributed."]
+      },
+      {
+        "title": "Multiple Comparisons (Tukey HSD)",
+        "groups": [
+          { "text": "", "span": 5 },
+          { "text": "95% Confidence Interval", "span": 2 }
+        ],
+        "columns": ["(I) Programme", "(J) Programme", "Mean Difference (I-J)", "Std. Error", "Sig.", "Lower Bound", "Upper Bound"],
+        "row_header_columns": 2,
+        "rows": [
+          ["Workshop", "Coaching", "-.74250", ".35688", ".103", "-1.6013", ".1163"],
+          ["", "Online", ".27250", ".35688", ".727", "-.5863", "1.1313"],
+          ["Coaching", "Workshop", ".74250", ".35688", ".103", "-.1163", "1.6013"],
+          ["", "Online", "1.01500*", ".35688", ".017", ".1562", "1.8738"],
+          ["Online", "Workshop", "-.27250", ".35688", ".727", "-1.1313", ".5863"],
+          ["", "Coaching", "-1.01500*", ".35688", ".017", "-1.8738", "-.1562"]
+        ],
+        "footnotes": ["*. The mean difference is significant at the 0.05 level."]
+      }
+    ]
+  }
+}

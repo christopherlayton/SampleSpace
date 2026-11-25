@@ -23,7 +23,9 @@ civilian, selection programme, mission year and title, mission hours and spacewa
 - **Used by:** `sector-02-data-frame-docks/11-crew-manifest`; Wrangler's Reach (Pipe Dream,
   Course Correction, Fleet Summary, Typo Patrol, Crew Roster); Descriptive Drift (Which Average?,
   Spread Scanner, Standard Candles, The Long Tail); Plot Nebula (all code levels except Error
-  Bars); and the Sampling Machine lab in Probability Expanse.
+  Bars); Probability Expanse (Sampling Machine lab, Jammed Simulator, Crew Lottery); Inference
+  Station (Shuffle Test); Means Cluster (Military or Civilian?); Variance Rift (Ages Across
+  Decades); Relationship Ring (Crew Crosstab, Crew Connections).
 - **Known quirks** (taught, not fixed): nationality typos "Hungry", "Malysia", "Netherland";
   occupations in mixed capitals; ID (`number`) 385 is shared by two people (Baturin and Duque),
   so counting IDs gives 564 where there are 565 people; six missions have 0 hours.

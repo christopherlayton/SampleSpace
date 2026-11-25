@@ -1,0 +1,13 @@
+{
+  "id": "variance-rift.repeated-measures",
+  "title": "Three Readings",
+  "summary": "A repeated-measures ANOVA: wide to long, afex's aov_ez(), Mauchly's test and the Greenhouse–Geisser correction, then paired follow-ups.",
+  "type": "code",
+  "xp": 150,
+  "par": 3,
+  "hints": [
+    "`pivot_longer(starts_with(\"efficacy\"), names_to = \"time\", values_to = \"efficacy\")` makes one row per teacher per time.",
+    "`aov_ez(id = \"id\", dv = \"efficacy\", data = long, within = \"time\")`. `summary(rm)$sphericity.tests` holds Mauchly's test; its p-value is in the `\"p-value\"` column.",
+    "`pairwise.t.test(long$efficacy, long$time, paired = TRUE, p.adjust.method = \"holm\")` compares the time points pair by pair."
+  ]
+}

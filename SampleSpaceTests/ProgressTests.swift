@@ -149,7 +149,7 @@ struct RankTests {
         #expect(Rank.forXP(400) == .ensign)
         #expect(Rank.forXP(100_000) == .principalInvestigator)
         #expect(Rank.progress(xp: 1450) == 0.5)
-        #expect(Rank.progress(xp: 14_000) == 1)
+        #expect(Rank.progress(xp: 16_000) == 1)
     }
 
     @Test func starsAddBonusXP() {

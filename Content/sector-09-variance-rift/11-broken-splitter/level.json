@@ -1,0 +1,13 @@
+{
+  "id": "variance-rift.broken-splitter",
+  "title": "Broken Splitter",
+  "summary": "Debug an ANOVA script: groups stored as numbers, Tukey handed a summary, a package not loaded, and η² divided by the wrong sum of squares.",
+  "type": "debug",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "\"no applicable method for 'TukeyHSD' applied to an object of class summary.aov\": `TukeyHSD()` needs the model itself, `fit`.",
+    "`leveneTest()` lives in car, which the script never loads. And look at the df in the ANOVA table: 1 between-groups df for three programmes?",
+    "`group_code` is a number, so `aov()` fits a straight line. Use `programme` (a factor). η² is SS between over SS **total**: `tab$\"Sum Sq\"[1] / sum(tab$\"Sum Sq\")`."
+  ]
+}

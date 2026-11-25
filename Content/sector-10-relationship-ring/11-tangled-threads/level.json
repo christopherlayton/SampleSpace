@@ -1,0 +1,13 @@
+{
+  "id": "relationship-ring.tangled-threads",
+  "title": "Tangled Threads",
+  "summary": "Debug a relationships script: cor.test's odd formula, an outcome and predictor swapped, a package not loaded, and χ² handed raw columns.",
+  "type": "debug",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "\"'formula' missing or invalid\": `cor.test()` has no outcome, so its formula has nothing on the left: `cor.test(~ efficacy_t1 + efficacy_t3, data = pd)`.",
+    "`vif()` comes from car. And read the comment above `lm()`: which variable is being predicted?",
+    "\"invalid 'type' (character)\": `chisq.test()` wants a table of counts, `table(pd$programme, pd$experience)`, or the two columns as separate arguments."
+  ]
+}

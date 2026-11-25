@@ -1,0 +1,65 @@
+{
+  "id": "variance-rift.p-hacking-garden",
+  "title": "p-Hacking Garden",
+  "summary": "Simulate studies with no real effect, then measure many outcomes or peek at the data, and watch false alarms bloom. Then correct for it with Bonferroni and Holm.",
+  "type": "lab",
+  "xp": 160,
+  "par": 3,
+  "seed": 2026,
+  "hints": [
+    "`p_values` is a 10 × 1000 matrix: one column per study. `apply(p_values < 0.05, 2, any)` asks, for each column, whether any outcome came out significant.",
+    "`rate <- mean(any_hit)` and `theory <- 1 - 0.95^10`. Bonferroni compares each p with `0.05 / 10` instead.",
+    "`p.adjust(reported, method = \"holm\")` and the same with `\"bonferroni\"`."
+  ],
+  "lab": {
+    "kind": "p_hacking_garden",
+    "settings": {
+      "start_n": 20,
+      "outcomes": 1,
+      "looks": 1,
+      "alpha": 0.05
+    },
+    "goals": [
+      {
+        "text": "One outcome, tested once: run **at least 500 studies** and see a false-alarm rate **between 3% and 7%**.",
+        "detail": "With no real effect, an honest single test at α = .05 cries wolf in about 5% of studies. That's what α promises, and all it promises.",
+        "when": [
+          { "reading": "outcomes", "equals": 1 }, { "reading": "looks", "equals": 1 },
+          { "reading": "alpha", "equals": 0.05, "tolerance": 0.001 }, { "reading": "bonferroni", "equals": 0 },
+          { "reading": "studies", "min": 500 },
+          { "reading": "false_positive_rate", "min": 0.03, "max": 0.07 }
+        ]
+      },
+      {
+        "text": "Measure **10 or more outcomes** per study and report whichever is significant: push the rate **above 30%**.",
+        "detail": "Ten chances at .05 each: about 1 − .95¹⁰ = 40% of null studies \"find\" something. Running many tests and reporting the hits is p-hacking, even when nobody means to.",
+        "when": [
+          { "reading": "outcomes", "min": 10 }, { "reading": "looks", "equals": 1 },
+          { "reading": "alpha", "equals": 0.05, "tolerance": 0.001 }, { "reading": "bonferroni", "equals": 0 },
+          { "reading": "studies", "min": 200 },
+          { "reading": "false_positive_rate", "min": 0.3 }
+        ]
+      },
+      {
+        "text": "Back to **one outcome**, but **peek**: test at **5 or more looks** and stop at the first p < .05. Get the rate **above 11%** over at least 500 studies.",
+        "detail": "Each look is another chance for noise to cross the line, and stopping as soon as it does locks the fluke in. Decide n in advance, or use a method built for interim looks.",
+        "when": [
+          { "reading": "outcomes", "equals": 1 }, { "reading": "looks", "min": 5 },
+          { "reading": "alpha", "equals": 0.05, "tolerance": 0.001 },
+          { "reading": "studies", "min": 500 },
+          { "reading": "false_positive_rate", "min": 0.11 }
+        ]
+      },
+      {
+        "text": "With **10 or more outcomes**, switch on **Bonferroni** and bring the rate back to **6.5% or less** over at least 500 studies.",
+        "detail": "Testing each outcome at α ÷ 10 keeps the chance of *any* false alarm near α. The price is power: real effects need more evidence too.",
+        "when": [
+          { "reading": "outcomes", "min": 10 }, { "reading": "looks", "equals": 1 },
+          { "reading": "alpha", "equals": 0.05, "tolerance": 0.001 }, { "reading": "bonferroni", "equals": 1 },
+          { "reading": "studies", "min": 500 },
+          { "reading": "false_positive_rate", "max": 0.065 }
+        ]
+      }
+    ]
+  }
+}

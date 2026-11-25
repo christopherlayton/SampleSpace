@@ -113,6 +113,80 @@ extension Stats {
         return noncentralTUpper(critical, df: df, ncp: d * (n / 2).squareRoot())
     }
 
+    // MARK: F and chi-square
+
+    /// P(F ≤ f) for the F distribution with `df1` and `df2` degrees of freedom (R's `pf`).
+    static func fCDF(_ f: Double, df1: Double, df2: Double) -> Double {
+        guard f > 0 else { return 0 }
+        guard f.isFinite else { return 1 }
+        return incompleteBeta(df1 * f / (df1 * f + df2), df1 / 2, df2 / 2)
+    }
+
+    /// P(F > f), computed from the other tail of the beta so tiny p-values keep their precision.
+    static func fUpper(_ f: Double, df1: Double, df2: Double) -> Double {
+        guard f > 0 else { return 1 }
+        guard f.isFinite else { return 0 }
+        return incompleteBeta(df2 / (df2 + df1 * f), df2 / 2, df1 / 2)
+    }
+
+    /// The F density (R's `df`).
+    static func fDensity(_ x: Double, df1: Double, df2: Double) -> Double {
+        guard x > 0 else { return df1 == 2 ? 1 : (df1 < 2 ? .infinity : 0) }
+        let logD = lgamma((df1 + df2) / 2) - lgamma(df1 / 2) - lgamma(df2 / 2) + df1 / 2 * log(df1 / df2)
+            + (df1 / 2 - 1) * log(x) - (df1 + df2) / 2 * log1p(df1 * x / df2)
+        return exp(logD)
+    }
+
+    /// The F quantile (R's `qf`).
+    static func fQuantile(_ p: Double, df1: Double, df2: Double) -> Double {
+        guard p > 0 else { return 0 }
+        guard p < 1 else { return .infinity }
+        return invert({ fCDF($0, df1: df1, df2: df2) }, p, lo: 0, hi: 1e5)
+    }
+
+    /// Regularised lower incomplete gamma P(a, x): a series below a + 1, a continued fraction above.
+    static func incompleteGammaP(_ a: Double, _ x: Double) -> Double {
+        guard x > 0 else { return 0 }
+        let logFront = a * log(x) - x - lgamma(a)
+        if x < a + 1 {
+            var term = 1 / a, sum = term, ap = a
+            for _ in 0..<1000 {
+                ap += 1
+                term *= x / ap
+                sum += term
+                if abs(term) < abs(sum) * 1e-16 { break }
+            }
+            return min(sum * exp(logFront), 1)
+        }
+        return 1 - incompleteGammaQFraction(a, x, logFront: logFront)
+    }
+
+    /// Upper tail Q(a, x) = 1 − P(a, x) by Lentz's continued fraction (valid for x ≥ a + 1).
+    private static func incompleteGammaQFraction(_ a: Double, _ x: Double, logFront: Double) -> Double {
+        let tiny = 1e-300
+        var b = x + 1 - a, c = 1 / tiny, d = 1 / b, h = d
+        for i in 1...1000 {
+            let an = -Double(i) * (Double(i) - a)
+            b += 2
+            d = an * d + b; if abs(d) < tiny { d = tiny }
+            c = b + an / c; if abs(c) < tiny { c = tiny }
+            d = 1 / d
+            let delta = d * c
+            h *= delta
+            if abs(delta - 1) < 1e-16 { break }
+        }
+        return exp(logFront) * h
+    }
+
+    /// P(χ² > x) with `df` degrees of freedom (R's `pchisq(x, df, lower.tail = FALSE)`).
+    static func chiSquareUpper(_ x: Double, df: Double) -> Double {
+        guard x > 0 else { return 1 }
+        guard x.isFinite else { return 0 }
+        let a = df / 2, half = x / 2
+        if half < a + 1 { return 1 - incompleteGammaP(a, half) }
+        return incompleteGammaQFraction(a, half, logFront: a * log(half) - half - lgamma(a))
+    }
+
     // MARK: Helpers
 
     /// Solves f(x) = p for an increasing f by bisection.

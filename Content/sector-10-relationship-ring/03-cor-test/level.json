@@ -1,0 +1,13 @@
+{
+  "id": "relationship-ring.cor-test",
+  "title": "Testing r",
+  "summary": "cor.test() for Pearson's r with its CI and p-value, Spearman's rho with tied ranks, r², and a scatterplot before any of it.",
+  "type": "code",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "`ggplot(sleep, aes(x = sleep_hours, y = morale_score)) + geom_point()`.",
+    "`pearson <- cor.test(sleep$sleep_hours, sleep$morale_score)`; `pearson$estimate`, `pearson$conf.int` and `pearson$parameter` hold r, its CI and df.",
+    "`cor.test(..., method = \"spearman\", exact = FALSE)`: tied values make an exact p-value impossible, so ask for the approximation."
+  ]
+}
