@@ -1,0 +1,13 @@
+{
+  "id": "probability-expanse.random-crews",
+  "title": "Random Crews",
+  "summary": "Draw random samples with sample(), make them reproducible with set.seed(), and read probability as a long-run proportion.",
+  "type": "code",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "`set.seed(2026)` goes on its own line *before* the draw. Then `sample(1:564, size = 10)` picks 10 different ID numbers.",
+    "A die can land on 6 twice, so rolls need `replace = TRUE`: `sample(1:6, size = 600, replace = TRUE)`.",
+    "`rolls == 6` is TRUE/FALSE for each roll, and `mean()` of TRUE/FALSE is the proportion TRUE: `mean(rolls == 6)`."
+  ]
+}

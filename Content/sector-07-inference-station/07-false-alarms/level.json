@@ -1,0 +1,15 @@
+{
+  "id": "inference-station.false-alarms",
+  "title": "False Alarms",
+  "summary": "Simulate thousands of studies to measure the Type I error rate and power, then check power against power.t.test().",
+  "type": "code",
+  "xp": 130,
+  "par": 3,
+  "seed": 2026,
+  "time_limit": 20,
+  "hints": [
+    "One study with no real difference: `t.test(rnorm(20), rnorm(20), var.equal = TRUE)$p.value`. Wrap it in `replicate(2000, ...)`.",
+    "For a real effect of d = 0.5, give one group `mean = 0.5`: `rnorm(20, mean = 0.5)`.",
+    "`mean(p_null < 0.05)` is the share of false alarms; `mean(p_effect < 0.05)` is the simulated power, and β is 1 minus it."
+  ]
+}

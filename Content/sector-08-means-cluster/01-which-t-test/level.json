@@ -1,0 +1,65 @@
+{
+  "id": "means-cluster.which-t-test",
+  "title": "Which t-Test?",
+  "summary": "One-sample, independent or paired: match the design to the test, and know the assumptions each one makes.",
+  "type": "briefing",
+  "xp": 60,
+  "hints": [
+    "Count the groups and ask whether the same people are measured twice.",
+    "Same people (or matched pairs) measured twice → paired. Different people in two groups → independent.",
+    "A t-test compares means. A categorical outcome or three or more groups needs a different test."
+  ],
+  "quiz": [
+    {
+      "prompt": "Your 40 participants' mean anxiety is compared with the questionnaire's published norm of 28. Which test?",
+      "choices": ["One-sample t-test", "Independent-samples t-test", "Paired-samples t-test", "Chi-square test"],
+      "answer": 0,
+      "explain": "One group, one known comparison value: `t.test(x, mu = 28)`. The norm isn't a second sample, so there's nothing to pair or split."
+    },
+    {
+      "prompt": "The same 40 students complete the anxiety scale before and after a term of mindfulness practice. Which test compares the two time points?",
+      "choices": ["One-sample t-test", "Independent-samples t-test", "Paired-samples t-test", "Two separate one-sample t-tests"],
+      "answer": 2,
+      "explain": "Each person gives two scores, and a person's two scores are related (anxious people stay fairly anxious). The paired test works on each person's change, which removes those stable differences between people and usually gives far more power."
+    },
+    {
+      "prompt": "Students are randomly assigned to lecture or active learning, and their exam scores are compared. Which test?",
+      "choices": ["One-sample t-test", "Independent-samples t-test", "Paired-samples t-test", "Correlation"],
+      "answer": 1,
+      "explain": "Two separate groups of different people, one numeric outcome: `t.test(score ~ method, data = teach)`."
+    },
+    {
+      "prompt": "Teachers from **three** schools are compared on job satisfaction. Which is right?",
+      "choices": [
+        "Three independent t-tests, one per pair of schools",
+        "A one-way ANOVA (Variance Rift)",
+        "A paired t-test",
+        "A one-sample t-test per school"
+      ],
+      "answer": 1,
+      "explain": "Three pairwise t-tests at α = .05 each inflate the chance of a false alarm (Critical Forecast). One ANOVA tests all three means at once, followed by corrected post hoc comparisons."
+    },
+    {
+      "prompt": "Which assumption does the **independent-samples** t-test **not** make?",
+      "choices": [
+        "Observations are independent of each other",
+        "The outcome is roughly normal within each group (or the groups are large)",
+        "Both groups have the same number of people",
+        "Student's version assumes equal variances; Welch's doesn't"
+      ],
+      "answer": 2,
+      "explain": "Unequal group sizes are fine. Independence matters most and is settled by the design. Normality matters less as groups grow (the Central Limit Theorem). Equal variances matter for Student's version, which is why R defaults to Welch's."
+    },
+    {
+      "prompt": "SPSS prints two rows, \"Equal variances assumed\" and \"Equal variances not assumed\". What does R's `t.test()` give by default?",
+      "choices": [
+        "Equal variances assumed (Student's t)",
+        "Equal variances not assumed (Welch's t)",
+        "Both rows",
+        "Whichever Levene's test recommends"
+      ],
+      "answer": 1,
+      "explain": "R defaults to Welch's test, which stays accurate whether or not the variances are equal, and many statisticians recommend always using it. Add `var.equal = TRUE` for Student's version, SPSS's first row."
+    }
+  ]
+}

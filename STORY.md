@@ -83,4 +83,6 @@ c("pilot", "Pilot") %in% a$occupation                                # TRUE TRUE
 "Netherland" %in% f$nationality                                     # TRUE (a third nationality typo)
 r <- tapply(a$eva_hrs_mission, a$number, sum); length(r); sum(r > 0) # 564 IDs, 232 spacewalkers (Crew Roster)
 unique(a$name[a$number == 385])                                      # Baturin, Duque: one ID, two people
+sum(f$sex == "female"); mean(f$sex == "female")                      # 64, .113 (Crew Lottery)
+table(ifelse(f$year_of_mission >= 2000, "2000 on", "before 2000"))  # 172, 392 (Shuffle Test eras)
 ```

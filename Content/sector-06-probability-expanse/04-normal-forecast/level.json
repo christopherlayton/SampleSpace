@@ -1,0 +1,61 @@
+{
+  "id": "probability-expanse.normal-forecast",
+  "title": "Normal Forecast",
+  "summary": "Predict what pnorm(), qnorm() and seeded random draws print.",
+  "type": "predict",
+  "xp": 80,
+  "hints": [
+    "`pnorm()` gives the area *below* a value; the mean of a normal curve has half the area on each side.",
+    "`qnorm()` runs the other way: proportion in, score out. Without `mean` and `sd` it uses the standard normal (mean 0, SD 1).",
+    "The same seed gives the same draws."
+  ],
+  "quiz": [
+    {
+      "prompt": "The standard normal curve has mean 0. What is the area below 0?",
+      "code": "pnorm(0)",
+      "choices": ["[1] 0", "[1] 0.5", "[1] 1", "[1] 0.3989423"],
+      "answer": 1,
+      "explain": "A normal curve is symmetric about its mean, so exactly half its area lies below it. (0.3989 is the curve's *height* at 0, which `dnorm(0)` gives; height isn't probability.)"
+    },
+    {
+      "prompt": "Three proportions in, three scores out:",
+      "code": "qnorm(c(0.025, 0.5, 0.975))",
+      "choices": [
+        "[1] -1.959964  0.000000  1.959964",
+        "[1] 0.4900275 0.6914625 0.8339768",
+        "[1] -2  0  2",
+        "[1] -1.644854  0.000000  1.644854"
+      ],
+      "answer": 0,
+      "explain": "2.5% of the standard normal lies below −1.96 and 97.5% below +1.96, so ±1.96 cuts off the middle 95%. That's where the 1.96 in a 95% interval comes from. (±1.645 cuts off the middle 90%.) R pads 0 to 0.000000 so the three numbers line up."
+    },
+    {
+      "prompt": "How much of a normal curve lies within one SD of the mean?",
+      "code": "pnorm(1) - pnorm(-1)",
+      "choices": ["[1] 0.5", "[1] 0.6826895", "[1] 0.9544997", "[1] 0.3413447"],
+      "answer": 1,
+      "explain": "Area below +1 minus area below −1 leaves the area between them: about 68%. Within two SDs it's about 95% (0.9545); 0.3413 is just the half from 0 to 1."
+    },
+    {
+      "prompt": "A score of 130 on a scale with mean 100 and SD 15, compared with z = 2 on the standard normal:",
+      "code": "pnorm(130, mean = 100, sd = 15) == pnorm(2)",
+      "choices": ["[1] FALSE", "[1] TRUE", "[1] NA", "Error: arguments imply differing scales"],
+      "answer": 1,
+      "explain": "130 is (130 − 100) / 15 = 2 SDs above the mean, and areas depend only on the z-score. Converting to z and using the standard normal gives exactly the same proportion."
+    },
+    {
+      "prompt": "Two random draws from the same seed:",
+      "code": "set.seed(1)\na <- rnorm(3)\nset.seed(1)\nb <- rnorm(3)\nidentical(a, b)",
+      "choices": ["[1] FALSE", "[1] TRUE", "[1] NA", "Error: random numbers can't be compared"],
+      "answer": 1,
+      "explain": "Resetting the seed restarts the generator from the same point, so `b` repeats `a` exactly. That's what makes a simulation reproducible."
+    },
+    {
+      "prompt": "No seed reset this time:",
+      "code": "set.seed(1)\na <- rnorm(3)\nb <- rnorm(3)\nidentical(a, b)",
+      "choices": ["[1] TRUE", "[1] FALSE", "[1] NA", "Error: seed already used"],
+      "answer": 1,
+      "explain": "The seed sets the *starting* point. After `a` the generator has moved on, so `b` gets the next three numbers. One `set.seed()` at the top of a script is enough; you don't set it before every draw."
+    }
+  ]
+}

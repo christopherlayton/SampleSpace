@@ -1,0 +1,14 @@
+{
+  "id": "probability-expanse.crew-lottery",
+  "title": "Crew Lottery",
+  "summary": "Sector review: the sampling distribution of a proportion. How much does the share of women wander in random crews of 50 and 200?",
+  "type": "code",
+  "xp": 150,
+  "par": 3,
+  "seed": 2026,
+  "hints": [
+    "`women <- first$sex == \"female\"` is TRUE/FALSE per astronaut, and `mean(women)` is the proportion.",
+    "One crew of 50: `mean(sample(women, size = 50, replace = TRUE))`. Wrap it in `replicate(2000, ...)`.",
+    "`se_50 <- sd(props_50)`, `se_200 <- sd(props_200)`, then `se_50 / se_200`. Four times the crew should roughly halve the SE."
+  ]
+}

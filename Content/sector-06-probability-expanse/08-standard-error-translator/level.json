@@ -1,0 +1,36 @@
+{
+  "id": "probability-expanse.standard-error-translator",
+  "title": "Standard Error Translator",
+  "summary": "Reproduce SPSS's Std. Error of the mean with a function of your own, ignoring missing values the way SPSS does.",
+  "type": "spss_translate",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "A function body can be one line: `se_mean <- function(x) sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x)))`.",
+    "n must count only the values that aren't missing. `length(x)` counts the NAs too; `sum(!is.na(x))` doesn't.",
+    "Then `se_pre <- se_mean(survey$anxiety_pre)` and the same for `anxiety_post`."
+  ],
+  "spss": {
+    "menu": ["Analyze", "Descriptive Statistics", "Descriptives…"],
+    "dialog": [
+      { "label": "Variable(s)", "value": "anxiety_pre, anxiety_post" },
+      { "label": "Options", "value": "Mean, S.E. mean, Std. deviation, Minimum, Maximum" }
+    ],
+    "syntax": "DESCRIPTIVES VARIABLES=anxiety_pre anxiety_post\n  /STATISTICS=MEAN SEMEAN STDDEV MIN MAX.",
+    "output": [
+      {
+        "title": "Descriptive Statistics",
+        "groups": [
+          { "text": "", "span": 1 }, { "text": "N", "span": 1 }, { "text": "Minimum", "span": 1 },
+          { "text": "Maximum", "span": 1 }, { "text": "Mean", "span": 2 }, { "text": "Std. Deviation", "span": 1 }
+        ],
+        "columns": ["", "Statistic", "Statistic", "Statistic", "Statistic", "Std. Error", "Statistic"],
+        "rows": [
+          ["anxiety_pre", "40", "20", "40", "29.63", ".795", "5.027"],
+          ["anxiety_post", "37", "12", "38", "26.86", "1.075", "6.537"],
+          ["Valid N (listwise)", "37", "", "", "", "", ""]
+        ]
+      }
+    ]
+  }
+}

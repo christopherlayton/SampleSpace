@@ -1,0 +1,14 @@
+{
+  "id": "probability-expanse.jammed-simulator",
+  "title": "Jammed Simulator",
+  "summary": "Debug a sampling simulation: a draw bigger than its population, a seed inside the loop, and the wrong standard-error formula.",
+  "type": "debug",
+  "xp": 120,
+  "par": 3,
+  "seed": 2026,
+  "hints": [
+    "R stops at `sample()`: you can't draw 1,000 *different* values from 564 without putting them back. Add `replace = TRUE`.",
+    "Every crew mean is identical, so `se_sim` is 0. Something inside `replicate()` restarts the generator before each draw. A seed belongs once, at the top, not in the loop.",
+    "The standard error is σ / √n, not σ / n: `sd(age) / sqrt(10)`."
+  ]
+}

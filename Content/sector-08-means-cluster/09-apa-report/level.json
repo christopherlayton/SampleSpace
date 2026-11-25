@@ -1,0 +1,13 @@
+{
+  "id": "means-cluster.apa-report",
+  "title": "APA Transmission",
+  "summary": "Write the APA results sentence straight from R objects: a p-value formatter of your own and sprintf().",
+  "type": "code",
+  "xp": 140,
+  "par": 3,
+  "hints": [
+    "`fmt_p <- function(p) if (p < 0.001) \"< .001\" else paste(\"=\", sub(\"^0\", \"\", sprintf(\"%.3f\", p)))`.",
+    "The pieces: `mean(active)`, `sd(active)`, `mean(lecture)`, `sd(lecture)`, `unname(res$parameter)`, `abs(unname(res$statistic))`, `fmt_p(res$p.value)`, `abs(d$Cohens_d)`.",
+    "`sprintf()` fills each `%` placeholder with the next argument, in order: eight placeholders, eight arguments."
+  ]
+}

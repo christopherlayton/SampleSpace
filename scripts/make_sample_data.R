@@ -1,4 +1,4 @@
-# Makes the simulated datasets used by Data Frame Docks levels. The data are invented
+# Makes the simulated datasets used by levels in Sectors 2–10. The data are invented
 # but shaped like a typical dissertation study. Rerun after changing it:
 #   Rscript --no-init-file scripts/make_sample_data.R
 # then scripts/validate_content.sh, because level checks depend on these values.
@@ -29,7 +29,12 @@ survey$age[24] <- NA
 content <- file.path(root, "Content")
 survey_levels <- c(file.path(docks, c("06-read-csv", "07-hull-breach", "12-docking-review")),
                    file.path(content, "sector-04-descriptive-drift", c("05-describe-everything", "06-descriptives-translator")),
-                   file.path(content, "sector-05-plot-nebula", "06-error-bars"))
+                   file.path(content, "sector-05-plot-nebula", "06-error-bars"),
+                   file.path(content, "sector-06-probability-expanse", "08-standard-error-translator"),
+                   file.path(content, "sector-07-inference-station", "03-interval-by-hand"),
+                   file.path(content, "sector-08-means-cluster",
+                             c("02-one-sample", "03-independent-groups", "04-assumption-checks",
+                               "06-paired-burn", "08-backwards-formula")))
 for (level in survey_levels) {
   dir.create(level, showWarnings = FALSE)
   write.csv(survey, file.path(level, "wellbeing_survey.csv"), row.names = FALSE, na = "")
@@ -53,8 +58,12 @@ teach <- data.frame(
                                    "Very" = 4, "Extremely" = 5, "No answer" = 9),
                                  na_values = 9, label = "Exam anxiety")
 )
-for (level in c("08-read-sav", "09-value-labels", "10-frequency-translator")) {
-  haven::write_sav(teach, file.path(docks, level, "teaching_study.sav"))
+sav_levels <- c(file.path(docks, c("08-read-sav", "09-value-labels", "10-frequency-translator")),
+                file.path(content, "sector-08-means-cluster",
+                          c("05-t-test-translator", "07-effect-size", "09-apa-report")))
+for (level in sav_levels) {
+  dir.create(level, showWarnings = FALSE)
+  haven::write_sav(teach, file.path(level, "teaching_study.sav"))
 }
 # --- crew_morale.csv: a six-item morale scale, 48 participants, two items reverse-worded ----
 # Used by Wrangler's Reach (reverse-scoring, composites, missing data).

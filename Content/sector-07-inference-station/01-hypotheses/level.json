@@ -1,0 +1,69 @@
+{
+  "id": "inference-station.hypotheses",
+  "title": "Hypotheses",
+  "summary": "Null and alternative hypotheses, one- and two-sided questions, and what a test means for a near-complete population.",
+  "type": "briefing",
+  "xp": 50,
+  "hints": [
+    "The null hypothesis is the \"nothing going on\" claim: no difference, no relationship.",
+    "A directional (one-sided) alternative names which way the difference goes.",
+    "A test can reject H₀ or fail to reject it. It never proves H₀."
+  ],
+  "quiz": [
+    {
+      "prompt": "A study compares post-test anxiety for a mindfulness group and a control group. Which is the **null** hypothesis?",
+      "choices": [
+        "H₀: μ(mindfulness) < μ(control)",
+        "H₀: μ(mindfulness) = μ(control)",
+        "H₀: x̄(mindfulness) = x̄(control)",
+        "H₀: mindfulness reduces anxiety"
+      ],
+      "answer": 1,
+      "explain": "H₀ is the claim of no difference, written about **population** means (μ). Sample means (x̄) are known; there's nothing to test about them. \"Mindfulness reduces anxiety\" is the research hypothesis, which becomes the alternative."
+    },
+    {
+      "prompt": "Which alternative hypothesis is **one-sided** (directional)?",
+      "choices": [
+        "H₁: μ(mindfulness) ≠ μ(control)",
+        "H₁: μ(mindfulness) < μ(control)",
+        "H₁: the groups differ",
+        "H₁: μ(mindfulness) = μ(control)"
+      ],
+      "answer": 1,
+      "explain": "A one-sided H₁ names the direction (\"lower\"). It must be chosen *before* seeing the data and justified by theory, because a result in the other direction can then never count as evidence. When in doubt, test two-sided; it's the default in R, SPSS and most journals."
+    },
+    {
+      "prompt": "A test gives p = .21 with α = .05. What do you conclude?",
+      "choices": [
+        "H₀ is true: the groups are the same",
+        "There's a 21% chance H₀ is true",
+        "We fail to reject H₀: the data don't give enough evidence of a difference",
+        "We accept H₁"
+      ],
+      "answer": 2,
+      "explain": "Not rejecting H₀ isn't proving it. The difference could be real but too small for this sample to detect (low power). Write \"no statistically significant difference was found\", never \"the groups were the same\"."
+    },
+    {
+      "prompt": "When should α (e.g. .05) be chosen?",
+      "choices": [
+        "After seeing the p-value, so the result is significant",
+        "Before collecting or analysing the data",
+        "Only if the result is significant",
+        "It's set by R automatically and can't be changed"
+      ],
+      "answer": 1,
+      "explain": "α is the false-alarm rate you're willing to accept, and it only means that if it's fixed in advance. Picking it afterwards (or switching to one-sided to get under .05) is one of the moves behind \"p-hacking\". Your proposal should state it."
+    },
+    {
+      "prompt": "The Crew Log holds almost everyone who flew from 1961 to 2019. You test whether the share of women among first-time flyers differs before and after 2000. What does the test ask?",
+      "choices": [
+        "Whether the difference exists in the population of astronauts",
+        "Whether the difference is bigger than a random process (such as shuffling who flew when) would typically produce",
+        "Nothing: you can't run tests on a population",
+        "Whether women are better astronauts"
+      ],
+      "answer": 1,
+      "explain": "With (nearly) the whole population, the difference in the log simply *is* the difference. A test then asks a different question: could a chance process, with no link between era and sex, easily produce a gap this big? You'll answer it by shuffling at the end of this sector."
+    }
+  ]
+}

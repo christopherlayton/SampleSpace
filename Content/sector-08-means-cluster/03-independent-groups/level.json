@@ -1,0 +1,13 @@
+{
+  "id": "means-cluster.independent-groups",
+  "title": "Two Separate Crews",
+  "summary": "Compare two independent groups with t.test(y ~ group): Welch's test, Student's test, and which group R subtracts from which.",
+  "type": "code",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "Formula first, then the data: `t.test(anxiety_post ~ group, data = survey)`. That's Welch's test.",
+    "Student's version adds `var.equal = TRUE`.",
+    "`welch$parameter` is the df, `welch$p.value` is p, and `welch$estimate` holds the two group means."
+  ]
+}

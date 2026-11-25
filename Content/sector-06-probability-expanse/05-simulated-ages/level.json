@@ -1,0 +1,14 @@
+{
+  "id": "probability-expanse.simulated-ages",
+  "title": "Simulated Ages",
+  "summary": "Simulate data from a normal model with rnorm() and check the simulation against pnorm().",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "seed": 2026,
+  "hints": [
+    "`rnorm(1000, mean = 40, sd = 5)` draws 1,000 values from the model.",
+    "`mean(ages > 50)` is the proportion of simulated ages above 50.",
+    "The exact proportion is the area above 50: `pnorm(50, mean = 40, sd = 5, lower.tail = FALSE)`."
+  ]
+}

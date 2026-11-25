@@ -1,0 +1,13 @@
+{
+  "id": "means-cluster.paired-burn",
+  "title": "Paired Burn",
+  "summary": "Same people, two time points: the paired t-test, why it's a one-sample test on differences, and how it handles missing pairs.",
+  "type": "code",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "`t.test(survey$anxiety_pre, survey$anxiety_post, paired = TRUE)`: two columns, not a formula.",
+    "`diffs <- survey$anxiety_pre - survey$anxiety_post`, then `t.test(diffs)`. Missing posts give NA differences, which t.test() drops.",
+    "`n_pairs <- sum(!is.na(diffs))`, `mean_diff <- mean(diffs, na.rm = TRUE)`, and d_z is `mean_diff / sd(diffs, na.rm = TRUE)`."
+  ]
+}

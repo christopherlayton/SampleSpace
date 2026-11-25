@@ -1,0 +1,48 @@
+{
+  "id": "means-cluster.t-test-translator",
+  "title": "t-Test Translator",
+  "summary": "Reproduce SPSS's Group Statistics and Independent Samples Test tables, both rows and Levene's test, from an SPSS file.",
+  "type": "spss_translate",
+  "xp": 150,
+  "par": 3,
+  "hints": [
+    "`teach$method <- as_factor(teach$method)` turns the codes 1 and 2 into Lecture and Active learning.",
+    "Levene's row: `leveneTest(score ~ method, data = teach, center = mean)`. The two t rows: `t.test(score ~ method, data = teach, var.equal = TRUE)` and the same without `var.equal`.",
+    "SPSS's one-sided p is half the two-sided p (when the difference is in the predicted direction): `student$p.value / 2`."
+  ],
+  "spss": {
+    "menu": ["Analyze", "Compare Means", "Independent-Samples T Test…"],
+    "dialog": [
+      { "label": "Test Variable(s)", "value": "Final exam score (%) [score]" },
+      { "label": "Grouping Variable", "value": "method(1 2)" },
+      { "label": "Options", "value": "Confidence Interval Percentage: 95%; Exclude cases analysis by analysis" }
+    ],
+    "syntax": "T-TEST GROUPS=method(1 2)\n  /MISSING=ANALYSIS\n  /VARIABLES=score\n  /ES DISPLAY(FALSE)\n  /CRITERIA=CI(.95).",
+    "output": [
+      {
+        "title": "Group Statistics",
+        "columns": ["", "Teaching method", "N", "Mean", "Std. Deviation", "Std. Error Mean"],
+        "row_header_columns": 2,
+        "rows": [
+          ["Final exam score (%)", "Lecture", "15", "64.60", "8.025", "2.072"],
+          ["", "Active learning", "15", "74.53", "11.438", "2.953"]
+        ]
+      },
+      {
+        "title": "Independent Samples Test",
+        "groups": [
+          { "text": "", "span": 2 },
+          { "text": "Levene's Test for Equality of Variances", "span": 2 },
+          { "text": "t-test for Equality of Means", "span": 8 }
+        ],
+        "columns": ["", "", "F", "Sig.", "t", "df", "One-Sided p", "Two-Sided p", "Mean Difference",
+                    "Std. Error Difference", "95% CI Lower", "95% CI Upper"],
+        "row_header_columns": 2,
+        "rows": [
+          ["Final exam score (%)", "Equal variances assumed", ".625", ".436", "-2.753", "28", ".005", ".010", "-9.933", "3.608", "-17.323", "-2.543"],
+          ["", "Equal variances not assumed", "", "", "-2.753", "25.094", ".005", ".011", "-9.933", "3.608", "-17.362", "-2.504"]
+        ]
+      }
+    ]
+  }
+}

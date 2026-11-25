@@ -1,0 +1,13 @@
+{
+  "id": "means-cluster.one-sample",
+  "title": "One-Sample Probe",
+  "summary": "Compare a sample mean with a known value using t.test(mu = ), and pull t, df, p and the CI out of the result.",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "hints": [
+    "`res <- t.test(survey$anxiety_pre, mu = 28)`.",
+    "A test result is a list: `res$statistic`, `res$parameter` (the df), `res$p.value`, `res$conf.int`, `res$estimate`.",
+    "`unname()` strips the name R attaches (\"t\", \"df\"), so `t_val <- unname(res$statistic)`."
+  ]
+}

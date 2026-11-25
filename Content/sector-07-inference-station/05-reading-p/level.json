@@ -1,0 +1,80 @@
+{
+  "id": "inference-station.reading-p",
+  "title": "Reading p",
+  "summary": "What a p-value does and doesn't say, how confidence intervals and p agree, and how to report both in APA style.",
+  "type": "briefing",
+  "xp": 60,
+  "hints": [
+    "p is calculated assuming H₀ is true, so it can't be the probability that H₀ is true.",
+    "With a big enough sample, any nonzero difference becomes significant.",
+    "APA: italic p, no leading zero, exact values down to .001."
+  ],
+  "quiz": [
+    {
+      "prompt": "A study reports p = .03. Which statement is correct?",
+      "choices": [
+        "There's a 3% chance the null hypothesis is true",
+        "There's a 97% chance the effect is real",
+        "If H₀ were true, results at least this extreme would turn up about 3% of the time",
+        "The effect is small"
+      ],
+      "answer": 2,
+      "explain": "p is computed *assuming* H₀ is true, so it can't also be the probability that H₀ is true. It's the probability of data at least this extreme under H₀, the share you counted in the Courtroom's retrial."
+    },
+    {
+      "prompt": "Study A (n = 20 per group) finds p = .04; study B (n = 2,000 per group) finds p = .0001. Which found the bigger effect?",
+      "choices": [
+        "Study B, because its p is smaller",
+        "Study A, because it reached significance with fewer people",
+        "You can't tell from p: it mixes effect size with sample size. Compare the effect sizes",
+        "They found the same effect"
+      ],
+      "answer": 2,
+      "explain": "A tiny effect with a huge sample gives a tiny p, as you saw in the Courtroom. p answers \"is it surprising under H₀?\", not \"is it big?\". That's why APA asks for an effect size (such as Cohen's d) alongside every test."
+    },
+    {
+      "prompt": "A 95% CI for a difference in means is [−0.8, 4.2]. What does a two-sided test at α = .05 conclude?",
+      "choices": [
+        "Significant, because most of the interval is positive",
+        "Not significant, because the interval includes 0",
+        "Significant, because the interval excludes 4.2",
+        "You can't tell without the p-value"
+      ],
+      "answer": 1,
+      "explain": "A 95% CI and a two-sided test at α = .05 always agree: the test rejects H₀ (difference = 0) exactly when 0 lies outside the interval. Here 0 is inside, so p > .05. The CI says more, though: it shows which differences are plausible, from slightly negative to quite large."
+    },
+    {
+      "prompt": "Which is correct APA style?",
+      "choices": [
+        "p = 0.032",
+        "p = .032",
+        "P = .03200",
+        "p = .000"
+      ],
+      "answer": 1,
+      "explain": "Italic *p*, no leading zero (p can't exceed 1), usually three decimals. A value that rounds to .000 is reported as *p* < .001, never p = .000."
+    },
+    {
+      "prompt": "p = .07 with α = .05. How should it be written up?",
+      "choices": [
+        "\"The difference approached significance\"",
+        "\"There was a trend towards a difference\"",
+        "\"The difference was not statistically significant, p = .07\", with the effect size and CI",
+        "Leave the result out of the paper"
+      ],
+      "answer": 2,
+      "explain": "Results are either below α or not; \"approaching significance\" treats .07 as nearly .05 only when it's convenient. Report the exact p, the effect size and its CI, and let the reader judge. Leaving out non-significant results biases the literature."
+    },
+    {
+      "prompt": "A colleague runs 20 different tests on their data, finds one with p = .04 and reports only that one. What's the problem?",
+      "choices": [
+        "Nothing, p = .04 is below .05",
+        "With 20 tests and no real effects, about one false alarm at α = .05 is expected",
+        "They should have used α = .01 for that one test only",
+        "They should report p = .040"
+      ],
+      "answer": 1,
+      "explain": "α = .05 is the false-alarm rate *per test*. Run 20 and the chance of at least one false alarm is about 64%. Reporting only the hit is a form of p-hacking. Pre-register the tests you plan, report all of them, and correct for multiple comparisons when needed (you'll meet Bonferroni and Tukey in the Variance Rift)."
+    }
+  ]
+}

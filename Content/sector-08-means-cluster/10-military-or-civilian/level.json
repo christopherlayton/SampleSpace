@@ -1,0 +1,13 @@
+{
+  "id": "means-cluster.military-or-civilian",
+  "title": "Military or Civilian?",
+  "summary": "Sector review: do military and civilian astronauts fly missions of different lengths? One row per person, assumptions, Welch's t-test and d.",
+  "type": "code",
+  "xp": 170,
+  "par": 3,
+  "hints": [
+    "`group_by(number)`, then `summarise(military_civilian = first(military_civilian), mean_hours = mean(hours_mission))`.",
+    "Group summaries: `people |> group_by(military_civilian) |> summarise(n = n(), mean = mean(mean_hours), sd = sd(mean_hours), median = median(mean_hours))`.",
+    "`leveneTest(mean_hours ~ factor(military_civilian), data = people, center = mean)`, `t.test(mean_hours ~ military_civilian, data = people)` and `cohens_d(mean_hours ~ military_civilian, data = people)`."
+  ]
+}

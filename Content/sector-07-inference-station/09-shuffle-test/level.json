@@ -1,0 +1,15 @@
+{
+  "id": "inference-station.shuffle-test",
+  "title": "Shuffle Test",
+  "summary": "Sector review: is the rise in women among first-time flyers bigger than chance? Answer with a permutation test you build yourself.",
+  "type": "code",
+  "xp": 160,
+  "par": 3,
+  "seed": 2026,
+  "time_limit": 20,
+  "hints": [
+    "`observed <- mean(woman[era == \"2000 on\"]) - mean(woman[era == \"before 2000\"])`.",
+    "Inside `replicate(5000, { ... })`: shuffle with `e <- sample(era)`, then return the same difference computed with `e` instead of `era`.",
+    "`p_shuffle <- mean(abs(shuffled) >= abs(observed))` (two-sided). Then `decision <- if (p_shuffle < 0.05) \"reject\" else \"fail to reject\"`."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "means-cluster.assumption-checks",
+  "title": "Assumption Checks",
+  "summary": "Check normality with Shapiro–Wilk and Q–Q plots, and equal variances with Levene's test, the SPSS way and the car way.",
+  "type": "code",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "`control <- survey$anxiety_post[survey$group == \"Control\"]`, then `shapiro.test(control)$p.value`. shapiro.test() drops NAs itself.",
+    "`leveneTest(anxiety_post ~ factor(group), data = survey)` uses the median; add `center = mean` to match SPSS.",
+    "A Levene result is a small table: the p-value is `levene_mean$\"Pr(>F)\"[1]`. For the plot: `qqnorm(control)` then `qqline(control)`."
+  ]
+}

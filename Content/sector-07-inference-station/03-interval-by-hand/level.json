@@ -1,0 +1,13 @@
+{
+  "id": "inference-station.interval-by-hand",
+  "title": "Interval by Hand",
+  "summary": "Build a 95% confidence interval from mean, SE and qt(), then check it against t.test().",
+  "type": "code",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "`m <- mean(x)` and `se <- sd(x) / sqrt(length(x))` (the pre-test has no missing values).",
+    "The critical value leaves 2.5% in the upper tail of a t distribution with n − 1 df: `qt(0.975, df = length(x) - 1)`.",
+    "`ci_by_hand <- c(m - t_crit * se, m + t_crit * se)`, and `ci_r <- t.test(x)$conf.int`."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "means-cluster.effect-size",
+  "title": "Effect Size Gauge",
+  "summary": "Cohen's d by hand with a pooled SD, then with effectsize::cohens_d(), with its confidence interval.",
+  "type": "code",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "Group sizes, means and SDs: `n1 <- length(lecture)`, `m1 <- mean(lecture)`, `s1 <- sd(lecture)`, and the same for `active`.",
+    "Pooled SD: `sqrt(((n1 - 1) * s1^2 + (n2 - 1) * s2^2) / (n1 + n2 - 2))`. Then `d_hand <- (m1 - m2) / sd_pooled`.",
+    "`d_pkg <- cohens_d(score ~ method, data = teach)`; the estimate is `d_pkg$Cohens_d` and the interval `c(d_pkg$CI_low, d_pkg$CI_high)`."
+  ]
+}

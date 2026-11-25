@@ -1,8 +1,8 @@
 import Foundation
 
 /// Pilot ranks, earned with XP. Thresholds live here and nowhere else, so they are easy to
-/// retune as content grows. With every star, Sectors 0–2 hold about 3,000 XP and Sectors 0–5
-/// about 6,300, so a full curriculum of ~12 sectors is roughly 14,000 XP; thresholds are pegged
+/// retune as content grows. With every star, Sectors 0–2 hold about 3,000 XP, Sectors 0–5
+/// about 6,300 and Sectors 0–8 about 10,200, so a full curriculum of ~12 sectors is roughly 14,000 XP; thresholds are pegged
 /// to sector milestones (a little below the all-stars total, since few pilots three-star everything).
 enum Rank: Int, CaseIterable, Comparable, Sendable {
     case cadet, ensign, lieutenant, commander, captain, principalInvestigator

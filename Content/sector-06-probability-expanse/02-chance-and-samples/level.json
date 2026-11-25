@@ -1,0 +1,80 @@
+{
+  "id": "probability-expanse.chance-and-samples",
+  "title": "Chance and Samples",
+  "summary": "Populations and samples, parameters and statistics, and what makes a sample random.",
+  "type": "briefing",
+  "xp": 50,
+  "hints": [
+    "A parameter describes the whole population (Greek letters); a statistic describes a sample (Roman letters).",
+    "Random sampling doesn't guarantee a typical sample. It makes the size of chance errors predictable.",
+    "A seed fixes where R's random-number generator starts."
+  ],
+  "quiz": [
+    {
+      "prompt": "You survey 120 of a university's 9,000 doctoral students and find a mean stress score of 3.4. Which is the **statistic**?",
+      "choices": [
+        "The mean stress of all 9,000 doctoral students",
+        "The mean of 3.4 in your 120 respondents",
+        "The 9,000 students",
+        "The stress questionnaire"
+      ],
+      "answer": 1,
+      "explain": "A **statistic** (x̄ = 3.4) describes the sample you measured. The mean of all 9,000 is the **parameter** (μ), which you don't know and want to estimate. The 9,000 are the population."
+    },
+    {
+      "prompt": "You roll a fair die 60 times. Which result is most likely?",
+      "choices": [
+        "Exactly 10 sixes, every time you try it",
+        "Somewhere around 10 sixes, but rarely exactly 10",
+        "No sixes in the first five rolls means more sixes later",
+        "Exactly 1 six in every 6 rolls"
+      ],
+      "answer": 1,
+      "explain": "Probability is a **long-run proportion**: about 1/6 of rolls, give or take chance variation. A die has no memory, so a run without sixes doesn't make sixes \"due\" (the gambler's fallacy)."
+    },
+    {
+      "prompt": "Why do researchers want **random** samples?",
+      "choices": [
+        "A random sample always matches the population exactly",
+        "Random samples are always larger",
+        "Every member has a known chance of selection, so how far samples stray from the population by chance can be calculated",
+        "Randomness removes measurement error"
+      ],
+      "answer": 2,
+      "explain": "A random sample can still be unusual. What randomness buys is **predictable** chance error: its size can be worked out (the standard error), and every confidence interval and p-value rests on that. A convenience sample has no such guarantee."
+    },
+    {
+      "prompt": "What does `set.seed(2026)` do?",
+      "choices": [
+        "Makes R's random numbers truly random",
+        "Makes the next random draws come out the same every time the script is run",
+        "Draws 2,026 random numbers",
+        "Stops `sample()` from repeating values"
+      ],
+      "answer": 1,
+      "explain": "R's random numbers come from an algorithm. The seed fixes its starting point, so the same code gives the same draws, which makes a simulation or random assignment reproducible. (Use any number; just record it.)"
+    },
+    {
+      "prompt": "You pick 10 participants from a list of 200 names. Should you sample with or without replacement?",
+      "choices": [
+        "With replacement, so everyone has the same chance",
+        "Without replacement: nobody should be picked twice",
+        "It makes no difference",
+        "With replacement, because the list is short"
+      ],
+      "answer": 1,
+      "explain": "People can't take part twice, so draw without replacement: `sample(names, 10)`, R's default. With-replacement draws model processes that can repeat (die rolls) or populations so large that it doesn't matter, and they're the basis of bootstrapping."
+    },
+    {
+      "prompt": "The Crew Log holds essentially everyone who flew to space from 1961 to 2019. Is it a sample?",
+      "choices": [
+        "Yes, a random sample of astronauts",
+        "No: for that period it's close to the whole population, so its means are parameters, not estimates",
+        "No, because it has more than 30 rows",
+        "Yes, because every dataset is a sample"
+      ],
+      "answer": 1,
+      "explain": "For \"people who flew 1961–2019\", the log is nearly the whole population: its median mission length simply *is* that group's median. Sampling from it, as you'll do in the Sampling Machine, shows what a researcher with only a sample would see. Inference Station takes up what a test means for a near-complete population."
+    }
+  ]
+}

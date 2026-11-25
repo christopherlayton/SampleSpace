@@ -1,0 +1,61 @@
+{
+  "id": "inference-station.critical-forecast",
+  "title": "Critical Forecast",
+  "summary": "Predict critical t values, one- and two-sided p-values, and how false alarms add up over many tests.",
+  "type": "predict",
+  "xp": 80,
+  "hints": [
+    "`qt(0.975, df)` is the critical t for a two-sided 95% test. Bigger df, closer to 1.96.",
+    "A two-sided p counts both tails, so it's double the one-sided p for the same |t|.",
+    "The chance of no false alarm in one test at α = .05 is .95; in 20 independent tests it's .95 to the 20th."
+  ],
+  "quiz": [
+    {
+      "prompt": "Critical t values for 5, 30 and 1,000 degrees of freedom:",
+      "code": "qt(0.975, df = c(5, 30, 1000))",
+      "choices": [
+        "[1] 1.959964 1.959964 1.959964",
+        "[1] 2.570582 2.042272 1.962339",
+        "[1] 1.962339 2.042272 2.570582",
+        "[1] 2.015048 1.697261 1.646379"
+      ],
+      "answer": 1,
+      "explain": "Small samples estimate the SD poorly, so the *t* distribution has heavier tails and the critical value is larger (2.57 with 5 df). As df grows it closes in on the normal's 1.96. (The last choice is `qt(0.95, ...)`, for one-sided tests.)"
+    },
+    {
+      "prompt": "t = 2 on 30 df, two-sided:",
+      "code": "2 * pt(-2, df = 30)",
+      "choices": ["[1] 0.02731252", "[1] 0.05462504", "[1] 0.04550026", "[1] 0.9726875"],
+      "answer": 1,
+      "explain": "`pt(-2, 30)` is the area below −2, about .027; doubling adds the matching area above +2. So t = 2 on 30 df isn't quite significant two-sided (p = .055). With the normal curve instead, it would be .046."
+    },
+    {
+      "prompt": "The same t, one-sided (greater):",
+      "code": "pt(2, df = 30, lower.tail = FALSE)",
+      "choices": ["[1] 0.05462504", "[1] 0.9726875", "[1] 0.02731252", "[1] 0.1092501"],
+      "answer": 2,
+      "explain": "One tail only: half the two-sided p. The same evidence is \"significant\" one-sided and not two-sided, which is why the direction must be fixed before you look."
+    },
+    {
+      "prompt": "20 independent tests, every null hypothesis true, α = .05. How many false alarms do you expect?",
+      "code": "0.05 * 20",
+      "choices": ["[1] 0", "[1] 0.05", "[1] 1", "[1] 20"],
+      "answer": 2,
+      "explain": "Each test has a 5% false-alarm rate, so 20 tests produce one on average, with no real effect anywhere."
+    },
+    {
+      "prompt": "And the chance of **at least one** false alarm among those 20?",
+      "code": "1 - 0.95^20",
+      "choices": ["[1] 0.05", "[1] 0.3584859", "[1] 0.6415141", "[1] 1"],
+      "answer": 2,
+      "explain": "The chance that all 20 stay quiet is .95²⁰ ≈ .36, so the chance of at least one false alarm is about .64: the *familywise* error rate. This is the problem p-hacking exploits and multiple-comparison corrections fix."
+    },
+    {
+      "prompt": "Power for d = 0.5 with 64 per group (two-sided, α = .05):",
+      "code": "round(power.t.test(n = 64, delta = 0.5)$power, 2)",
+      "choices": ["[1] 0.5", "[1] 0.64", "[1] 0.8", "[1] 0.95"],
+      "answer": 2,
+      "explain": "64 per group is the classic answer for 80% power to detect a medium effect, which you found in the Power Reactor. (`sd` defaults to 1, so `delta` is d.)"
+    }
+  ]
+}

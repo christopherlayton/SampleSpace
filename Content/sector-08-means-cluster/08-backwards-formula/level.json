@@ -1,0 +1,13 @@
+{
+  "id": "means-cluster.backwards-formula",
+  "title": "Backwards Formula",
+  "summary": "Debug a t-test script: a formula the wrong way round, a package not loaded, a paired test run as independent, and a missing data argument.",
+  "type": "debug",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "\"grouping factor must have exactly 2 levels\": R thinks `anxiety_post` is the grouping variable. The outcome goes on the **left** of `~`.",
+    "`leveneTest()` comes from the car package, which the script never loads.",
+    "The pre/post test needs `paired = TRUE` (same students twice), and `cohens_d()` needs `data = survey` to find the columns."
+  ]
+}
