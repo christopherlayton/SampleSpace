@@ -1,9 +1,10 @@
 import Foundation
 import Observation
 
-/// The working state of one code or lab level: the learner's code, the last run's output, and
-/// the attempt counters that decide the stars. For a Lab level it also holds the running
-/// instrument and the lab goals reached; Check stays locked until every goal is reached.
+/// The working state of one level: the learner's code, the last run's output, and the attempt
+/// counters that decide the stars. For a Lab level it also holds the running instrument and the
+/// lab goals reached; Check stays locked until every goal is reached. For a quiz level
+/// (Briefing, Predict) it holds the answers so far and, for Predict, what R really printed.
 @MainActor @Observable
 final class LevelSession {
     enum OutputTab: String, CaseIterable, Identifiable {
@@ -55,6 +56,14 @@ final class LevelSession {
 
     enum LabStage: Hashable { case lab, r }
 
+    // Quiz
+    private(set) var quiz: QuizProgress
+    /// What R printed for each Predict question, once its answer was locked in.
+    private(set) var quizOutputs: [Int: [ConsoleEntry]] = [:]
+    /// The Predict question whose code R is running now.
+    private(set) var quizRunning: Int?
+    private var quizTask: Task<Void, Never>?
+
     private let engine: REngine?
     let engineError: String?
     private var task: Task<Void, Never>?
@@ -67,12 +76,14 @@ final class LevelSession {
         self.engine = engine
         self.engineError = engineError
         labGoals = LabGoalTracker(goals: level.lab?.goals ?? [])
+        quiz = QuizProgress(questions: level.quiz ?? [])
     }
 
     var isBusy: Bool { activity != .idle }
     var allHintsShown: Bool { hintsShown >= level.hints.count }
     var isStarterCode: Bool { code == level.starterCode }
     var isLab: Bool { level.lab != nil }
+    var isQuiz: Bool { level.type.isQuiz }
 
     /// Check is open: always for code levels; for labs once every goal is reached (or the
     /// level was cleared before).
@@ -92,7 +103,8 @@ final class LevelSession {
 
     var score: StarScore {
         StarScore(passed: true, hintsUsed: hintsShown, solutionShown: solutionShown,
-                  checkAttempts: checkAttempts, par: level.par)
+                  checkAttempts: isQuiz ? quiz.attempts : checkAttempts, par: level.par,
+                  attemptNoun: isQuiz ? "answer" : "check")
     }
 
     // MARK: Actions
@@ -164,6 +176,58 @@ final class LevelSession {
         }
     }
 
+    // MARK: Quiz
+
+    /// Picks a choice for the current question (before it is answered).
+    func select(_ choice: Int) {
+        guard !quiz.currentSolved, !quiz.wrongChoices(quiz.index).contains(choice) else { return }
+        quiz.selection = choice
+    }
+
+    /// Locks in the selected choice. A right answer to a Predict question runs its code in R so
+    /// the real output appears next to the prediction.
+    func lockInAnswer() {
+        let question = quiz.index
+        let result = quiz.lockIn()
+        guard result != .ignored else { return }
+        model?.recordCheck()
+        if result == .right { runQuizCode(question) }
+    }
+
+    func nextQuestion() { quiz.next() }
+    func goToQuestion(_ index: Int) { quiz.go(to: index) }
+
+    /// Records the clear once every question is answered.
+    func finishQuiz() {
+        guard quiz.finished, completion == nil, let model else { return }
+        let score = self.score
+        let outcome = model.recordClear(level: level, score: score, code: "", hadErrorThisAttempt: false)
+        completion = Completion(score: score, outcome: outcome)
+    }
+
+    private func runQuizCode(_ question: Int) {
+        guard let code = quiz.questions[question].code, quizOutputs[question] == nil else { return }
+        guard let engine else {
+            quizOutputs[question] = [ConsoleEntry(kind: .error, text: engineError ?? "R isn't available.")]
+            return
+        }
+        quizRunning = question
+        quizTask = Task {
+            let entries: [ConsoleEntry]
+            do {
+                entries = try await engine.run(level.job(code: code, check: false)).console
+            } catch {
+                entries = [ConsoleEntry(kind: .error, text: error.localizedDescription)]
+            }
+            guard !Task.isCancelled else { return }
+            quizOutputs[question] = entries
+            if quizRunning == question { quizRunning = nil }
+        }
+    }
+
+    /// Waits for a Predict question's R run (for tests).
+    func waitForQuizRun() async { await quizTask?.value }
+
     func showHint() {
         guard !allHintsShown else { return }
         hintsShown += 1
@@ -196,12 +260,15 @@ final class LevelSession {
         hadErrorThisAttempt = false
         completion = nil
         outputTab = .console
+        quiz = QuizProgress(questions: level.quiz ?? [])
     }
 
     /// Stops a run in progress (R is killed by the engine).
     func cancel() {
         task?.cancel()
         task = nil
+        quizTask?.cancel()
+        quizRunning = nil
         instrument?.stop()
         generation += 1
         if activity != .idle {

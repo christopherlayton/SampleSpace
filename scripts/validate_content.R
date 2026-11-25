@@ -4,6 +4,12 @@
 # For each level:  level.json is valid, the files exist, the id is unique, `unlocks`
 #                  points at real levels, solution.R passes check.R with no check
 #                  errors, and starter.R does NOT pass (otherwise the level is free).
+# Quiz levels (briefing, predict): no R files needed; every question has a prompt, at
+#                  least two choices and a valid 0-based answer; Predict questions have code,
+#                  which must run, and (unless "match_output": false) R's printed output must
+#                  match the right choice and no other choice.
+# SPSS Translate:  an "spss" object with a menu path and output tables whose rows have as
+#                  many cells as there are columns.
 #
 # Usage: Rscript validate_content.R <repo root> [level id or folder name filter]
 
@@ -17,6 +23,8 @@ rscript <- file.path(R.home("bin"), "Rscript")
 
 level_types <- c("briefing", "code", "predict", "debug", "spss_translate", "lab", "boss")
 level_files <- c("level.json", "lesson.md", "starter.R", "solution.R", "check.R")
+quiz_files <- c("level.json", "lesson.md")
+quiz_types <- c("briefing", "predict")
 sector_keys <- c("id", "name", "r_skills", "stats_concepts", "hue", "map_position", "planet_size",
                  "briefing", "log")  # story fields: see STORY.md
 level_keys <- c("id", "title", "type", "xp")
@@ -87,6 +95,67 @@ check_lab <- function(lab, where) {
   }
 }
 
+# What the console shows for a run, as the app prints it (output, warnings and errors).
+console_text <- function(result) {
+  lines <- vapply(result$console, function(e) {
+    switch(e$type,
+      output = e$text,
+      warning = if (is.null(e$call)) paste("Warning:", e$text) else sprintf("Warning in %s: %s", e$call, e$text),
+      error = if (is.null(e$call)) paste("Error:", e$text) else sprintf("Error in %s: %s", e$call, e$text),
+      "")
+  }, "")
+  paste(lines[nzchar(lines)], collapse = "\n")
+}
+squash <- function(x) gsub("\\s+", " ", trimws(x))
+
+check_quiz <- function(raw, meta, level_dir, where) {
+  quiz <- raw$quiz
+  if (!is.list(quiz) || length(quiz) == 0) return(problem(where, sprintf("a %s level needs a \"quiz\" list", meta$type)))
+  for (i in seq_along(quiz)) {
+    q <- quiz[[i]]
+    tag <- sprintf("question %d", i)
+    if (!nzchar(q$prompt %||% "")) problem(where, paste(tag, "has no prompt"))
+    choices <- unlist(q$choices)
+    if (length(choices) < 2) { problem(where, paste(tag, "needs at least two choices")); next }
+    if (anyDuplicated(choices)) problem(where, paste(tag, "has duplicate choices"))
+    answer <- q$answer
+    if (!is.numeric(answer) || answer < 0 || answer >= length(choices)) {
+      problem(where, sprintf("%s: answer %s isn't a 0-based index into its %d choices", tag, answer %||% "?", length(choices)))
+      next
+    }
+    if (identical(meta$type, "predict") && is.null(q$code)) problem(where, paste(tag, "needs code to predict"))
+    if (is.null(q$code)) next
+    result <- run_job(level_dir, q$code, NULL, meta)
+    shown <- console_text(result)
+    if (identical(result$status, "runner_error")) {
+      problem(where, sprintf("%s: the code couldn't run\n      %s", tag, shown))
+    } else if (!isFALSE(q$match_output)) {
+      matches <- which(squash(choices) == squash(shown))
+      if (!(answer + 1) %in% matches) {
+        problem(where, sprintf("%s: R prints\n        %s\n      but the right choice is\n        %s",
+                               tag, gsub("\n", "\n        ", shown), choices[answer + 1]))
+      } else if (length(matches) > 1) {
+        problem(where, paste(tag, "has more than one choice matching R's output"))
+      }
+    }
+  }
+}
+
+check_spss <- function(spss, where) {
+  if (is.null(spss)) return(problem(where, "an SPSS Translate level needs an \"spss\" object"))
+  if (length(spss$menu) == 0) problem(where, "spss.menu is empty")
+  if (length(spss$output) == 0) problem(where, "spss.output has no tables")
+  for (t in spss$output) {
+    n <- length(t$columns)
+    if (!nzchar(t$title %||% "")) problem(where, "an SPSS table has no title")
+    widths <- vapply(t$rows, length, 1L)
+    if (any(widths != n)) problem(where, sprintf("SPSS table \"%s\": rows need %d cells", t$title %||% "?", n))
+    if (!is.null(t$groups) && sum(vapply(t$groups, function(g) g$span, 1)) != n) {
+      problem(where, sprintf("SPSS table \"%s\": header groups must span %d columns", t$title %||% "?", n))
+    }
+  }
+}
+
 sector_dirs <- sort(list.dirs(content_dir, recursive = FALSE))
 sector_dirs <- sector_dirs[startsWith(basename(sector_dirs), "sector-")]
 levels_seen <- list()  # id -> where
@@ -141,6 +210,18 @@ for (sector_dir in sector_dirs) {
     if (!is.null(meta$xp) && (!is.numeric(meta$xp) || meta$xp <= 0)) problem(where, "xp must be a positive number")
     if (!is.null(meta$hints) && !is.character(meta$hints)) problem(where, "hints must be a list of strings")
     if (identical(meta$type, "lab")) check_lab(meta$lab, where)
+    raw <- jsonlite::fromJSON(file.path(level_dir, "level.json"), simplifyVector = FALSE)
+    if (identical(meta$type, "spss_translate")) check_spss(raw$spss, where)
+
+    if (isTRUE(meta$type %in% quiz_types)) {
+      missing_files <- quiz_files[!file.exists(file.path(level_dir, quiz_files))]
+      if (length(missing_files)) problem(where, paste("missing files:", paste(missing_files, collapse = ", ")))
+      check_quiz(raw, meta, level_dir, where)
+      if (length(problems) == problems_before) {
+        cat(sprintf("  ✓ %d quiz questions are consistent\n", length(raw$quiz)))
+      }
+      next
+    }
 
     missing_files <- level_files[!file.exists(file.path(level_dir, level_files))]
     if (length(missing_files)) {

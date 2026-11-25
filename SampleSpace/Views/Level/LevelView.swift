@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// A code level: the briefing on the left, the editor and its output on the right.
+/// A level: the briefing on the left, the editor and its output on the right.
 /// A lab level puts the instrument and its goals on the right first, then hands off to the
-/// editor ("now do it in R") once the goals are reached.
+/// editor ("now do it in R") once the goals are reached. Briefing and Predict levels put a
+/// quiz on the right instead of the editor; Debug levels add a bug report over the editor.
 struct LevelView: View {
     let level: Level
     @Environment(GameModel.self) private var model
@@ -19,7 +20,9 @@ struct LevelView: View {
                     .background(.ultraThinMaterial)
 
                 Group {
-                    if session.isLab {
+                    if session.isQuiz {
+                        QuizView(session: session, onShowSolution: { confirmSolution = true })
+                    } else if session.isLab {
                         VStack(spacing: 0) {
                             LabStageBar(session: session)
                             Divider()
@@ -59,11 +62,26 @@ struct LevelView: View {
         } message: {
             Text("Your code in the editor will be replaced. You can undo with ⌘Z.")
         }
-        .confirmationDialog("Show the solution?", isPresented: $confirmSolution) {
-            Button("Show Solution") { session.showSolution() }
+        .confirmationDialog(session.isQuiz ? "Mark the right answers?" : "Show the solution?",
+                            isPresented: $confirmSolution) {
+            Button(session.isQuiz ? "Mark Answers" : "Show Solution") { session.showSolution() }
         } message: {
             Text("You can still finish the level, but this attempt will earn at most one star.")
         }
+    }
+
+    private var bugReport: some View {
+        Label {
+            Text("**Bug report:** this code is broken. Run it, read what R says, and fix it. Reset brings the broken version back.")
+                .fixedSize(horizontal: false, vertical: true)
+        } icon: {
+            Image(systemName: "ladybug.fill").foregroundStyle(Theme.fail)
+        }
+        .font(.callout)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.fail.opacity(0.1))
     }
 
     private func codeWorkspace(_ session: LevelSession) -> some View {
@@ -71,6 +89,7 @@ struct LevelView: View {
             VStack(spacing: 0) {
                 actionBar(session)
                 Divider()
+                if level.type == .debug { bugReport }
                 CodeEditor(text: Bindable(session).code)
             }
             .frame(minHeight: 220, idealHeight: 380)
@@ -124,7 +143,7 @@ struct LevelView: View {
                 Label("Reset", systemImage: "arrow.counterclockwise")
             }
             .disabled(session.isStarterCode)
-            .help("Put the starter code back")
+            .help(level.type == .debug ? "Put the broken code back" : "Put the starter code back")
 
             Spacer()
 

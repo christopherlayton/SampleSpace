@@ -53,17 +53,34 @@ struct ContentLibrary: Sendable {
 
     private static func loadLevel(at folder: URL) throws -> Level {
         let file: LevelFile = try decode(folder.appending(path: "level.json"))
+        let json = folder.appending(path: "level.json").path
         if file.type == .lab, file.lab == nil {
-            throw ContentError.badJSON(folder.appending(path: "level.json").path, "a lab level needs a \"lab\" object")
+            throw ContentError.badJSON(json, "a lab level needs a \"lab\" object")
         }
+        if file.type.isQuiz, (file.quiz ?? []).isEmpty {
+            throw ContentError.badJSON(json, "a \(file.type.rawValue) level needs a \"quiz\" list")
+        }
+        for question in file.quiz ?? [] where !question.choices.indices.contains(question.answer) {
+            throw ContentError.badJSON(json, "quiz answer \(question.answer) is not one of the choices")
+        }
+        if file.type == .spssTranslate, file.spss == nil {
+            throw ContentError.badJSON(json, "an SPSS Translate level needs an \"spss\" object")
+        }
+        // Quiz levels don't use the editor, so their R files are optional.
+        func code(_ name: String) throws -> String {
+            file.type.isQuiz ? ((try? text(folder, name)) ?? "") : try text(folder, name)
+        }
+        // Quiz levels default to par = one answer per question (every one right first time).
+        let par = file.par ?? (file.type.isQuiz ? file.quiz?.count ?? 2 : 2)
         return Level(
             id: file.id, title: file.title, summary: file.summary ?? "", type: file.type,
-            xp: file.xp, par: file.par ?? 2, hints: file.hints ?? [], unlocks: file.unlocks,
-            timeLimit: file.timeLimit ?? 10, seed: file.seed, lab: file.lab,
+            xp: file.xp, par: par, hints: file.hints ?? [], unlocks: file.unlocks,
+            timeLimit: file.timeLimit ?? 10, seed: file.seed, lab: file.lab, quiz: file.quiz,
+            spss: file.spss,
             lesson: try text(folder, "lesson.md"),
-            starterCode: try text(folder, "starter.R"),
-            solutionCode: try text(folder, "solution.R"),
-            checkCode: try text(folder, "check.R"),
+            starterCode: try code("starter.R"),
+            solutionCode: try code("solution.R"),
+            checkCode: try code("check.R"),
             setupCode: try? text(folder, "setup.R"),
             folder: folder)
     }
@@ -142,4 +159,6 @@ private struct LevelFile: Decodable {
     let timeLimit: Double?
     let seed: Int?
     let lab: LabSpec?
+    let quiz: [QuizQuestion]?
+    let spss: SPSSPanel?
 }

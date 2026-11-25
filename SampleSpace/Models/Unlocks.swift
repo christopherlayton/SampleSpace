@@ -4,7 +4,8 @@ import Foundation
 ///
 /// - Sector 0 is always open. Each later sector opens when the one before it is charted
 ///   (it has levels and all are cleared). A sector whose levels aren't written yet blocks
-///   the ones after it until it gets content.
+///   the ones after it until it gets content. A sector you have already cleared a level in
+///   stays open, so adding levels to an earlier sector never locks away progress.
 /// - In an open sector the first level is open; clearing a level opens the ones it
 ///   `unlocks` (by default the next level in its sector). Cleared levels stay open.
 struct UnlockState: Equatable, Sendable {
@@ -30,7 +31,8 @@ struct UnlockState: Equatable, Sendable {
         var previousCharted = true
         for sector in sectors {
             let charted = !sector.levels.isEmpty && sector.levels.allSatisfy { cleared.contains($0.id) }
-            guard previousCharted else {
+            let started = sector.levels.contains { cleared.contains($0.id) }
+            guard previousCharted || started else {
                 statuses[sector.id] = .locked
                 continue
             }

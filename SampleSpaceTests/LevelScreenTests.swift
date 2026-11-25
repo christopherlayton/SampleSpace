@@ -188,10 +188,10 @@ struct LevelSessionTests {
         #expect(completion.outcome.firstClear)
         #expect(completion.outcome.xpGained == session.level.xp + XP.perBonusStar)
         #expect(completion.outcome.newBadges.map(\.id) == ["lift-off"])
-        #expect(completion.outcome.opened == ["Storing Cargo"])
+        #expect(completion.outcome.opened == ["Reading the Console"])
         #expect(model.bestStars("launch-pad.calculator-console") == 2)
         #expect(model.player.xp == session.level.xp + XP.perBonusStar)
-        #expect(model.nextLevel(after: session.level)?.id == "launch-pad.storing-cargo")
+        #expect(model.nextLevel(after: session.level)?.id == "launch-pad.reading-the-console")
 
         // A replay that does better raises the best score and earns only the extra star's XP.
         session.replay()

@@ -17,6 +17,7 @@ struct ContentLibraryTests {
         let launchPad = try #require(try ContentLibrary.loadBundled().sectors.first)
         #expect(launchPad.levels.map(\.id) == [
             "launch-pad.calculator-console",
+            "launch-pad.reading-the-console",
             "launch-pad.storing-cargo",
             "launch-pad.function-thrusters",
             "launch-pad.ships-manual",
@@ -26,13 +27,13 @@ struct ContentLibraryTests {
 
     @Test func firstThreeSectorsAreCharted() throws {
         let sectors = try ContentLibrary.loadBundled().sectors
-        #expect(sectors.prefix(3).map(\.levels.count) == [5, 10, 10])
+        #expect(sectors.prefix(3).map(\.levels.count) == [6, 11, 12])
         for level in sectors.prefix(3).flatMap(\.levels) {
-            #expect(level.type == .code, "\(level.id)")
+            #expect(level.type.isPlayable && level.type != .lab, "\(level.id)")
             #expect(level.xp > 0, "\(level.id)")
             #expect(level.hints.count >= 3, "\(level.id)")
             #expect(level.lesson.hasPrefix("# \(level.title)\n"), "\(level.id): lesson should start with its title")
-            #expect(!level.checkCode.isEmpty, "\(level.id)")
+            #expect(level.type.isQuiz ? !(level.quiz ?? []).isEmpty : !level.checkCode.isEmpty, "\(level.id)")
         }
     }
 
@@ -69,7 +70,7 @@ struct ContentLibraryTests {
     @Test(.timeLimit(.minutes(2)))
     func everySolutionPassesThroughTheEngine() async throws {
         let engine = try REngine()
-        for level in try ContentLibrary.loadBundled().levels {
+        for level in try ContentLibrary.loadBundled().levels where !level.type.isQuiz {
             let solved = try await engine.run(level.job(code: level.solutionCode))
             #expect(solved.passed, "\(level.id): \(solved.checks.filter { !$0.passed }.map(\.label))")
             #expect(!solved.hasInternalCheckErrors, "\(level.id)")
@@ -77,6 +78,66 @@ struct ContentLibraryTests {
             let starter = try await engine.run(level.job(code: level.starterCode))
             #expect(!starter.passed, "\(level.id): starter code shouldn't pass")
         }
+    }
+
+    /// Predict questions: what the app's console shows must be the right choice, and only that one.
+    @Test(.timeLimit(.minutes(1)))
+    func predictionsMatchWhatTheConsoleShows() async throws {
+        let engine = try REngine()
+        let levels = try ContentLibrary.loadBundled().levels.filter { $0.type == .predict }
+        #expect(!levels.isEmpty)
+        func squash(_ s: String) -> String {
+            s.split(whereSeparator: \.isWhitespace).joined(separator: " ")
+        }
+        for level in levels {
+            for (index, question) in (level.quiz ?? []).enumerated() where question.matchOutput != false {
+                let code = try #require(question.code, "\(level.id) q\(index + 1) has no code")
+                let console = try await engine.run(level.job(code: code, check: false)).console
+                let shown = squash(console.filter { $0.kind != .input && $0.kind != .message }
+                    .map(\.consoleText).joined(separator: "\n"))
+                let matching = question.choices.indices.filter { squash(question.choices[$0]) == shown }
+                #expect(matching == [question.answer], "\(level.id) q\(index + 1): R shows \(shown)")
+            }
+        }
+    }
+
+    @Test func quizLevelsNeedNoRFiles() throws {
+        let folder = try makeContent { root in
+            try write(root, "sector-00-test/sector.json", sectorJSON(id: 0))
+            try write(root, "sector-00-test/01-q/level.json", #"""
+                {"id": "q", "title": "Q", "type": "briefing", "xp": 10,
+                 "quiz": [{"prompt": "?", "choices": ["a", "b"], "answer": 1}]}
+                """#)
+            try write(root, "sector-00-test/01-q/lesson.md", "# Q\n")
+        }
+        let level = try #require(try ContentLibrary.load(from: folder).levels.first)
+        #expect(level.type.isQuiz)
+        #expect(level.par == 1, "par defaults to one answer per question")
+        #expect(level.checkCode.isEmpty)
+    }
+
+    @Test func rejectsAQuizWithABadAnswer() throws {
+        let folder = try makeContent { root in
+            try write(root, "sector-00-test/sector.json", sectorJSON(id: 0))
+            try write(root, "sector-00-test/01-q/level.json", #"""
+                {"id": "q", "title": "Q", "type": "predict", "xp": 10,
+                 "quiz": [{"prompt": "?", "code": "1", "choices": ["a", "b"], "answer": 2}]}
+                """#)
+            try write(root, "sector-00-test/01-q/lesson.md", "# Q\n")
+        }
+        #expect(throws: ContentError.self) { try ContentLibrary.load(from: folder) }
+    }
+
+    @Test func spssLevelsLoadTheirPanel() throws {
+        let level = try #require(try ContentLibrary.loadBundled().level(id: "data-frame-docks.frequency-translator"))
+        let spss = try #require(level.spss)
+        #expect(spss.menu.first == "Analyze")
+        #expect(spss.output.count == 3)
+        for table in spss.output {
+            #expect(table.rows.allSatisfy { $0.count == table.columns.count }, "\(table.title)")
+        }
+        #expect(level.lesson.contains("{{spss}}"))
+        #expect(MarkdownBlock.parse(level.lesson).contains(.placeholder("spss")))
     }
 
     @Test func levelDataFilesAreCopiedIntoTheWorkingDirectory() async throws {

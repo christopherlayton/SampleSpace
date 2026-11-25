@@ -1,0 +1,13 @@
+{
+  "id": "data-frame-docks.hull-breach",
+  "title": "Hull Breach",
+  "summary": "Debug a broken script: a missing library(), = vs ==, capitals and a missing na.rm.",
+  "type": "debug",
+  "xp": 100,
+  "par": 3,
+  "hints": [
+    "Fix the first problem R reports, then run again. `=` assigns; comparing needs `==`.",
+    "`read_csv()` lives in readr, which has to be loaded. Then compare the spellings with `unique(survey$group)` and `names(survey)`.",
+    "A column that doesn't exist gives `NULL` from `$` without an error. And three post-test scores are missing, so both means need `na.rm = TRUE`."
+  ]
+}

@@ -11,9 +11,14 @@ struct LessonView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     header
-                    MarkdownView(markdown: level.lesson)
+                    MarkdownView(markdown: level.lesson) { name in
+                        if name == "spss", let spss = level.spss { AnyView(SPSSPanelView(panel: spss)) } else { nil }
+                    }
+                    if let spss = level.spss, !level.lesson.contains("{{spss}}") {
+                        SPSSPanelView(panel: spss)
+                    }
                     hints
-                    if session.solutionShown { solution.id("solution") }
+                    if session.solutionShown, !level.solutionCode.isEmpty { solution.id("solution") }
                 }
                 .padding(20)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -96,10 +101,13 @@ private struct TintedIconLabel: LabelStyle {
 /// call-outs), tables and highlighted R code blocks.
 struct MarkdownView: View {
     let markdown: String
+    /// What to show at a `{{name}}` placeholder line (nothing if it returns nil).
+    var slot: (String) -> AnyView?
     private let blocks: [MarkdownBlock]
 
-    init(markdown: String) {
+    init(markdown: String, slot: @escaping (String) -> AnyView? = { _ in nil }) {
         self.markdown = markdown
+        self.slot = slot
         blocks = MarkdownBlock.parse(markdown)
     }
 
@@ -143,6 +151,8 @@ struct MarkdownView: View {
             table(header: header, rows: rows)
         case .rule:
             Divider()
+        case .placeholder(let name):
+            if let view = slot(name) { view }
         }
     }
 

@@ -5,7 +5,8 @@ import Foundation
 /// rendered later with `AttributedString(markdown:)`.
 ///
 /// Supported: `#` headings, paragraphs, fenced code blocks, `-`/`*` and `1.` lists,
-/// `>` quotes, pipe tables and `---` rules.
+/// `>` quotes, pipe tables and `---` rules. A line that is only `{{name}}` is a placeholder
+/// where the lesson view inserts something of its own (e.g. `{{spss}}` for the SPSS panel).
 enum MarkdownBlock: Hashable, Sendable {
     case heading(level: Int, text: String)
     case paragraph(String)
@@ -15,6 +16,7 @@ enum MarkdownBlock: Hashable, Sendable {
     case quote(String)
     case table(header: [String], rows: [[String]])
     case rule
+    case placeholder(String)
 
     static func parse(_ markdown: String) -> [MarkdownBlock] {
         let lines = markdown.replacingOccurrences(of: "\r\n", with: "\n")
@@ -48,6 +50,9 @@ enum MarkdownBlock: Hashable, Sendable {
 
             if trimmed.isEmpty {
                 flushParagraph()
+            } else if trimmed.hasPrefix("{{"), trimmed.hasSuffix("}}"), trimmed.count > 4 {
+                flushParagraph()
+                blocks.append(.placeholder(String(trimmed.dropFirst(2).dropLast(2)).trimmingCharacters(in: .whitespaces)))
             } else if let level = headingLevel(trimmed) {
                 flushParagraph()
                 blocks.append(.heading(level: level, text: String(trimmed.dropFirst(level + 1))))

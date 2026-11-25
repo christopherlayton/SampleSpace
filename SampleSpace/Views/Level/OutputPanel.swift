@@ -109,7 +109,7 @@ struct ConsoleView: View {
     }
 }
 
-private struct ConsoleLine: View {
+struct ConsoleLine: View {
     let entry: ConsoleEntry
 
     var body: some View {

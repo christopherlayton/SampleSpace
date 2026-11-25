@@ -26,7 +26,7 @@ survey <- data.frame(
 survey$anxiety_post[c(7, 19, 33)] <- NA   # three students missed the post-test
 survey$satisfaction[c(12, 27)] <- NA
 survey$age[24] <- NA
-for (level in c("06-read-csv", "10-docking-review")) {
+for (level in c("06-read-csv", "07-hull-breach", "12-docking-review")) {
   write.csv(survey, file.path(docks, level, "wellbeing_survey.csv"), row.names = FALSE, na = "")
 }
 
@@ -48,7 +48,7 @@ teach <- data.frame(
                                    "Very" = 4, "Extremely" = 5, "No answer" = 9),
                                  na_values = 9, label = "Exam anxiety")
 )
-for (level in c("07-read-sav", "08-value-labels")) {
+for (level in c("08-read-sav", "09-value-labels", "10-frequency-translator")) {
   haven::write_sav(teach, file.path(docks, level, "teaching_study.sav"))
 }
 cat("Wrote wellbeing_survey.csv and teaching_study.sav\n")

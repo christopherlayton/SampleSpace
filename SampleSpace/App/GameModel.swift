@@ -76,8 +76,8 @@ final class GameModel {
 
     func isOpen(_ level: Level) -> Bool { unlocks.openLevels.contains(level.id) }
 
-    /// Open, and of a type the app can play yet (Code and Lab levels so far).
-    func isPlayable(_ level: Level) -> Bool { [.code, .lab].contains(level.type) && isOpen(level) }
+    /// Open, and of a type the app can play yet (everything but Boss levels).
+    func isPlayable(_ level: Level) -> Bool { level.type.isPlayable && isOpen(level) }
 
     /// Every Lab level, for the Lab Bay's free-play instruments.
     var labLevels: [Level] { (library?.levels ?? []).filter { $0.lab != nil } }

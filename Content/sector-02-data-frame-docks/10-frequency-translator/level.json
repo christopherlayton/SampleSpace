@@ -1,0 +1,57 @@
+{
+  "id": "data-frame-docks.frequency-translator",
+  "title": "Frequency Translator",
+  "summary": "Rebuild an SPSS Frequencies table in R: counts, Percent and Valid Percent.",
+  "type": "spss_translate",
+  "xp": 120,
+  "par": 3,
+  "hints": [
+    "The Frequency column is `table(teach_f$method)`. Missing values: `sum(is.na(teach_f$anxiety))`.",
+    "Percent divides by **every** case: `100 * table(teach_f$anxiety) / nrow(teach_f)`. Wrap it in `round(..., 1)`.",
+    "Valid Percent divides by the answered cases only, which is what `prop.table()` does: `round(100 * prop.table(table(teach_f$anxiety)), 1)`."
+  ],
+  "spss": {
+    "menu": ["Analyze", "Descriptive Statistics", "Frequencies…"],
+    "dialog": [
+      { "label": "Variable(s)", "value": "Teaching method [method], Exam anxiety [anxiety]" },
+      { "label": "Display frequency tables", "value": "On" }
+    ],
+    "syntax": "FREQUENCIES VARIABLES=method anxiety\n  /ORDER=ANALYSIS.",
+    "output": [
+      {
+        "title": "Statistics",
+        "columns": ["", "", "Teaching method", "Exam anxiety"],
+        "row_header_columns": 2,
+        "rows": [
+          ["N", "Valid", "30", "28"],
+          ["", "Missing", "0", "2"]
+        ]
+      },
+      {
+        "title": "Teaching method",
+        "columns": ["", "", "Frequency", "Percent", "Valid Percent", "Cumulative Percent"],
+        "row_header_columns": 2,
+        "rows": [
+          ["Valid", "Lecture", "15", "50.0", "50.0", "50.0"],
+          ["", "Active learning", "15", "50.0", "50.0", "100.0"],
+          ["", "Total", "30", "100.0", "100.0", ""]
+        ]
+      },
+      {
+        "title": "Exam anxiety",
+        "columns": ["", "", "Frequency", "Percent", "Valid Percent", "Cumulative Percent"],
+        "row_header_columns": 2,
+        "rows": [
+          ["Valid", "Not at all", "7", "23.3", "25.0", "25.0"],
+          ["", "A little", "1", "3.3", "3.6", "28.6"],
+          ["", "Moderately", "6", "20.0", "21.4", "50.0"],
+          ["", "Very", "8", "26.7", "28.6", "78.6"],
+          ["", "Extremely", "6", "20.0", "21.4", "100.0"],
+          ["", "Total", "28", "93.3", "100.0", ""],
+          ["Missing", "No answer", "2", "6.7", "", ""],
+          ["Total", "", "30", "100.0", "", ""]
+        ]
+      }
+    ]
+  }
+}

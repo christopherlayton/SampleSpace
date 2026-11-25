@@ -1,0 +1,58 @@
+{
+  "id": "launch-pad.reading-the-console",
+  "title": "Reading the Console",
+  "summary": "Prompts, [1], errors, warnings and messages: what R is telling you.",
+  "type": "briefing",
+  "xp": 40,
+  "hints": [
+    "The number in square brackets counts *values*, not lines.",
+    "A `+` prompt appears when R thinks the expression isn't finished yet.",
+    "An error stops the code; a warning lets it finish but flags something odd."
+  ],
+  "quiz": [
+    {
+      "prompt": "R prints a long result over two lines, and the second line starts with `[15]`. What does `[15]` mean?",
+      "choices": [
+        "The line starts with the 15th value of the result",
+        "The result has 15 values",
+        "There is a problem on line 15 of your code",
+        "R needed 15 lines to print it"
+      ],
+      "answer": 0,
+      "explain": "The bracketed number is the **position** of the first value on that line, so you can count along a long vector. A single number prints with `[1]` because it is a vector of length one."
+    },
+    {
+      "prompt": "You press Return and the prompt changes from `>` to `+`. What happened?",
+      "choices": [
+        "R added your result to the previous one",
+        "R is waiting for the rest of an unfinished expression, such as a missing `)` or `\"`",
+        "R found an error in your code",
+        "R is still busy running a long calculation"
+      ],
+      "answer": 1,
+      "explain": "`+` is R's *continuation* prompt. Finish the expression (often a closing bracket or quote), or press **Esc** in a desktop console to abandon it. In Sample Space each Run sends the whole script, so an unclosed bracket shows up as an error instead."
+    },
+    {
+      "prompt": "`mean(c(2, \"a\"))` prints `[1] NA` and a **warning**: *argument is not numeric or logical: returning NA*. What is true?",
+      "choices": [
+        "Nothing ran, because of the warning",
+        "Warnings are safe to ignore",
+        "The code ran, but R is telling you the result is probably not what you wanted",
+        "R fixed the problem by dropping the \"a\""
+      ],
+      "answer": 2,
+      "explain": "An **error** stops the code. A **warning** lets it finish but flags something suspicious, here a text value where a number was expected. Read every warning: many wrong results in published analyses started as an ignored warning."
+    },
+    {
+      "prompt": "You type `Mean(scores)` and R says `could not find function \"Mean\"`. What is the most likely cause?",
+      "choices": [
+        "`scores` doesn't exist yet",
+        "R is case-sensitive: the function is `mean`, with a lower-case m",
+        "The mean package isn't installed",
+        "`mean()` only works on data frames"
+      ],
+      "answer": 1,
+      "explain": "R names are **case-sensitive**: `mean`, `Mean` and `MEAN` are three different names. If `scores` were missing instead, the error would be *object 'scores' not found*."
+    }
+  ]
+}

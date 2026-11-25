@@ -1,7 +1,12 @@
 import Foundation
 
-/// The kinds of level in the plan. `.code` and `.lab` are playable; the others arrive in
-/// later steps (Briefing/Predict/Debug/SPSS Translate in Step 8, Boss in Step 14).
+/// The kinds of level in the plan. All but `.boss` (Step 14) are playable.
+///
+/// - Code, Debug and SPSS Translate levels are played in the editor and checked by `check.R`.
+///   A Debug level's starter is broken code to fix; an SPSS Translate level shows SPSS output
+///   (the `spss` object) to reproduce in R.
+/// - Briefing and Predict levels are quizzes (the `quiz` list); they need no R files.
+/// - Lab levels have an instrument and goals (the `lab` object), then an R hand-off.
 enum LevelType: String, Sendable, Codable, CaseIterable {
     case briefing, code, predict, debug
     case spssTranslate = "spss_translate"
@@ -30,6 +35,12 @@ enum LevelType: String, Sendable, Codable, CaseIterable {
         case .boss: "flag.checkered"
         }
     }
+
+    /// Played as multiple-choice questions rather than in the editor.
+    var isQuiz: Bool { self == .briefing || self == .predict }
+
+    /// The app can play this type (Boss levels arrive in Step 14).
+    var isPlayable: Bool { self != .boss }
 }
 
 /// One level, loaded from a folder under its sector:
@@ -41,6 +52,10 @@ enum LevelType: String, Sendable, Codable, CaseIterable {
 ///     check.R      checks, using the helpers in R/checks.R
 ///     setup.R      optional: run silently before the learner's code (e.g. load data)
 ///
+/// Briefing and Predict levels have a `quiz` list in level.json instead of R files (see
+/// `QuizQuestion`); their starter/solution/check files are optional and unused.
+/// SPSS Translate levels have an `spss` object (see `SPSSPanel`), shown where lesson.md has a
+/// `{{spss}}` line (or after the lesson if it has none).
 /// A Lab level (`"type": "lab"`) also has a `lab` object in level.json (see `LabSpec`): the
 /// instrument and its goals. Its starter/solution/check files are the "now do it in R" hand-off.
 struct Level: Identifiable, Hashable, Sendable {
@@ -58,6 +73,10 @@ struct Level: Identifiable, Hashable, Sendable {
     let seed: Int?
     /// The instrument and goals, for Lab levels.
     var lab: LabSpec? = nil
+    /// The questions, for Briefing and Predict levels.
+    var quiz: [QuizQuestion]? = nil
+    /// The SPSS menu path, syntax and output, for SPSS Translate levels.
+    var spss: SPSSPanel? = nil
 
     let lesson: String
     let starterCode: String

@@ -1,0 +1,74 @@
+{
+  "id": "vector-belt.coercion-forecast",
+  "title": "Coercion Forecast",
+  "summary": "Predict what R prints when types mix, logicals are added up and NAs appear.",
+  "type": "predict",
+  "xp": 75,
+  "hints": [
+    "A vector holds one type. The order is logical → numeric → character: R moves everything to the most flexible type present.",
+    "As numbers, `TRUE` is 1 and `FALSE` is 0.",
+    "Any calculation with `NA` in it gives `NA` unless you ask R to skip missing values."
+  ],
+  "quiz": [
+    {
+      "prompt": "What does R print?",
+      "code": "c(1, \"a\", TRUE)",
+      "choices": [
+        "[1] 1 \"a\" TRUE",
+        "[1] \"1\"    \"a\"    \"TRUE\"",
+        "Error: a vector can't mix types",
+        "[1] 1 NA 1"
+      ],
+      "answer": 1,
+      "explain": "One character value makes the whole vector character, so `1` becomes `\"1\"` and `TRUE` becomes `\"TRUE\"`. The quotes in the output are the giveaway."
+    },
+    {
+      "prompt": "No text this time. What does R print?",
+      "code": "c(1, TRUE, FALSE)",
+      "choices": [
+        "[1] 1 TRUE FALSE",
+        "[1] TRUE TRUE FALSE",
+        "[1] 1 1 0",
+        "[1] \"1\" \"TRUE\" \"FALSE\""
+      ],
+      "answer": 2,
+      "explain": "Numeric is more flexible than logical, so the logicals become numbers: `TRUE` is 1 and `FALSE` is 0."
+    },
+    {
+      "prompt": "Four pilots answered a yes/no item. What does R print?",
+      "code": "passed <- c(TRUE, FALSE, TRUE, TRUE)\nsum(passed)\nmean(passed)",
+      "choices": [
+        "[1] 3\n[1] 0.75",
+        "[1] TRUE\n[1] TRUE",
+        "[1] 4\n[1] 1",
+        "Error: invalid 'type' (logical) of argument"
+      ],
+      "answer": 0,
+      "explain": "`sum()` of a logical vector **counts** the `TRUE`s and `mean()` gives the **proportion** that are `TRUE`. You'll use this all the time: `mean(scores > 50)` is the proportion above 50."
+    },
+    {
+      "prompt": "A column of ages was typed with one word in it. What does R print?",
+      "code": "as.numeric(c(\"24\", \"twenty\", \"31\"))",
+      "choices": [
+        "[1] 24 20 31",
+        "Error: \"twenty\" is not a number",
+        "[1] 24  0 31",
+        "Warning: NAs introduced by coercion\n[1] 24 NA 31"
+      ],
+      "answer": 3,
+      "explain": "R can't turn `\"twenty\"` into a number, so it becomes `NA` and R **warns** you. That warning is how you find typing errors after an import."
+    },
+    {
+      "prompt": "One score is missing. What does R print?",
+      "code": "scores <- c(12, NA, 18)\nmean(scores)\nmean(scores, na.rm = TRUE)",
+      "choices": [
+        "[1] 15\n[1] 15",
+        "[1] NA\n[1] 15",
+        "[1] 10\n[1] 15",
+        "[1] NA\n[1] 10"
+      ],
+      "answer": 1,
+      "explain": "`NA` means \"unknown\", so a mean that includes it is unknown too. `na.rm = TRUE` drops the missing value first and averages the two that remain: (12 + 18) / 2 = 15. SPSS drops missing values for you; R makes you say so."
+    }
+  ]
+}

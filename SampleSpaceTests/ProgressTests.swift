@@ -67,6 +67,20 @@ struct UnlockTests {
         #expect(state.sectorStatus[3] == .locked)
     }
 
+    @Test func aStartedSectorStaysOpenWhenLevelsAreAddedBeforeIt() {
+        // Sector 0 gained a new level (a4) after the pilot had moved on to sector 1.
+        let grown = [
+            Fixture.sector(0, [Fixture.level("a1"), Fixture.level("a2"), Fixture.level("a3"), Fixture.level("a4")]),
+            Fixture.sector(1, [Fixture.level("b1"), Fixture.level("b2")]),
+            Fixture.sector(3, [Fixture.level("d1")]),
+        ]
+        let state = UnlockState.compute(sectors: grown, cleared: ["a1", "a2", "a3", "b1"])
+        #expect(state.sectorStatus[0] == .current)
+        #expect(state.openLevels.isSuperset(of: ["a4", "b1", "b2"]))
+        #expect(state.sectorStatus[1] == .current)
+        #expect(state.sectorStatus[3] == .locked)
+    }
+
     @Test func explicitUnlocksSkipAhead() {
         let custom = [Fixture.sector(0, [Fixture.level("x", unlocks: ["z"]), Fixture.level("y"), Fixture.level("z")])]
         let state = UnlockState.compute(sectors: custom, cleared: ["x"])
@@ -218,11 +232,11 @@ struct SavedProgressTests {
         #expect(reopened.bestStars("launch-pad.calculator-console") == 3)
         #expect(reopened.xp > 0)
         #expect(reopened.fuel.practisedToday)
+        let briefing = try #require(reopened.level(id: "launch-pad.reading-the-console"))
+        #expect(reopened.isPlayable(briefing))
         let next = try #require(reopened.level(id: "launch-pad.storing-cargo"))
-        #expect(reopened.isPlayable(next))
+        #expect(!reopened.isPlayable(next))
         #expect(reopened.session(for: next).code == "n_responses <- 40")
-        let last = try #require(reopened.level(id: "launch-pad.function-thrusters"))
-        #expect(!reopened.isPlayable(last))
     }
 
     @Test func practiceAcrossDaysBuildsAStreakAndBadge() throws {
