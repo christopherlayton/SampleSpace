@@ -1,0 +1,27 @@
+---
+title: "Crew Log Report"
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+crew <- read_csv("astronauts.csv", show_col_types = FALSE)
+```
+
+## Age at first flight
+
+```{r}
+#| label: tbl-age
+#| echo: false
+age_table <- crew |>
+  filter(mission_number == 1) |>
+  mutate(decade = paste0(floor(year_of_mission / 10) * 10, "s"),
+         age = year_of_mission - year_of_birth) |>
+  group_by(decade) |>
+  summarise(n = n(), M = mean(age), SD = sd(age))
+
+knitr::kable(age_table, digits = 2, col.names = c("Decade", "*n*", "*M*", "*SD*"),
+             caption = "Age at First Flight by Decade")
+```

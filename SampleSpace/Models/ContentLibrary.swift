@@ -89,6 +89,11 @@ struct ContentLibrary: Sendable {
         if file.type == .spssTranslate, file.spss == nil {
             throw ContentError.badJSON(json, "an SPSS Translate level needs an \"spss\" object")
         }
+        if file.type == .boss, (file.steps ?? []).count < 2 {
+            throw ContentError.badJSON(json, "a boss level needs a \"steps\" list with at least two steps")
+        }
+        // Documents keep their starter and solution as .qmd files.
+        let ext = file.document == nil ? "R" : "qmd"
         // Quiz levels don't use the editor, so their R files are optional.
         func code(_ name: String) throws -> String {
             file.type.isQuiz ? ((try? text(folder, name)) ?? "") : try text(folder, name)
@@ -100,9 +105,10 @@ struct ContentLibrary: Sendable {
             xp: file.xp, par: par, hints: file.hints ?? [], unlocks: file.unlocks,
             timeLimit: file.timeLimit ?? 10, seed: file.seed, lab: file.lab, quiz: file.quiz,
             spss: file.spss,
+            steps: file.steps, document: file.document,
             lesson: try text(folder, "lesson.md"),
-            starterCode: try code("starter.R"),
-            solutionCode: try code("solution.R"),
+            starterCode: try code("starter.\(ext)"),
+            solutionCode: try code("solution.\(ext)"),
             checkCode: try code("check.R"),
             setupCode: try? text(folder, "setup.R"),
             folder: folder)
@@ -186,4 +192,6 @@ private struct LevelFile: Decodable {
     let lab: LabSpec?
     let quiz: [QuizQuestion]?
     let spss: SPSSPanel?
+    let steps: [BossStep]?
+    let document: String?
 }

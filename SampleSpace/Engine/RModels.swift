@@ -17,6 +17,9 @@ struct RJob: Sendable {
     var dataDirectory: URL?
     /// Console width R formats output to.
     var consoleWidth: Int = 80
+    /// A file name such as `report.qmd`: the code is then a Quarto document, knitted rather
+    /// than run line by line.
+    var document: String?
 }
 
 /// What happened when a job ran.
@@ -43,6 +46,10 @@ struct RRunResult: Sendable {
     var passed: Bool
     /// Seconds spent running the learner's code.
     var duration: Double
+    /// For documents: the knitted Markdown (no YAML header); figures are `{{plot:N}}` lines.
+    var document: String? = nil
+    /// For documents: the title from the YAML header.
+    var documentTitle: String? = nil
 
     var errorEntry: ConsoleEntry? { console.last(where: { $0.kind == .error }) }
     var hasInternalCheckErrors: Bool { checks.contains(where: \.internal) }
@@ -89,6 +96,8 @@ struct CheckResult: Sendable, Hashable, Decodable {
     /// The check itself failed to run. For a learner this is usually a missing object;
     /// when running a level's own solution it means the level is broken.
     var `internal`: Bool
+    /// The Boss level step this check belongs to (1-based), set by `step(n)` in check.R.
+    var step: Int? = nil
 }
 
 enum REngineError: Error, LocalizedError {

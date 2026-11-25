@@ -1,0 +1,13 @@
+{
+  "id": "dissertation-dock.apa-numbers",
+  "title": "APA Numbers",
+  "summary": "Write three formatting helpers you'll reuse in every report: fmt_num(), fmt_p() and fmt_bounded().",
+  "type": "code",
+  "xp": 110,
+  "par": 3,
+  "hints": [
+    "`fmt_num <- function(x, digits = 2) formatC(x, format = \"f\", digits = digits)`.",
+    "`fmt_p` needs an `if`: `if (p < .001) \"< .001\" else paste(\"=\", sub(\"^0\", \"\", fmt_num(p, 3)))`.",
+    "`fmt_bounded <- function(x, digits = 2) sub(\"^(-?)0\\\\.\", \"\\\\1.\", fmt_num(x, digits))` keeps a minus sign and drops the zero."
+  ]
+}

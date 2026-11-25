@@ -1,0 +1,14 @@
+---
+title: "Crew Log Report"
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+crew <- read_csv("astronauts.csv", show_col_types = FALSE)
+```
+
+## The Crew Log
+
+The log holds `r format(nrow(crew), big.mark = ",")` missions flown by `r length(unique(crew$number))` astronauts.

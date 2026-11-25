@@ -1,4 +1,4 @@
-# Makes the simulated datasets used by levels in Sectors 2–10. The data are invented
+# Makes the simulated datasets used by levels in Sectors 2–11. The data are invented
 # but shaped like a typical dissertation study. Rerun after changing it:
 #   Rscript --no-init-file scripts/make_sample_data.R
 # then scripts/validate_content.sh, because level checks depend on these values.
@@ -135,4 +135,48 @@ for (level in pd_levels) {
   write.csv(pd, file.path(level, "pd_study.csv"), row.names = FALSE)
 }
 
-cat("Wrote wellbeing_survey.csv, teaching_study.sav, crew_morale.csv, sleep_morale.csv and pd_study.csv\n")
+# --- belonging_study.sav: a peer-mentoring study with a five-item scale (Dissertation Dock) ---
+# 84 first-year students, randomly assigned to peer mentoring or a control group; a five-item
+# sense-of-belonging scale at the end of the year (b2 and b4 reverse-worded; 9 = "No answer",
+# declared missing in SPSS). Two students answered fewer than four items.
+set.seed(2027)
+nb <- 84
+condition <- sample(rep(1:2, each = nb / 2))
+first_gen <- sample(1:2, nb, replace = TRUE, prob = c(0.4, 0.6))
+latent <- rnorm(nb, 0.5 * (condition == 2) - 0.25 * (first_gen == 1), 1)
+belong_item <- function(reverse = FALSE) {
+  x <- round(pmin(pmax(3.1 + 0.8 * latent + rnorm(nb, 0, 0.75), 1), 5))
+  if (reverse) 6 - x else x
+}
+items <- list(b1 = belong_item(), b2 = belong_item(TRUE), b3 = belong_item(), b4 = belong_item(TRUE), b5 = belong_item())
+items$b3[c(11, 52)] <- 9
+items$b5[c(30)] <- 9
+items$b1[c(67)] <- 9; items$b2[c(67)] <- 9          # student 67 answered only three items
+items$b2[c(18)] <- 9; items$b4[c(18)] <- 9; items$b5[c(18)] <- 9   # student 18 only two
+agree <- c("Strongly disagree" = 1, "Disagree" = 2, "Neutral" = 3, "Agree" = 4, "Strongly agree" = 5, "No answer" = 9)
+wording <- c(b1 = "I feel I belong at this university", b2 = "I often feel like an outsider here",
+             b3 = "People here accept me as I am", b4 = "I feel isolated on campus",
+             b5 = "I am part of the university community")
+belong <- data.frame(
+  id = 1:nb,
+  condition = haven::labelled(condition, c("Control" = 1, "Peer mentoring" = 2), label = "Condition"),
+  first_gen = haven::labelled(first_gen, c("Yes" = 1, "No" = 2), label = "First-generation student")
+)
+for (b in names(items)) {
+  belong[[b]] <- haven::labelled_spss(items[[b]], agree, na_values = 9, label = wording[[b]])
+}
+dock <- file.path(content, "sector-11-dissertation-dock")
+for (level in file.path(dock, c("10-mentoring-boss"))) {
+  dir.create(level, showWarnings = FALSE)
+  haven::write_sav(belong, file.path(level, "belonging_study.sav"))
+}
+for (level in file.path(dock, c("11-programme-boss"))) {
+  dir.create(level, showWarnings = FALSE)
+  write.csv(pd, file.path(level, "pd_study.csv"), row.names = FALSE)
+}
+for (level in file.path(dock, c("07-regression-translator"))) {
+  dir.create(level, showWarnings = FALSE)
+  write.csv(fit_data, file.path(level, "sleep_morale.csv"), row.names = FALSE)
+}
+
+cat("Wrote wellbeing_survey.csv, teaching_study.sav, crew_morale.csv, sleep_morale.csv, pd_study.csv and belonging_study.sav\n")

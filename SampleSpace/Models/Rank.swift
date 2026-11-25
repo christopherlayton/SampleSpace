@@ -2,9 +2,10 @@ import Foundation
 
 /// Pilot ranks, earned with XP. Thresholds live here and nowhere else, so they are easy to
 /// retune as content grows. With every star, Sectors 0–2 hold about 3,000 XP, Sectors 0–5
-/// about 6,300, Sectors 0–8 about 10,200 and Sectors 0–10 about 14,000, so the full curriculum
-/// with the Dissertation Dock should land near 16,000; thresholds are pegged to sector milestones
-/// (a little below the all-stars total, since few pilots three-star everything).
+/// about 6,300, Sectors 0–8 about 10,200, Sectors 0–10 about 14,000 and the full curriculum
+/// with the Dissertation Dock 16,190 (15,670 before its finale, the Dissertation Dry Run);
+/// thresholds are pegged to sector milestones (a little below the all-stars total, since few
+/// pilots three-star everything).
 enum Rank: Int, CaseIterable, Comparable, Sendable {
     case cadet, ensign, lieutenant, commander, captain, principalInvestigator
 
@@ -26,7 +27,7 @@ enum Rank: Int, CaseIterable, Comparable, Sendable {
         case .lieutenant: 2500               // about the end of the Data Frame Docks
         case .commander: 5500                // about the end of the Plot Nebula
         case .captain: 9000                  // about the end of the Means Cluster
-        case .principalInvestigator: 15500   // about the end of the Dissertation Dock (recheck when it's written)
+        case .principalInvestigator: 15800   // the Dissertation Dry Run (just above everything before it)
         }
     }
 

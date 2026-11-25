@@ -5,11 +5,14 @@ import SwiftUI
 /// indents and automatic indentation. Smart quotes and other text substitutions are off,
 /// because curly quotes break R code.
 struct CodeEditor: NSViewRepresentable {
+    enum Language { case r, quarto }
+
     @Binding var text: String
+    var language: Language = .r
     var fontSize: CGFloat = 13
     var isEditable = true
 
-    func makeCoordinator() -> Coordinator { Coordinator(text: $text) }
+    func makeCoordinator() -> Coordinator { Coordinator(text: $text, language: language) }
 
     func makeNSView(context: Context) -> NSScrollView {
         let scrollView = NSScrollView()
@@ -41,7 +44,7 @@ struct CodeEditor: NSViewRepresentable {
         textView.selectedTextAttributes = [.backgroundColor: NSColor(Theme.accent).withAlphaComponent(0.3)]
         textView.textContainerInset = NSSize(width: 6, height: 10)
         textView.isEditable = isEditable
-        textView.setAccessibilityLabel("R code editor")
+        textView.setAccessibilityLabel(language == .quarto ? "Quarto document editor" : "R code editor")
 
         // Wrap long lines to the width of the pane.
         textView.minSize = .zero
@@ -101,8 +104,12 @@ struct CodeEditor: NSViewRepresentable {
         weak var textView: NSTextView?
         weak var ruler: NSRulerView?
         var fontSize: CGFloat = 13
+        let language: Language
 
-        init(text: Binding<String>) { self.text = text }
+        init(text: Binding<String>, language: Language) {
+            self.text = text
+            self.language = language
+        }
 
         func textDidChange(_ notification: Notification) {
             guard let textView else { return }
@@ -120,7 +127,8 @@ struct CodeEditor: NSViewRepresentable {
             let all = NSRange(location: 0, length: storage.length)
             storage.beginEditing()
             storage.setAttributes([.font: font, .foregroundColor: NSColor(Theme.codeText)], range: all)
-            for token in RSyntax.tokens(in: storage.string) where NSMaxRange(token.range) <= storage.length {
+            let tokens = language == .quarto ? RSyntax.documentTokens(in: storage.string) : RSyntax.tokens(in: storage.string)
+            for token in tokens where NSMaxRange(token.range) <= storage.length {
                 storage.addAttribute(.foregroundColor, value: token.kind.nsColor, range: token.range)
             }
             storage.endEditing()

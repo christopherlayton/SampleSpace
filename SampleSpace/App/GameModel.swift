@@ -9,6 +9,8 @@ final class GameModel {
     private(set) var loadError: String?
     let engine: REngine?
     let engineError: String?
+    /// Quarto, for rendering reports; nil when it isn't installed.
+    let quarto: QuartoRenderer?
 
     /// Level ids pushed on top of the star map.
     var path: [String] = []
@@ -43,6 +45,7 @@ final class GameModel {
             engine = nil
             engineError = error.localizedDescription
         }
+        quarto = engine.flatMap { QuartoRenderer(rscriptURL: $0.rscriptURL) }
         refreshUnlocks()
     }
 
@@ -76,7 +79,7 @@ final class GameModel {
 
     func isOpen(_ level: Level) -> Bool { unlocks.openLevels.contains(level.id) }
 
-    /// Open, and of a type the app can play yet (everything but Boss levels).
+    /// Open (every level type is playable).
     func isPlayable(_ level: Level) -> Bool { level.type.isPlayable && isOpen(level) }
 
     /// Every Lab level, for the Lab Bay's free-play instruments.
@@ -106,6 +109,53 @@ final class GameModel {
         sessions[level.id] = session
         return session
     }
+
+    // MARK: Workbench
+
+    /// Where the Workbench keeps your data files:
+    /// `~/Library/Application Support/SampleSpace/Workbench/`.
+    nonisolated static var workbenchFolder: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appending(path: "SampleSpace/Workbench", directoryHint: .isDirectory)
+    }
+
+    /// The data files in the Workbench folder, by name.
+    static func workbenchDataFiles() -> [URL] {
+        let fm = FileManager.default
+        let files = (try? fm.contentsOfDirectory(at: workbenchFolder, includingPropertiesForKeys: [.isDirectoryKey],
+                                                 options: .skipsHiddenFiles)) ?? []
+        return files
+            .filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) != true }
+            .filter { !["r", "md", "qmd", "json"].contains($0.pathExtension.lowercased()) }
+            .sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
+    }
+
+    /// The Workbench's session: a Quarto document with no checks, saved like a level draft.
+    /// The first time, the folder gets a copy of the Crew Log so the template knits at once.
+    func workbenchSession() -> LevelSession {
+        if let existing = sessions[Self.workbenchID] { return existing }
+        let fm = FileManager.default
+        let folder = Self.workbenchFolder
+        if !fm.fileExists(atPath: folder.path) {
+            try? fm.createDirectory(at: folder, withIntermediateDirectories: true)
+            if let log = Bundle.main.url(forResource: "astronauts", withExtension: "csv", subdirectory: "Content/data-bank") {
+                try? fm.copyItem(at: log, to: folder.appending(path: "astronauts.csv"))
+            }
+        }
+        let template = Bundle.main.url(forResource: "template", withExtension: "qmd", subdirectory: "Content/workbench")
+            .flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? "---\ntitle: \"Results\"\n---\n"
+        let level = Level(id: Self.workbenchID, title: "Workbench", summary: "", type: .code, xp: 0, par: 0,
+                          hints: [], unlocks: nil, timeLimit: 120, seed: nil, document: "report.qmd",
+                          lesson: "", starterCode: template, solutionCode: "", checkCode: "", setupCode: nil,
+                          folder: folder)
+        let session = LevelSession(level: level, engine: engine, engineError: engineError,
+                                   draft: progress.drafts[Self.workbenchID])
+        session.model = self
+        sessions[Self.workbenchID] = session
+        return session
+    }
+
+    static let workbenchID = "workbench"
 
     // MARK: Recording play
 

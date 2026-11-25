@@ -1,0 +1,14 @@
+---
+title: "Crew Log Report: Draft"
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+crew <- read_csv("astronauts.csv", show_col_types = FALSE)
+```
+
+## Missions
+
+The log holds `r format(nrow(crew), big.mark = ",")` missions. Mission length is skewed: the median mission lasted `r round(median(crew$hours_mission))` hours.

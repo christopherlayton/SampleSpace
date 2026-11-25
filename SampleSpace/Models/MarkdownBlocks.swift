@@ -4,7 +4,7 @@ import Foundation
 /// lay out. Inline formatting (bold, italics, `code`, links) stays in the text and is
 /// rendered later with `AttributedString(markdown:)`.
 ///
-/// Supported: `#` headings, paragraphs, fenced code blocks, `-`/`*` and `1.` lists,
+/// Supported: `#` headings, paragraphs, fenced code blocks (longer fences nest shorter ones), `-`/`*` and `1.` lists,
 /// `>` quotes, pipe tables and `---` rules. A line that is only `{{name}}` is a placeholder
 /// where the lesson view inserts something of its own (e.g. `{{spss}}` for the SPSS panel).
 enum MarkdownBlock: Hashable, Sendable {
@@ -36,10 +36,17 @@ enum MarkdownBlock: Hashable, Sendable {
 
             if trimmed.hasPrefix("```") {
                 flushParagraph()
-                let language = String(trimmed.dropFirst(3)).trimmingCharacters(in: .whitespaces)
+                // A fence of N backticks closes only on a line of at least N backticks, so a
+                // ```` block can show a Quarto document with ``` chunks inside it.
+                let fence = trimmed.prefix { $0 == "`" }.count
+                let language = String(trimmed.dropFirst(fence)).trimmingCharacters(in: .whitespaces)
                 var code: [String] = []
                 i += 1
-                while i < lines.count, !lines[i].trimmingCharacters(in: .whitespaces).hasPrefix("```") {
+                func closes(_ line: String) -> Bool {
+                    let t = line.trimmingCharacters(in: .whitespaces)
+                    return t.count >= fence && t.allSatisfy { $0 == "`" }
+                }
+                while i < lines.count, !closes(lines[i]) {
                     code.append(lines[i])
                     i += 1
                 }

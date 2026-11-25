@@ -1,0 +1,70 @@
+---
+title: "The Crew Log, 1961–2019: A Reproducible Report"
+author: "Cadet"
+format:
+  html:
+    embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(effectsize)
+knitr::opts_chunk$set(echo = FALSE)
+
+fmt_num <- function(x, digits = 2) formatC(x, format = "f", digits = digits)
+fmt_p <- function(p) if (p < .001) "< .001" else paste("=", sub("^0", "", fmt_num(p, 3)))
+fmt_bounded <- function(x, digits = 2) sub("^(-?)0\\.", "\\1.", fmt_num(x, digits))
+
+crew <- read_csv("astronauts.csv", show_col_types = FALSE)
+```
+
+```{r}
+#| label: people
+people <- crew |>
+  filter(mission_number == 1) |>
+  transmute(number, sex, military_civilian,
+            age = year_of_mission - year_of_birth,
+            total_missions = total_number_of_missions)
+n_women <- sum(people$sex == "female")
+```
+
+## Method
+
+### Participants
+
+The Crew Log (Stavnichuk & Corlett, 2020) records `r nrow(people)` astronauts who flew from 1961 to 2019, `r n_women` of them women (`r fmt_num(100 * n_women / nrow(people), 1)`%). Each astronaut is one case, described at their first flight; ages are approximate (year of flight minus year of birth).
+
+## Results
+
+```{r}
+#| label: tbl-age
+age_by_sex <- people |>
+  group_by(sex) |>
+  summarise(n = n(), M = mean(age), SD = sd(age))
+knitr::kable(age_by_sex, digits = 2, col.names = c("Sex", "*n*", "*M*", "*SD*"),
+             caption = "Age at First Flight by Sex")
+```
+
+```{r}
+#| label: fig-age
+age_plot <- ggplot(people, aes(x = sex, y = age)) +
+  geom_boxplot(width = 0.5) +
+  labs(x = "Sex", y = "Age at first flight (years)") +
+  theme_classic()
+age_plot
+```
+
+```{r}
+#| label: tests
+age_test <- t.test(age ~ sex, data = people)
+age_d <- cohens_d(age ~ sex, data = people)$Cohens_d
+missions_cor <- cor.test(people$age, people$total_missions, method = "spearman", exact = FALSE)
+```
+
+**Age at first flight.** Women and men were compared with Welch's *t*-test: *t*(`r fmt_num(age_test$parameter)`) = `r fmt_num(age_test$statistic)`, *p* `r fmt_p(age_test$p.value)`, *d* = `r fmt_num(age_d)`.
+
+**Age and career length.** Because the number of missions is a skewed count, its relationship with age at first flight was tested with Spearman's rank correlation, *r*~s~ = `r fmt_bounded(missions_cor$estimate)`, *p* `r fmt_p(missions_cor$p.value)`.

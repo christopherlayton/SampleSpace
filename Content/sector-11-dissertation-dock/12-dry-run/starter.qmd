@@ -1,0 +1,54 @@
+---
+title: ""
+author: ""
+format:
+  html:
+    embed-resources: true
+---
+
+```{r}
+#| label: setup
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(effectsize)
+
+fmt_num <- function(x, digits = 2) formatC(x, format = "f", digits = digits)
+fmt_p <- function(p) if (p < .001) "< .001" else paste("=", sub("^0", "", fmt_num(p, 3)))
+fmt_bounded <- function(x, digits = 2) sub("^(-?)0\\.", "\\1.", fmt_num(x, digits))
+
+crew <- read_csv("astronauts.csv", show_col_types = FALSE)
+```
+
+```{r}
+#| label: people
+# One row per astronaut: first missions, with sex, age and total_missions
+people <- crew
+```
+
+## Method
+
+### Participants
+
+The Crew Log (Stavnichuk & Corlett, 2020) records ___ astronauts who flew from 1961 to 2019, ___ of them women.
+
+## Results
+
+```{r}
+#| label: tbl-age
+# age_by_sex, shown with knitr::kable()
+```
+
+```{r}
+#| label: fig-age
+# age_plot
+```
+
+```{r}
+#| label: tests
+# age_test, age_d, missions_cor
+```
+
+**Age at first flight.** 
+
+**Age and career length.** 

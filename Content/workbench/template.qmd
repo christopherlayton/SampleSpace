@@ -1,0 +1,49 @@
+---
+title: "Chapter 4: Results"
+author: "Your name"
+format:
+  html:
+    embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+
+# Your data: add the file with "Add Data Files…", then read it here instead, e.g.
+#   data <- haven::read_sav("my_study.sav") |> haven::as_factor()
+data <- read_csv("astronauts.csv", show_col_types = FALSE)
+
+# APA number formatting (from the Dissertation Dock)
+fmt_num <- function(x, digits = 2) formatC(x, format = "f", digits = digits)
+fmt_p <- function(p) if (p < .001) "< .001" else paste("=", sub("^0", "", fmt_num(p, 3)))
+```
+
+## Participants
+
+The data set holds `r format(nrow(data), big.mark = ",")` rows and `r ncol(data)` variables.
+
+## Descriptive statistics
+
+```{r}
+#| label: tbl-descriptives
+#| echo: false
+data |>
+  group_by(sex) |>
+  summarise(n = n(), M = mean(hours_mission), SD = sd(hours_mission)) |>
+  knitr::kable(digits = 2, caption = "Mission length in hours by sex")
+```
+
+## Hypothesis test
+
+```{r}
+#| label: test
+#| include: false
+test <- t.test(hours_mission ~ sex, data = data)
+```
+
+Write each result with inline code, never by hand: *t*(`r fmt_num(test$parameter)`) =
+`r fmt_num(test$statistic)`, *p* `r fmt_p(test$p.value)`. (This template counts missions, not
+people; your own analysis needs one row per participant.)

@@ -1,0 +1,15 @@
+{
+  "id": "dissertation-dock.broken-report",
+  "title": "Broken Report",
+  "summary": "Debug a Quarto document: a YAML header that won't parse, a setup chunk in the wrong order, inline code that isn't, and a number typed by hand.",
+  "type": "debug",
+  "document": "report.qmd",
+  "xp": 120,
+  "par": 4,
+  "time_limit": 20,
+  "hints": [
+    "A colon inside a YAML value confuses YAML (it looks like another key). Put the title in quotes: `title: \"Crew Log Report: Draft\"`.",
+    "R runs a chunk top to bottom: `read_csv()` only exists after `library(readr)`.",
+    "Inline code needs the `r`: `` `r format(nrow(crew), big.mark = \",\")` ``. And the median: `` `r round(median(crew$hours_mission))` ``."
+  ]
+}

@@ -1,0 +1,12 @@
+---
+title: ""
+---
+
+```{r}
+#| label: setup
+
+```
+
+## The Crew Log
+
+The log holds 1277 missions flown by ___ astronauts.

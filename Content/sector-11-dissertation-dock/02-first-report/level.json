@@ -1,0 +1,15 @@
+{
+  "id": "dissertation-dock.first-report",
+  "title": "First Report",
+  "summary": "Write a Quarto document: a YAML header, a hidden setup chunk that reads the Crew Log, and sentences whose numbers come from inline R.",
+  "type": "code",
+  "document": "report.qmd",
+  "xp": 90,
+  "par": 3,
+  "time_limit": 20,
+  "hints": [
+    "The YAML header needs `title: \"Crew Log Report\"` between the two `---` lines.",
+    "In the setup chunk, add `#| include: false` under `#| label: setup`, then `library(readr)` and `crew <- read_csv(\"astronauts.csv\", show_col_types = FALSE)`.",
+    "Missions: `` `r format(nrow(crew), big.mark = \",\")` ``. Astronauts: `` `r length(unique(crew$number))` ``."
+  ]
+}

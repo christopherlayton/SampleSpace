@@ -3,7 +3,8 @@ import SwiftUI
 /// A level: the briefing on the left, the editor and its output on the right.
 /// A lab level puts the instrument and its goals on the right first, then hands off to the
 /// editor ("now do it in R") once the goals are reached. Briefing and Predict levels put a
-/// quiz on the right instead of the editor; Debug levels add a bug report over the editor.
+/// quiz on the right instead of the editor; Debug levels add a bug report over the editor;
+/// Boss levels add the step bar; Quarto documents add Render and a Report tab.
 struct LevelView: View {
     let level: Level
     @Environment(GameModel.self) private var model
@@ -90,7 +91,8 @@ struct LevelView: View {
                 actionBar(session)
                 Divider()
                 if level.type == .debug { bugReport }
-                CodeEditor(text: Bindable(session).code)
+                if session.isBoss { BossStepBar(session: session) }
+                CodeEditor(text: Bindable(session).code, language: level.isDocument ? .quarto : .r)
             }
             .frame(minHeight: 220, idealHeight: 380)
 
@@ -112,7 +114,8 @@ struct LevelView: View {
                     Label("Run", systemImage: "play.fill")
                 }
                 .keyboardShortcut(.return, modifiers: .command)
-                .help("Run your code without checking it (⌘↩). Running is free.")
+                .help(level.isDocument ? "Knit your document without checking it (⌘↩). Running is free."
+                      : "Run your code without checking it (⌘↩). Running is free.")
             }
 
             Button { session.check() } label: {
@@ -144,6 +147,11 @@ struct LevelView: View {
             }
             .disabled(session.isStarterCode)
             .help(level.type == .debug ? "Put the broken code back" : "Put the starter code back")
+
+            if level.isDocument {
+                Divider().frame(height: 18)
+                RenderControls(session: session)
+            }
 
             Spacer()
 

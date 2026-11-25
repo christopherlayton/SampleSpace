@@ -46,6 +46,14 @@ data will take.
   Pearson and Spearman, regression; nation (U.S. / U.S.S.R/Russia / Other) × military status,
   χ² and Cramér's V). Crew Crosstab revisits the Shuffle Test's eras with a χ² test. Their
   lessons state only descriptive numbers already listed below.
+- **Dissertation Dock** turns the log into reports: First Report (1,277 missions, 564 astronauts,
+  written by inline R), APA Table (age at first flight by decade, the Variance Rift's
+  descriptives), Broken Report (the median mission, 261 h) and the finale, the **Dissertation
+  Dry Run**: a complete Quarto report on one row per astronaut (564, 64 of them women) asking
+  two new questions the learner answers: did women and men differ in age at first flight
+  (Welch's *t*, *d*), and is age at first flight related to the number of missions flown
+  (Spearman's *r*ₛ)? The lesson states neither result. The Workbench starts with a copy of the
+  log so its template knits before you add your own data.
 
 ## Log entries by sector
 
@@ -93,4 +101,5 @@ unique(a$name[a$number == 385])                                      # Baturin, 
 sum(f$sex == "female"); mean(f$sex == "female")                      # 64, .113 (Crew Lottery)
 table(ifelse(f$year_of_mission >= 2000, "2000 on", "before 2000"))  # 172, 392 (Shuffle Test eras)
 table(floor(f$year_of_mission / 10) * 10)                            # 44 49 132 167 117 55 (Ages Across Decades groups)
+sort(table(f$sex))                                                   # 64 female, 500 male (Dry Run cases)
 ```

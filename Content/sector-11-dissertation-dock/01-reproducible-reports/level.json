@@ -1,0 +1,63 @@
+{
+  "id": "dissertation-dock.reproducible-reports",
+  "title": "Reproducible Reports",
+  "summary": "Why a results chapter should be built by code, and the three parts of a Quarto document: YAML, chunks and inline R.",
+  "type": "briefing",
+  "xp": 60,
+  "hints": [
+    "A reproducible report can be rebuilt from the raw data by running one thing, with no copying and pasting in between.",
+    "The YAML header sits between two `---` lines at the very top; chunks start with ```` ```{r} ````; inline code is `` `r ...` `` inside a sentence.",
+    "`#| include: false` runs a chunk but shows nothing; `#| echo: false` shows the results but not the code."
+  ],
+  "quiz": [
+    {
+      "prompt": "You fix a data-entry error in your raw file the week before your defence. Which workflow updates every number in the results chapter correctly?",
+      "choices": [
+        "Rerun each SPSS analysis and retype the numbers into Word",
+        "Render the Quarto document again: the code reads the corrected file and recomputes every number",
+        "Search the Word file for the old numbers and replace them",
+        "Keep the old numbers: one row won't change anything"
+      ],
+      "answer": 1,
+      "explain": "When the numbers come from code that reads the raw data, fixing the data and rendering again updates every table, figure and sentence. Retyping is where errors creep in."
+    },
+    {
+      "prompt": "Which part of a Quarto document sets the title, author and output format?",
+      "code": "---\ntitle: \"Chapter 4: Results\"\nauthor: \"A. Cadet\"\nformat: html\n---",
+      "run": false,
+      "choices": ["The YAML header", "The setup chunk", "Inline R code", "The first heading"],
+      "answer": 0,
+      "explain": "The YAML header, between two lines of `---` at the very top, holds the document's settings. Change `format: html` to `format: docx` for a Word file."
+    },
+    {
+      "prompt": "This chunk loads packages and reads the data. What appears in the finished report?",
+      "code": "```{r}\n#| label: setup\n#| include: false\nlibrary(readr)\ncrew <- read_csv(\"astronauts.csv\")\n```",
+      "run": false,
+      "choices": [
+        "The code and its messages",
+        "Only the messages",
+        "Nothing, but `crew` exists for the chunks after it",
+        "Nothing, and the code doesn't run"
+      ],
+      "answer": 2,
+      "explain": "`include: false` runs the chunk and keeps its objects, but shows neither code nor output. `eval: false` is the one that skips running."
+    },
+    {
+      "prompt": "Which sentence will always match the data?",
+      "choices": [
+        "The log holds 1,277 missions.",
+        "The log holds `r format(nrow(crew), big.mark = \",\")` missions.",
+        "The log holds `nrow(crew)` missions.",
+        "The log holds {nrow(crew)} missions."
+      ],
+      "answer": 1,
+      "explain": "Inline code is a backtick, the letter r, a space, the code and a closing backtick. Without the `r` it is just code formatting, and a typed number goes stale when the data change."
+    },
+    {
+      "prompt": "Your committee asks for the tables but not the R code. Which chunk option fits?",
+      "choices": ["`#| echo: false`", "`#| eval: false`", "`#| include: false`", "`#| error: true`"],
+      "answer": 0,
+      "explain": "`echo: false` hides the code and keeps the output. `include: false` would hide the table too; `eval: false` wouldn't run the code at all."
+    }
+  ]
+}

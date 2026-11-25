@@ -1,0 +1,13 @@
+{
+  "id": "dissertation-dock.write-up-generator",
+  "title": "Write-up Generator",
+  "summary": "Functions that turn a t.test() or cor.test() result into an APA sentence fragment, with the right df, decimals and p.",
+  "type": "code",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "The pieces of an `htest`: `test$statistic`, `test$parameter` (the df) and `test$p.value`. Wrap them in `unname()` if the names get in the way.",
+    "`fmt_df()` is given: it writes a whole-number df as 58 and Welch's df as 41.73. So `sprintf(\"*t*(%s) = %s, *p* %s, *d* = %s\", fmt_df(test$parameter), fmt_num(test$statistic), fmt_p(test$p.value), fmt_num(d))`.",
+    "For `apa_r()`: `sprintf(\"*r*(%s) = %s, *p* %s\", fmt_df(test$parameter), fmt_bounded(test$estimate), fmt_p(test$p.value))`."
+  ]
+}

@@ -5,10 +5,12 @@ import Observation
 /// counters that decide the stars. For a Lab level it also holds the running instrument and the
 /// lab goals reached; Check stays locked until every goal is reached. For a quiz level
 /// (Briefing, Predict) it holds the answers so far and, for Predict, what R really printed.
+/// For a Boss level it tracks which steps pass; for a Quarto document, the knitted report and
+/// any rendered copy.
 @MainActor @Observable
 final class LevelSession {
     enum OutputTab: String, CaseIterable, Identifiable {
-        case console, plots, checks
+        case console, plots, report, checks
         var id: Self { self }
     }
 
@@ -34,6 +36,9 @@ final class LevelSession {
     private(set) var lastStatus: RRunResult.Status?
     private(set) var lastDuration: Double?
     private(set) var lastRunWasCheck = false
+    /// The knitted report from the last run, for documents (`{{plot:N}}` marks figures).
+    private(set) var document: String?
+    private(set) var documentTitle: String?
     private(set) var activity: Activity = .idle
     var outputTab: OutputTab = .console
     var selectedPlot = 0
@@ -46,6 +51,18 @@ final class LevelSession {
     /// The code hit an R error at some point in this attempt (for the Bug Hunter badge).
     private(set) var hadErrorThisAttempt = false
     var completion: Completion?
+
+    // Boss
+    /// Steps passed in the last Check, counting from step 1 and stopping at the first that
+    /// doesn't pass. The next step is the one in play; later steps stay locked.
+    private(set) var stepsPassed = 0
+    /// The step cleared by the last Check, for the "Step cleared" banner.
+    var stepJustCleared: Int?
+
+    // Rendering (documents)
+    enum RenderState: Equatable { case idle, rendering, done(URL), failed(String) }
+    private(set) var renderState: RenderState = .idle
+    private var renderTask: Task<Void, Never>?
 
     // Lab
     /// The running instrument, for Lab levels.
@@ -84,6 +101,21 @@ final class LevelSession {
     var isStarterCode: Bool { code == level.starterCode }
     var isLab: Bool { level.lab != nil }
     var isQuiz: Bool { level.type.isQuiz }
+    var isBoss: Bool { level.type == .boss }
+    var steps: [BossStep] { level.steps ?? [] }
+    /// The step in play (1-based); `steps.count + 1` once all pass.
+    var currentStep: Int { stepsPassed + 1 }
+
+    /// How many leading steps have every check passing.
+    static func stepsPassed(_ checks: [CheckResult], stepCount: Int) -> Int {
+        var passed = 0
+        for step in 1...max(stepCount, 1) {
+            let these = checks.filter { ($0.step ?? 1) == step }
+            guard !these.isEmpty, these.allSatisfy(\.passed) else { break }
+            passed = step
+        }
+        return passed
+    }
 
     /// Check is open: always for code levels; for labs once every goal is reached (or the
     /// level was cleared before).
@@ -156,6 +188,8 @@ final class LevelSession {
 
         console = result.console
         plots = result.plots
+        document = result.document
+        documentTitle = result.documentTitle
         selectedPlot = 0
         lastStatus = result.status
         lastDuration = result.duration
@@ -165,16 +199,56 @@ final class LevelSession {
         if check {
             checks = result.checks
             outputTab = .checks
+            if isBoss {
+                let before = stepsPassed
+                stepsPassed = Self.stepsPassed(result.checks, stepCount: steps.count)
+                stepJustCleared = stepsPassed > before && stepsPassed < steps.count ? stepsPassed : nil
+            }
             if result.passed, let model {
                 let score = self.score
                 let outcome = model.recordClear(level: level, score: score, code: code,
                                                 hadErrorThisAttempt: hadErrorThisAttempt)
                 completion = Completion(score: score, outcome: outcome)
             }
+        } else if result.document != nil {
+            outputTab = .report
         } else {
             outputTab = result.status == .ok && !plots.isEmpty ? .plots : .console
         }
     }
+
+    // MARK: Rendering
+
+    /// Renders the document with Quarto into its report folder and opens the result.
+    func renderReport(folderName: String? = nil, dataDirectory: URL? = nil) {
+        guard let name = level.document else { return }
+        guard let renderer = model?.quarto else {
+            renderState = .failed(QuartoError.notInstalled.localizedDescription)
+            return
+        }
+        renderTask?.cancel()
+        renderState = .rendering
+        let code = self.code
+        let data = dataDirectory ?? level.folder
+        let folder = QuartoRenderer.reportFolder(named: folderName ?? level.id)
+        renderTask = Task {
+            do {
+                let url = try await renderer.render(document: code, fileName: name, dataDirectory: data, into: folder)
+                guard !Task.isCancelled else { return }
+                renderState = .done(url)
+            } catch is CancellationError {
+                renderState = .idle
+            } catch {
+                guard !Task.isCancelled else { return }
+                renderState = .failed(error.localizedDescription)
+            }
+        }
+    }
+
+    /// Waits for a render to finish (for tests).
+    func waitForRender() async { await renderTask?.value }
+
+    func clearRenderState() { if renderState != .rendering { renderState = .idle } }
 
     // MARK: Quiz
 
@@ -216,7 +290,7 @@ final class LevelSession {
         quizTask = Task {
             let entries: [ConsoleEntry]
             do {
-                entries = try await engine.run(level.job(code: code, check: false)).console
+                entries = try await engine.run(level.job(code: code, check: false, asDocument: false)).console
             } catch {
                 entries = [ConsoleEntry(kind: .error, text: error.localizedDescription)]
             }
@@ -254,6 +328,10 @@ final class LevelSession {
         checks = []
         lastStatus = nil
         lastDuration = nil
+        document = nil
+        documentTitle = nil
+        stepsPassed = 0
+        stepJustCleared = nil
         hintsShown = 0
         solutionShown = false
         checkAttempts = 0
@@ -270,6 +348,8 @@ final class LevelSession {
         task = nil
         quizTask?.cancel()
         quizRunning = nil
+        renderTask?.cancel()
+        if renderState == .rendering { renderState = .idle }
         instrument?.stop()
         generation += 1
         if activity != .idle {

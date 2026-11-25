@@ -1,0 +1,14 @@
+---
+title: Crew Log Report: Draft
+---
+
+```{r}
+#| label: setup
+#| include: false
+crew <- read_csv("astronauts.csv", show_col_types = FALSE)
+library(readr)
+```
+
+## Missions
+
+The log holds `format(nrow(crew), big.mark = ",")` missions. Mission length is skewed: the median mission lasted 261 hours.

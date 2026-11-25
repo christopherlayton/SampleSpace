@@ -1,0 +1,15 @@
+{
+  "id": "dissertation-dock.apa-table",
+  "title": "APA Table",
+  "summary": "Build a descriptive-statistics table in a Quarto document with knitr::kable(): italic headers, two decimals, a caption, no code showing.",
+  "type": "code",
+  "document": "report.qmd",
+  "xp": 120,
+  "par": 3,
+  "time_limit": 25,
+  "hints": [
+    "One row per astronaut first: `filter(mission_number == 1)`. Then `mutate(decade = paste0(floor(year_of_mission / 10) * 10, \"s\"), age = year_of_mission - year_of_birth)`.",
+    "`group_by(decade) |> summarise(n = n(), M = mean(age), SD = sd(age))` makes `age_table`.",
+    "`knitr::kable(age_table, digits = 2, col.names = c(\"Decade\", \"*n*\", \"*M*\", \"*SD*\"), caption = \"Age at First Flight by Decade\")`, in a chunk with `#| echo: false`."
+  ]
+}

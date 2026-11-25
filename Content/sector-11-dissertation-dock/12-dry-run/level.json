@@ -1,0 +1,27 @@
+{
+  "id": "dissertation-dock.dry-run",
+  "title": "Dissertation Dry Run",
+  "summary": "Finale: the Crew Log as a complete Quarto report: setup, one row per person, participants, an APA table and figure, two research questions written up with inline R, and nothing typed by hand.",
+  "type": "boss",
+  "document": "report.qmd",
+  "xp": 500,
+  "par": 10,
+  "time_limit": 40,
+  "steps": [
+    {"title": "Setup", "summary": "A title and author in the YAML header; a hidden setup chunk that loads the packages and reads the log into `crew`."},
+    {"title": "Cases", "summary": "`people`: one row per astronaut (their first mission) with `sex`, `age` at first flight and `total_missions`."},
+    {"title": "Participants", "summary": "A sentence with the number of astronauts and of women, both written by inline R."},
+    {"title": "Table", "summary": "`age_by_sex` (n, M, SD of age by sex) as an APA table captioned Age at First Flight by Sex, code hidden."},
+    {"title": "Figure", "summary": "`age_plot`: age at first flight by sex, drawn in the report with readable axis labels."},
+    {"title": "RQ1", "summary": "Welch's t-test of age by sex in `age_test`, d in `age_d`, reported in APA style with inline R."},
+    {"title": "RQ2", "summary": "Spearman's correlation of age with total missions in `missions_cor`, reported in APA style with inline R."},
+    {"title": "Reproducible", "summary": "No statistic typed into the text: every number comes from R."}
+  ],
+  "hints": [
+    "Setup: put `#| include: false` in the setup chunk. `knitr::opts_chunk$set(echo = FALSE)` there hides the code of every later chunk.",
+    "Cases: `people <- crew |> filter(mission_number == 1) |> transmute(number, sex, age = year_of_mission - year_of_birth, total_missions = total_number_of_missions)`.",
+    "Participants: `` `r nrow(people)` `` astronauts, `` `r sum(people$sex == \"female\")` `` of them women.",
+    "RQ1: `age_test <- t.test(age ~ sex, data = people)`, `age_d <- cohens_d(age ~ sex, data = people)$Cohens_d`; in the text: `` *t*(`r fmt_num(age_test$parameter)`) = `r fmt_num(age_test$statistic)`, *p* `r fmt_p(age_test$p.value)`, *d* = `r fmt_num(age_d)` ``.",
+    "RQ2: `cor.test(people$age, people$total_missions, method = \"spearman\", exact = FALSE)`; in the text: `` *r*~s~ = `r fmt_bounded(missions_cor$estimate)`, *p* `r fmt_p(missions_cor$p.value)` ``."
+  ]
+}

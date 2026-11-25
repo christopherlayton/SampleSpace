@@ -10,8 +10,11 @@
 #   seed        integer passed to set.seed() just before the learner's code
 #   time_limit  seconds the learner's code may run (default 10)
 #   data_dir    folder whose data files are copied into output_dir, the learner's working
-#               directory (level files — *.R, *.md, *.json — are skipped)
+#               directory (level files — *.R, *.md, *.qmd, *.json — are skipped)
 #   width       console width (default 80)
+#   document    a file name such as "report.qmd": the code is then a Quarto / R Markdown
+#               document, knitted with knitr in the learner's environment (so checks can
+#               still see its objects) instead of being run line by line
 #
 # result.json fields:
 #   status   "ok" | "error" | "parse_error" | "timeout" | "runner_error"
@@ -20,6 +23,9 @@
 #   checks   list of {passed, label, message, internal}
 #   passed   TRUE when status is "ok" and every check passed
 #   duration seconds spent in the learner's code
+#   document for documents: the knitted Markdown, without its YAML header; each figure is
+#            replaced by a line {{plot:N}} (N = position in `plots`)
+#   title    for documents: the title from the YAML header
 #
 # Everything lives inside local() so the learner's global environment stays clean.
 
@@ -45,6 +51,9 @@ local({
   .ss$output_chars <- 0L
   .ss$truncated <- FALSE
   .ss$duration <- 0
+  .ss$step <- NULL         # set by step() in check.R (Boss levels group checks by step)
+  .ss$document <- NULL     # knitted Markdown body, for documents
+  .ss$yaml <- NULL         # parsed YAML header, for documents
 
   add <- function(type, text, call = NULL) {
     if (.ss$truncated) return(invisible())
@@ -141,6 +150,10 @@ local({
       passed = passed,
       duration = round(.ss$duration, 3)
     )
+    if (!is.null(.ss$document)) {
+      result$document <- .ss$document
+      result$title <- if (is.character(.ss$yaml$title)) .ss$yaml$title[1] else NULL
+    }
     jsonlite::write_json(result, file.path(out_dir, "result.json"),
                          auto_unbox = TRUE, null = "null", digits = NA)
   }
@@ -171,7 +184,7 @@ local({
     if (!is.null(job$data_dir)) {
       data_files <- list.files(job$data_dir, full.names = TRUE)
       data_files <- data_files[!dir.exists(data_files) &
-                               !grepl("\\.(R|md|json)$", data_files, ignore.case = TRUE)]
+                               !grepl("\\.(R|md|qmd|json)$", data_files, ignore.case = TRUE)]
       file.copy(data_files, out_dir)
     }
     setwd(out_dir)
@@ -181,6 +194,16 @@ local({
     }
     if (!is.null(job$seed)) set.seed(job$seed)
 
+    if (!is.null(job$document) && nzchar(job$document)) {
+      knit_document(basename(job$document), learner)
+    } else {
+      run_script(learner)
+    }
+
+    if (!is.null(job$checks) && nzchar(job$checks)) run_checks(job$checks, learner)
+  }
+
+  run_script <- function(learner) {
     exprs <- tryCatch(parse(text = .ss$code, keep.source = TRUE), error = function(e) e)
     if (inherits(exprs, "error")) {
       .ss$status <- "parse_error"
@@ -203,8 +226,94 @@ local({
       files <- sort(files[file.size(file.path(out_dir, files)) > 0])
       .ss$plots <- files
     }
+  }
 
-    if (!is.null(job$checks) && nzchar(job$checks)) run_checks(job$checks, learner)
+  # --- Documents (Quarto / R Markdown) ----------------------------------------
+  # The document is knitted in the learner's environment: chunks run in order, inline `r`
+  # values are filled in, and figures are saved as PNG files. Rendering to HTML with Quarto
+  # is a separate step the app runs on request.
+  split_front_matter <- function(lines) {
+    if (length(lines) && trimws(lines[1]) == "---") {
+      end <- which(trimws(lines[-1]) %in% c("---", "..."))
+      if (length(end)) {
+        end <- end[1] + 1L
+        yaml <- tryCatch(yaml::yaml.load(paste(lines[2:(end - 1L)], collapse = "\n")),
+                         error = function(e) list(.error = conditionMessage(e)))
+        return(list(yaml = if (is.list(yaml)) yaml else list(), body = lines[-seq_len(end)]))
+      }
+    }
+    list(yaml = list(), body = lines)
+  }
+
+  knit_document <- function(name, learner) {
+    .ss$is_document <- TRUE
+    input <- file.path(out_dir, name)
+    output <- file.path(out_dir, sub("\\.[^.]*$", ".knit.md", name))
+    writeLines(enc2utf8(.ss$code), input, useBytes = TRUE)
+    head <- split_front_matter(strsplit(.ss$code, "\n", fixed = TRUE)[[1]])
+    if (!is.null(head$yaml$.error)) {
+      add("warning", paste("The YAML header at the top couldn't be read:", head$yaml$.error))
+    }
+    .ss$yaml <- head$yaml[names(head$yaml) != ".error"]
+    knitr::opts_knit$set(progress = FALSE, verbose = FALSE)
+    knitr::opts_chunk$set(error = FALSE, fig.path = "figure-", dev = "png", dpi = 144,
+                          fig.width = 7, fig.height = 5, comment = "##")
+    quitting <- NULL
+    started <- proc.time()[["elapsed"]]
+    setTimeLimit(elapsed = time_limit, transient = FALSE)
+    ok <- tryCatch(
+      withCallingHandlers(
+        { knitr::knit(input, output, envir = learner, quiet = TRUE, encoding = "UTF-8"); TRUE },
+        message = function(m) {
+          text <- trimws(conditionMessage(m))
+          if (grepl("^Quitting from", text)) quitting <<- sub("^Quitting from\\s*", "", text)
+          else if (nzchar(text)) add("message", text)
+          invokeRestart("muffleMessage")
+        }
+      ),
+      error = function(e) {
+        setTimeLimit()
+        if (is_timeout(e)) {
+          .ss$status <- "timeout"
+          add("error", sprintf("Knitting ran for more than %s seconds, so it was stopped.", format(time_limit)))
+        } else {
+          .ss$status <- "error"
+          where <- if (is.null(quitting)) "" else {
+            lines <- sub("^.*:(\\d+)-(\\d+).*$", "\\1-\\2", quitting)
+            parts <- strsplit(lines, "-", fixed = TRUE)[[1]]
+            if (length(parts) == 2 && parts[1] == parts[2]) sprintf(": line %s", parts[1])
+            else if (length(parts) == 2) sprintf(": lines %s–%s", parts[1], parts[2]) else ""
+          }
+          call <- call_text(e)
+          if (!is.null(call) && grepl("parse_only|eval\\(", call)) call <- NULL
+          add("error", sprintf("%s\nKnitting %s stopped here%s.", conditionMessage(e), name, where), call)
+        }
+        FALSE
+      }
+    )
+    setTimeLimit()
+    .ss$duration <- proc.time()[["elapsed"]] - started
+    grDevices::graphics.off()
+    if (!ok || !file.exists(output)) return(invisible(FALSE))
+
+    body <- split_front_matter(readLines(output, warn = FALSE, encoding = "UTF-8"))$body
+    # Figures become {{plot:N}} lines, in the order they appear.
+    image <- "^\\s*!\\[[^]]*\\]\\(([^)]+)\\)\\s*$"
+    plots <- character()
+    for (i in grep(image, body)) {
+      file <- sub(image, "\\1", body[i])
+      if (file.exists(file.path(out_dir, file)) && file.size(file.path(out_dir, file)) > 0) {
+        plots <- c(plots, file)
+        body[i] <- sprintf("{{plot:%d}}", length(plots))
+      }
+    }
+    while (length(body) && !nzchar(trimws(body[1]))) body <- body[-1]
+    .ss$plots <- plots
+    .ss$document <- paste(body, collapse = "\n")
+    n_chunks <- length(grep("^\\s*```+\\s*\\{r", strsplit(.ss$code, "\n", fixed = TRUE)[[1]]))
+    add("message", sprintf("Knitted %s: %d R chunk%s, %d figure%s. See the Report tab.", name,
+                           n_chunks, if (n_chunks == 1) "" else "s", length(plots), if (length(plots) == 1) "" else "s"))
+    invisible(TRUE)
   }
 
   run_checks <- function(check_code, learner) {
@@ -225,7 +334,7 @@ local({
         error = function(e) {
           .ss$checks[[length(.ss$checks) + 1L]] <- list(
             passed = FALSE, label = "A check couldn't run", internal = TRUE,
-            message = conditionMessage(e))
+            message = conditionMessage(e), step = .ss$step)
         }
       )
     }

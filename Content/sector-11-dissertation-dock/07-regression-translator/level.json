@@ -1,0 +1,53 @@
+{
+  "id": "dissertation-dock.regression-translator",
+  "title": "Regression Translator",
+  "summary": "SPSS Linear Regression output (Model Summary, ANOVA, Coefficients) → lm(), then the APA sentence, including what Sig. = .001 really means.",
+  "type": "spss_translate",
+  "xp": 130,
+  "par": 3,
+  "hints": [
+    "`fit <- lm(morale_score ~ sleep_hours, data = sm)` and `fit_summary <- summary(fit)`. R² is `fit_summary$r.squared`; F and its df are in `fit_summary$fstatistic`.",
+    "SPSS's Beta: `coef(fit)[[\"sleep_hours\"]] * sd(sm$sleep_hours) / sd(sm$morale_score)`. The p for F: `pf(F, df1, df2, lower.tail = FALSE)`.",
+    "`write_up <- sprintf(\"*F*(%s, %s) = %s, *p* %s, *R*² = %s, *b* = %s\", f[[\"numdf\"]], f[[\"dendf\"]], fmt_num(f[[\"value\"]]), fmt_p(p), fmt_bounded(fit_summary$r.squared), fmt_num(b))` with `f <- fit_summary$fstatistic`."
+  ],
+  "spss": {
+    "menu": ["Analyze", "Regression", "Linear…"],
+    "dialog": [
+      {"label": "Dependent", "value": "Morale composite [morale_score]"},
+      {"label": "Independent(s)", "value": "Hours of sleep [sleep_hours]"},
+      {"label": "Method", "value": "Enter"},
+      {"label": "Statistics…", "value": "Estimates; Model fit"}
+    ],
+    "syntax": "REGRESSION\n  /STATISTICS COEFF OUTS R ANOVA\n  /DEPENDENT morale_score\n  /METHOD=ENTER sleep_hours.",
+    "output": [
+      {
+        "title": "Model Summary",
+        "columns": ["Model", "R", "R Square", "Adjusted R Square", "Std. Error of the Estimate"],
+        "rows": [["1", ".489ᵃ", ".239", ".222", ".89260"]],
+        "footnotes": ["a. Predictors: (Constant), sleep_hours"]
+      },
+      {
+        "title": "ANOVAᵃ",
+        "columns": ["Model", "", "Sum of Squares", "df", "Mean Square", "F", "Sig."],
+        "row_header_columns": 2,
+        "rows": [
+          ["1", "Regression", "11.033", "1", "11.033", "13.847", ".001ᵇ"],
+          ["", "Residual", "35.057", "44", ".797", "", ""],
+          ["", "Total", "46.089", "45", "", "", ""]
+        ],
+        "footnotes": ["a. Dependent Variable: morale_score", "b. Predictors: (Constant), sleep_hours"]
+      },
+      {
+        "title": "Coefficientsᵃ",
+        "groups": [{"text": "", "span": 2}, {"text": "Unstandardized Coefficients", "span": 2}, {"text": "Standardized Coefficients", "span": 1}, {"text": "", "span": 2}],
+        "columns": ["Model", "", "B", "Std. Error", "Beta", "t", "Sig."],
+        "row_header_columns": 2,
+        "rows": [
+          ["1", "(Constant)", "-1.852", "1.330", "", "-1.393", ".171"],
+          ["", "sleep_hours", ".700", ".188", ".489", "3.721", ".001"]
+        ],
+        "footnotes": ["a. Dependent Variable: morale_score"]
+      }
+    ]
+  }
+}

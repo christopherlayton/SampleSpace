@@ -9,6 +9,11 @@
 #                  which must run, and (unless "match_output": false) R's printed output must
 #                  match the right choice and no other choice. ("run": false shows code without
 #                  running it.)
+# Boss levels:     a "steps" list (two or more, each with a title); check.R marks each group
+#                  of checks with step(n); every step must have checks and the solution passes
+#                  them all. The starter must fail step 1 or later.
+# Documents:       a level with "document": "report.qmd" keeps starter.qmd and solution.qmd
+#                  instead of starter.R and solution.R; they are knitted, not run line by line.
 # SPSS Translate:  an "spss" object with a menu path and output tables whose rows have as
 #                  many cells as there are columns.
 # Review cards:    a sector's optional review.json (Review Nebula, see Models/Review.swift):
@@ -55,7 +60,7 @@ run_job <- function(level_dir, code, checks, meta) {
   on.exit(unlink(out, recursive = TRUE))
   setup_path <- file.path(level_dir, "setup.R")
   job <- list(code = code, checks = checks, output_dir = out, data_dir = level_dir,
-              time_limit = meta$time_limit %||% 10, seed = meta$seed,
+              time_limit = meta$time_limit %||% 10, seed = meta$seed, document = meta$document,
               setup = if (file.exists(setup_path)) read_text(setup_path) else NULL)
   job <- job[!vapply(job, is.null, TRUE)]
   job_path <- file.path(out, "job.json")
@@ -162,6 +167,19 @@ check_spss <- function(spss, where) {
       problem(where, sprintf("SPSS table \"%s\": header groups must span %d columns", t$title %||% "?", n))
     }
   }
+}
+
+check_boss <- function(raw, solution, where) {
+  steps <- raw$steps
+  if (!is.list(steps) || length(steps) < 2) return(problem(where, "a boss level needs a \"steps\" list with at least two steps"))
+  for (i in seq_along(steps)) if (!nzchar(steps[[i]]$title %||% "")) problem(where, sprintf("step %d has no title", i))
+  got <- vapply(solution$checks, function(c) if (is.null(c$step)) NA_integer_ else as.integer(c$step), 1L)
+  if (anyNA(got)) problem(where, "every boss check needs a step: call step(n) in check.R before its checks")
+  missing <- setdiff(seq_along(steps), got)
+  if (length(missing)) problem(where, sprintf("no checks for step %s", paste(missing, collapse = ", ")))
+  extra <- setdiff(got[!is.na(got)], seq_along(steps))
+  if (length(extra)) problem(where, sprintf("check.R uses step %s but level.json has %d steps", paste(extra, collapse = ", "), length(steps)))
+  if (is.unsorted(got[!is.na(got)])) problem(where, "boss checks should come in step order")
 }
 
 sector_dirs <- sort(list.dirs(content_dir, recursive = FALSE))
@@ -278,7 +296,9 @@ for (sector_dir in sector_dirs) {
       next
     }
 
-    missing_files <- level_files[!file.exists(file.path(level_dir, level_files))]
+    wanted <- level_files
+    if (!is.null(meta$document)) wanted <- sub("^(starter|solution)\\.R$", "\\1.qmd", wanted)
+    missing_files <- wanted[!file.exists(file.path(level_dir, wanted))]
     if (length(missing_files)) {
       problem(where, paste("missing files:", paste(missing_files, collapse = ", ")))
       next
@@ -290,7 +310,9 @@ for (sector_dir in sector_dirs) {
       next
     }
 
-    solution <- run_job(level_dir, read_text(file.path(level_dir, "solution.R")), checks, meta)
+    ext <- if (is.null(meta$document)) "R" else "qmd"
+    if (!is.null(meta$document) && !grepl("\\.(qmd|Rmd)$", meta$document)) problem(where, "document must be a .qmd or .Rmd file name")
+    solution <- run_job(level_dir, read_text(file.path(level_dir, paste0("solution.", ext))), checks, meta)
     if (!isTRUE(solution$passed) || any(vapply(solution$checks, function(c) isTRUE(c$internal), TRUE))) {
       problem(where, sprintf("solution.R doesn't pass its checks (status: %s)\n%s",
                              solution$status, describe_failure(solution)))
@@ -298,8 +320,9 @@ for (sector_dir in sector_dirs) {
       problem(where, "check.R ran but recorded no checks")
     }
 
-    starter <- run_job(level_dir, read_text(file.path(level_dir, "starter.R")), checks, meta)
-    if (isTRUE(starter$passed)) problem(where, "starter.R already passes the checks")
+    if (identical(meta$type, "boss")) check_boss(raw, solution, where)
+    starter <- run_job(level_dir, read_text(file.path(level_dir, paste0("starter.", ext))), checks, meta)
+    if (isTRUE(starter$passed)) problem(where, sprintf("starter.%s already passes the checks", ext))
 
     if (length(problems) == problems_before) {
       cat(sprintf("  ✓ solution passes %d checks; starter doesn't pass\n", length(solution$checks)))

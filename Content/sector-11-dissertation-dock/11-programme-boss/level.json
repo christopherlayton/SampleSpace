@@ -1,0 +1,24 @@
+{
+  "id": "dissertation-dock.programme-boss",
+  "title": "Which Programme Lasted?",
+  "summary": "Boss: a three-group study, start to finish: change scores, describe, assumptions, one-way ANOVA with η², Tukey post hoc tests, a plot and the APA write-up.",
+  "type": "boss",
+  "xp": 300,
+  "par": 8,
+  "time_limit": 20,
+  "steps": [
+    {"title": "Import", "summary": "Read pd_study.csv into `pd` with `programme` as a factor (Workshop, Coaching, Online) and the change score `gain`."},
+    {"title": "Describe", "summary": "`group_stats`: n, M and SD of gain per programme."},
+    {"title": "Assumptions", "summary": "Levene's test (SPSS-style) in `levene`; fit the ANOVA in `fit` and test its residuals in `residual_check`."},
+    {"title": "ANOVA", "summary": "The ANOVA table in `anova_table` and η² in `eta2`."},
+    {"title": "Post hoc", "summary": "Tukey's HSD in `tukey`."},
+    {"title": "Plot", "summary": "`fig`: gain by programme, with readable axis labels."},
+    {"title": "Write it up", "summary": "Your `decision` at α = .05 and the APA sentence in `write_up`."}
+  ],
+  "hints": [
+    "Import: `read_csv(\"pd_study.csv\", show_col_types = FALSE) |> mutate(programme = factor(programme, levels = c(\"Workshop\", \"Coaching\", \"Online\")), gain = efficacy_t3 - efficacy_t1)`.",
+    "Assumptions: `leveneTest(gain ~ programme, data = pd, center = mean)`, `fit <- aov(gain ~ programme, data = pd)` and `shapiro.test(residuals(fit))`.",
+    "ANOVA: `summary(fit)[[1]]` and `eta_squared(fit)`. Post hoc: `TukeyHSD(fit)`.",
+    "Write-up: the F row is `anova_table[1, ]`: `sprintf(\"*F*(%d, %d) = %s, *p* %s, η² = %s\", a$Df[1], a$Df[2], fmt_num(a$\"F value\"[1]), fmt_p(a$\"Pr(>F)\"[1]), fmt_bounded(eta2$Eta2))`."
+  ]
+}

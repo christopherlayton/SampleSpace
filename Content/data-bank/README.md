@@ -25,7 +25,8 @@ civilian, selection programme, mission year and title, mission hours and spacewa
   Spread Scanner, Standard Candles, The Long Tail); Plot Nebula (all code levels except Error
   Bars); Probability Expanse (Sampling Machine lab, Jammed Simulator, Crew Lottery); Inference
   Station (Shuffle Test); Means Cluster (Military or Civilian?); Variance Rift (Ages Across
-  Decades); Relationship Ring (Crew Crosstab, Crew Connections).
+  Decades); Relationship Ring (Crew Crosstab, Crew Connections); Dissertation Dock (First
+  Report, APA Table, Broken Report, Dissertation Dry Run) and the Workbench's starting copy.
 - **Known quirks** (taught, not fixed): nationality typos "Hungry", "Malysia", "Netherland";
   occupations in mixed capitals; ID (`number`) 385 is shared by two people (Baturin and Duque),
   so counting IDs gives 564 where there are 565 people; six missions have 0 hours.

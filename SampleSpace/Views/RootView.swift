@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum Destination: String, CaseIterable, Identifiable {
-    case map, labs, review, profile
+    case map, labs, workbench, review, profile
 
     var id: Self { self }
 
@@ -9,6 +9,7 @@ enum Destination: String, CaseIterable, Identifiable {
         switch self {
         case .map: "Star Map"
         case .labs: "Lab Bay"
+        case .workbench: "Workbench"
         case .review: "Review Nebula"
         case .profile: "Pilot Profile"
         }
@@ -18,6 +19,7 @@ enum Destination: String, CaseIterable, Identifiable {
         switch self {
         case .map: "map"
         case .labs: "flask"
+        case .workbench: "hammer"
         case .review: "sparkles"
         case .profile: "person.crop.circle"
         }
@@ -27,6 +29,9 @@ enum Destination: String, CaseIterable, Identifiable {
 struct RootView: View {
     @State private var destination: Destination? = .map
     @State private var model = GameModel()
+    /// The Workbench pushes nothing, but a path-bound stack keeps SwiftUI happy when the
+    /// detail column switches between stacks.
+    @State private var workbenchPath: [String] = []
 
     var body: some View {
         NavigationSplitView {
@@ -52,6 +57,8 @@ struct RootView: View {
                 }
             case .labs:
                 LabBayView()
+            case .workbench:
+                NavigationStack(path: $workbenchPath) { WorkbenchView() }
             case .review:
                 ReviewView()
             case .profile:

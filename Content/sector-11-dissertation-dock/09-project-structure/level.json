@@ -1,0 +1,68 @@
+{
+  "id": "dissertation-dock.project-structure",
+  "title": "Shipshape Projects",
+  "summary": "Folders, raw data kept untouched, relative paths, seeds, and renv to freeze package versions: the project around a reproducible report.",
+  "type": "briefing",
+  "xp": 60,
+  "hints": [
+    "Raw data are read, never edited: every change to them is code, so it can be checked and redone.",
+    "A path like `data/raw/survey.sav` works on any computer that has the project folder; `C:/Users/me/Desktop/survey.sav` works on one.",
+    "`renv::snapshot()` writes the exact package versions to `renv.lock`; `renv::restore()` installs them again elsewhere."
+  ],
+  "quiz": [
+    {
+      "prompt": "Your SPSS file has a typo in one participant's age. Where should the fix live?",
+      "choices": [
+        "Edit the .sav file and save over it",
+        "In the cleaning code, e.g. `mutate(age = if_else(id == 17, 21, age))`, with a comment saying why",
+        "Fix the number in the results chapter by hand",
+        "Delete the participant"
+      ],
+      "answer": 1,
+      "explain": "Raw data stay exactly as collected. A fix in code is recorded, can be reviewed, and is reapplied every time the report is rendered."
+    },
+    {
+      "prompt": "Which line will still work when your advisor runs the project on their computer?",
+      "choices": [
+        "`read_sav(\"/Users/cadet/Desktop/thesis/survey.sav\")`",
+        "`read_sav(\"data/raw/survey.sav\")`",
+        "`setwd(\"/Users/cadet/Desktop/thesis\")`",
+        "`read_sav(file.choose())`"
+      ],
+      "answer": 1,
+      "explain": "A path relative to the project folder works wherever the folder is. Absolute paths and `setwd()` tie the code to one machine; `file.choose()` needs someone to click."
+    },
+    {
+      "prompt": "What does `renv` record?",
+      "code": "renv::init()      # once, in a new project\nrenv::snapshot()  # after installing or updating packages\nrenv::restore()   # on another computer, or years later",
+      "run": false,
+      "choices": [
+        "Your data, so it can't change",
+        "The exact version of every package the project uses, in renv.lock",
+        "Every command you've run",
+        "Your R code, as a backup"
+      ],
+      "answer": 1,
+      "explain": "Packages change: a function's default can differ between versions (effectsize 1.0 changed how Cramér's V is adjusted). `renv.lock` lets anyone reinstall exactly the versions your results came from."
+    },
+    {
+      "prompt": "A bootstrap CI changes a little every time you render the report. What fixes that?",
+      "choices": [
+        "`set.seed(2026)` before the random code",
+        "Rounding to fewer decimals",
+        "Running it until you like the result",
+        "Turning off the bootstrap"
+      ],
+      "answer": 0,
+      "explain": "A seed makes random numbers repeatable, so the report gives the same numbers every time. Report the seed in your methods."
+    },
+    {
+      "prompt": "Which project layout keeps raw data, code and output apart?",
+      "code": "thesis/\n  thesis.Rproj\n  renv.lock\n  data/raw/survey.sav\n  data/clean/\n  R/01-clean.R\n  R/02-analyse.R\n  chapter-4.qmd\n  output/figures/",
+      "run": false,
+      "choices": ["This one", "Everything in one folder on the Desktop", "One folder per analysis date", "A folder per SPSS output file"],
+      "answer": 0,
+      "explain": "Raw data in one place (read-only), code in numbered scripts, the report in a .qmd, and output that can be deleted and rebuilt. An RStudio/Positron project file sets the working folder for you."
+    }
+  ]
+}

@@ -18,7 +18,7 @@ actor REngine {
     /// Extra time R gets to start up and write its result before the process is killed.
     static let killGrace: Double = 3
 
-    let rscriptURL: URL
+    nonisolated let rscriptURL: URL
     let runnerURL: URL
     private let scratchRoot: URL
 
@@ -94,7 +94,8 @@ actor REngine {
         }
         let plots = file.plots.compactMap { try? Data(contentsOf: runDir.appending(path: $0)) }
         return RRunResult(status: file.status, console: file.console, plots: plots,
-                          checks: file.checks, passed: file.passed, duration: file.duration)
+                          checks: file.checks, passed: file.passed, duration: file.duration,
+                          document: file.document, documentTitle: file.title)
     }
 
     private static func killedResult(job: RJob) -> RRunResult {
@@ -126,6 +127,7 @@ private struct JobFile: Encodable {
     let dataDir: String?
     let width: Int
     let outputDir: String
+    let document: String?
 
     init(job: RJob, outputDir: String) {
         code = job.code
@@ -136,10 +138,11 @@ private struct JobFile: Encodable {
         dataDir = job.dataDirectory?.path
         width = job.consoleWidth
         self.outputDir = outputDir
+        document = job.document
     }
 
     enum CodingKeys: String, CodingKey {
-        case code, checks, setup, seed, width
+        case code, checks, setup, seed, width, document
         case timeLimit = "time_limit"
         case dataDir = "data_dir"
         case outputDir = "output_dir"
@@ -153,6 +156,8 @@ private struct ResultFile: Decodable {
     let checks: [CheckResult]
     let passed: Bool
     let duration: Double
+    let document: String?
+    let title: String?
 }
 
 // MARK: - Watchdog

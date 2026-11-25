@@ -181,3 +181,97 @@ extension RSyntax {
         return result
     }
 }
+
+// MARK: - Quarto documents
+
+extension RSyntax {
+    /// Tokens for a Quarto / R Markdown document: the YAML header and chunk fences are dimmed
+    /// like comments, headings stand out, and R is coloured only inside chunks and inline
+    /// `` `r ...` `` code, so apostrophes in the prose don't start "strings".
+    static func documentTokens(in text: String) -> [Token] {
+        let ns = text as NSString
+        var tokens: [Token] = []
+        var location = 0
+        var lineIndex = 0
+        var inYAML = false
+        var inChunk = false
+        var chunkStart = 0
+
+        func addR(_ range: NSRange) {
+            guard range.length > 0 else { return }
+            for t in RSyntax.tokens(in: ns.substring(with: range)) {
+                tokens.append(Token(kind: t.kind, range: NSRange(location: t.range.location + range.location,
+                                                                 length: t.range.length)))
+            }
+        }
+
+        while location < ns.length {
+            let lineRange = ns.lineRange(for: NSRange(location: location, length: 0))
+            let line = ns.substring(with: lineRange)
+            let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            let contentRange = NSRange(location: lineRange.location,
+                                       length: (line.trimmingCharacters(in: .newlines) as NSString).length)
+            defer {
+                location = NSMaxRange(lineRange)
+                lineIndex += 1
+            }
+
+            if lineIndex == 0, trimmed == "---" {
+                inYAML = true
+                tokens.append(Token(kind: .comment, range: contentRange))
+                continue
+            }
+            if inYAML {
+                tokens.append(Token(kind: .comment, range: contentRange))
+                if trimmed == "---" || trimmed == "..." { inYAML = false }
+                continue
+            }
+            if inChunk {
+                if trimmed.hasPrefix("```"), trimmed.allSatisfy({ $0 == "`" }) {
+                    addR(NSRange(location: chunkStart, length: lineRange.location - chunkStart))
+                    tokens.append(Token(kind: .comment, range: contentRange))
+                    inChunk = false
+                }
+                continue
+            }
+            if trimmed.hasPrefix("```") {
+                tokens.append(Token(kind: .comment, range: contentRange))
+                if trimmed.dropFirst(3).trimmingCharacters(in: .init(charactersIn: "` ")).lowercased().hasPrefix("{r") {
+                    inChunk = true
+                    chunkStart = NSMaxRange(lineRange)
+                }
+                continue
+            }
+            if trimmed.hasPrefix("#") {
+                tokens.append(Token(kind: .keyword, range: contentRange))
+                continue
+            }
+            // Inline R: `r expression`
+            var search = NSRange(location: contentRange.location, length: contentRange.length)
+            while search.length > 0 {
+                let open = ns.range(of: "`r ", options: [], range: search)
+                guard open.location != NSNotFound else { break }
+                let afterOpen = NSMaxRange(open)
+                let rest = NSRange(location: afterOpen, length: NSMaxRange(contentRange) - afterOpen)
+                let close = ns.range(of: "`", options: [], range: rest)
+                guard close.location != NSNotFound else { break }
+                tokens.append(Token(kind: .function, range: NSRange(location: open.location, length: 2)))
+                addR(NSRange(location: afterOpen, length: close.location - afterOpen))
+                search = NSRange(location: NSMaxRange(close), length: NSMaxRange(contentRange) - NSMaxRange(close))
+            }
+        }
+        if inChunk { addR(NSRange(location: chunkStart, length: ns.length - chunkStart)) }
+        return tokens
+    }
+
+    /// Read-only highlighted Quarto source for lesson code blocks.
+    static func attributedDocument(_ text: String) -> AttributedString {
+        var result = AttributedString(text)
+        result.foregroundColor = Theme.codeText
+        for token in documentTokens(in: text) {
+            guard let range = Range(token.range, in: result) else { continue }
+            result[range].foregroundColor = token.kind.color
+        }
+        return result
+    }
+}

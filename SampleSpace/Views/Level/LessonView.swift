@@ -80,7 +80,7 @@ struct LessonView: View {
             Text("Read it, then type it yourself rather than copying. Typing it is how it sticks.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
-            CodeBlock(code: level.solutionCode)
+            CodeBlock(code: level.solutionCode, isDocument: level.isDocument)
         }
     }
 }
@@ -130,8 +130,8 @@ struct MarkdownView: View {
         case .paragraph(let text):
             Text(AttributedString.inlineMarkdown(text))
                 .fixedSize(horizontal: false, vertical: true)
-        case .code(let code, _):
-            CodeBlock(code: code)
+        case .code(let code, let language):
+            CodeBlock(code: code, isDocument: ["qmd", "quarto", "markdown", "md", "rmd"].contains(language?.lowercased() ?? ""))
         case .bullets(let items):
             list(items) { _ in Text("•") }
         case .numbered(let items):
@@ -192,9 +192,11 @@ struct MarkdownView: View {
 /// A read-only, highlighted R code block.
 struct CodeBlock: View {
     let code: String
+    /// Highlight as a Quarto document rather than R.
+    var isDocument = false
 
     var body: some View {
-        Text(RSyntax.attributed(code))
+        Text(isDocument ? RSyntax.attributedDocument(code) : RSyntax.attributed(code))
             .font(Theme.codeFont)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)

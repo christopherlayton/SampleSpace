@@ -1,0 +1,56 @@
+{
+  "id": "dissertation-dock.rounding-forecast",
+  "title": "Rounding Forecast",
+  "summary": "Predict how R rounds and formats numbers, and why APA write-ups use formatC() rather than round().",
+  "type": "predict",
+  "xp": 70,
+  "hints": [
+    "`round()` returns a number, and R prints numbers without trailing zeros. `formatC(..., format = \"f\")` returns text with exactly the digits you ask for.",
+    "R rounds a 5 to the even digit (IEC 60559), so `round(2.5)` and `round(1.5)` both give 2.",
+    "`sub(\"^0\", \"\", x)` deletes a 0 only at the very start of the text."
+  ],
+  "quiz": [
+    {
+      "prompt": "What does R print?",
+      "code": "round(2.5)",
+      "choices": ["[1] 3", "[1] 2", "[1] 2.5"],
+      "answer": 1,
+      "explain": "R rounds halves to the even digit, the IEC 60559 standard. It rarely matters in a report, but now it won't surprise you."
+    },
+    {
+      "prompt": "A mean of 3.10 should be reported as 3.10. What does `round()` give?",
+      "code": "round(3.10, 2)",
+      "choices": ["[1] 3.10", "[1] 3.1", "[1] 3"],
+      "answer": 1,
+      "explain": "`round()` returns a number, and numbers print without trailing zeros. APA wants two decimals shown, so `round()` alone isn't enough for a write-up."
+    },
+    {
+      "prompt": "And this?",
+      "code": "formatC(3.1, format = \"f\", digits = 2)",
+      "choices": ["[1] \"3.10\"", "[1] 3.10", "[1] \"3.1\""],
+      "answer": 0,
+      "explain": "`formatC(format = \"f\")` returns text with exactly `digits` decimals, trailing zeros kept. That's the one for reports."
+    },
+    {
+      "prompt": "A p-value or a correlation can't be bigger than 1, so APA drops the leading zero. What does this give?",
+      "code": "sub(\"^0\", \"\", formatC(0.0456, format = \"f\", digits = 3))",
+      "choices": ["[1] \".046\"", "[1] \"0.046\"", "[1] \".0456\""],
+      "answer": 0,
+      "explain": "`formatC()` makes \"0.046\" and `sub(\"^0\", \"\", ...)` removes the 0 at the start. (A negative r needs `sub(\"^(-?)0\", \"\\\\1\", x)` to keep its minus sign.)"
+    },
+    {
+      "prompt": "What does this print?",
+      "code": "format(1277, big.mark = \",\")",
+      "choices": ["[1] 1277", "[1] \"1,277\"", "[1] \"1.277\""],
+      "answer": 1,
+      "explain": "`big.mark` adds a thousands separator; APA uses commas in numbers of 1,000 or more."
+    },
+    {
+      "prompt": "SPSS shows Sig. = .000. What does this code give for p = .00002?",
+      "code": "p <- 0.00002\nif (p < .001) \"p < .001\" else sprintf(\"p = %.3f\", p)",
+      "choices": ["[1] \"p = 0.000\"", "[1] \"p < .001\"", "[1] \"p = .000\""],
+      "answer": 1,
+      "explain": "A p-value is never exactly 0. APA reports anything below .001 as *p* < .001, so a formatter needs that special case."
+    }
+  ]
+}

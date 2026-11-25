@@ -1,0 +1,20 @@
+---
+title: "Crew Log Report"
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+crew <- read_csv("astronauts.csv", show_col_types = FALSE)
+```
+
+## Age at first flight
+
+```{r}
+#| label: tbl-age
+age_table <- crew
+
+age_table
+```
